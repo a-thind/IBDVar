@@ -1,0 +1,35 @@
+./s02_bcfstats.sh
+Tue May 17 17:04:07 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+VCF file: /home/share/data/s00_source_data/IHCAPX8/s01_short_variants/IHCAPX8_dragen_joint.hard-filtered.vcf.gz
+Data folder: /home/share/data/s01_short_vcf_check/
+
+Indexing VCF file...
+
+Variant Counts
+-----------------
+Number of samples: 3
+Number of SNPs:    6255182
+Number of INDELs:  1363927
+Number of MNPs:    0
+Number of others:  0
+Number of sites:   7597709
+
+Calculating BCF stats...
+
+Generating BCF stats plots...
+Parsing bcftools stats output: /home/share/data/s01_short_vcf_check//bcfstats/IHCAPX8_dragen_joint.hard-filtered.vcf.gz.vchk
+Plotting graphs: python3 plot.py
+Creating PDF: pdflatex summary.tex >plot-vcfstats.log 2>&1
+Finished: /home/share/data/s01_short_vcf_check//bcfstats/summary.pdf
+
+Done.
+Tue May 17 17:05:26 UTC 2022
+
