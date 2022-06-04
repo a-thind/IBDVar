@@ -40,7 +40,7 @@ bcftools index "${VCF}" -s | awk '{print $1}' | head -n 25 > vcf_chr.txt
 
 echo "Creating translation table for chromosomes..."
 # combine chromosome names for translation table text file
-paste -d"\t" clinvar_chr.txt vcf_chr.txt > s02_clinvar_chr_translate.txt
+paste -d"\t" clinvar_chr.txt vcf_chr.txt > s02_clinvar_chr_map.txt
 echo "Chromosome translation table created."
 # clean up contig names files
 rm clinvar_chr.txt vcf_chr.txt
