@@ -1,0 +1,30 @@
+./s02_check_clinvar_vcf.sh
+Sat Jun  4 16:57:18 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Sat Jun  4 16:57:18 UTC 2022
+
+Input VCF: /home/share/data/s04_annotate/IHCAPX8_dragen_joint.ID.vcf.gz
+ClinVar VCF: /home/share/resources/clinvar/clinvar_20220507.vcf.gz
+
+Indexing ClinVar VCF...
+Checking ClinVar VCF...
+Creating translation table for chromosomes...
+Chromosome translation table created.
+
+Reference in VCF data:
+
+##reference=file:///data/scratch/hg38-altaware-cnv-anchor.v8/reference.bin
+
+Reference in ClinVar:
+
+##reference=GRCh38
+
+Done.
+Sat Jun  4 16:57:20 UTC 2022
+
