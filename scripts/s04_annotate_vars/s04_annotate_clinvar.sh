@@ -57,7 +57,7 @@ echo ""
 bcftools view -h "${annot_VCF}" | grep "^##INFO"
 echo ""
 
-echo "Number of variants with AlleleIDs: "
+echo "Number of variants with ClinVar AlleleIDs: "
 bcftools query "${annot_VCF}" \
    -i 'ALLELEID != "."' \
    -f '%ID\tALLELEID\t%CLNSIG\t%CLNDN\n' | wc -l
