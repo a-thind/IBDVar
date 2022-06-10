@@ -1,0 +1,323 @@
+./s06_select_haploblocks_tuffle.sh
+Fri Jun 10 22:01:46 UTC 2022
+
+Detecting haploblocks using truffle...
+
+Input VCF file (annotated with ClinVar): /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
+Output folder: /home/share/data/s07_select_haploblocks/truffle
+
+
+     _               __  __ _       
+    | |             / _|/ _| |      
+    | |_ _ __ _   _| |_| |_| | ___  
+    | __| '__| | | |  _|  _| |/ _ \ 
+    | |_| |  | |_| | | | | | |  __/ 
+     \__|_|   \__,_|_| |_| |_|\___| 
+        
+         - TRUFFLE v1.38 -    
+
+
+
+***
+*** Non-commerical and educational use license.
+***
+
+
+[*]  Options in effect: 
+      -   Input file: /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
+      -   Number of CPUs: 4
+
+      -   Reporting threshold: all pairs
+
+      -   Segment reporting: YES
+
+      -   Input file name: /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
+      -   Opening output file /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_vcf_truffle.ibd  
+      -   Opening output file /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_vcf_truffle.segments  
+      -   Number of samples: 3
+
+      -   Allocation genotype vector  npeople=19 nvars=200000
+      -   GenotypeMatrix: allocating 3 MB of memory
+      -   Excluding variants with missing rate > 0.020 (0 samples)
+
+      -   Excluding variants with allele frequency  < 0.060
+
+      -   Reading chromosome chr1 (pos=0)
+      -   Allocation genotype vector  npeople=19 nvars=400000
+      -   GenotypeMatrix: allocating 7 MB of memory
+      -   Allocation genotype vector  npeople=19 nvars=800000
+      -   GenotypeMatrix: allocating 14 MB of memory
+      -   Reading chromosome chr2 (pos=487717)
+      -   Allocation genotype vector  npeople=19 nvars=1600000
+      -   GenotypeMatrix: allocating 28 MB of memory
+      -          944324 variants read -      807149 variants kept -     311 MB - speed:    281.19 MB/sec 
+      -   Reading chromosome chr3 (pos=1011036)
+      -   Reading chromosome chr4 (pos=1449161)
+      -   Allocation genotype vector  npeople=19 nvars=3200000
+      -   GenotypeMatrix: allocating 57 MB of memory
+      -         1900657 variants read -     1636241 variants kept -     624 MB - speed:    286.42 MB/sec 
+      -   Reading chromosome chr5 (pos=1902801)
+      -   Reading chromosome chr6 (pos=2302261)
+      -         2858808 variants read -     2479638 variants kept -     936 MB - speed:    296.14 MB/sec 
+      -   Reading chromosome chr7 (pos=2717285)
+      -   Reading chromosome chr8 (pos=3084568)
+      -   Allocation genotype vector  npeople=19 nvars=6400000
+      -   GenotypeMatrix: allocating 115 MB of memory
+      -         3815313 variants read -     3320399 variants kept -    1249 MB - speed:    300.70 MB/sec 
+      -   Reading chromosome chr9 (pos=3417048)
+      -   Reading chromosome chr10 (pos=3702610)
+      -   Reading chromosome chr11 (pos=4016166)
+      -         4765719 variants read -     4138141 variants kept -    1561 MB - speed:    308.47 MB/sec 
+      -   Reading chromosome chr12 (pos=4326147)
+      -   Reading chromosome chr13 (pos=4632581)
+      -   Reading chromosome chr14 (pos=4870703)
+      -         5716711 variants read -     4943724 variants kept -    1874 MB - speed:    311.12 MB/sec 
+      -   Reading chromosome chr15 (pos=5060365)
+      -   Reading chromosome chr16 (pos=5249337)
+      -   Reading chromosome chr17 (pos=5442432)
+      -   Reading chromosome chr18 (pos=5633893)
+      -         6662685 variants read -     5756475 variants kept -    2186 MB - speed:    315.47 MB/sec 
+      -   Reading chromosome chr19 (pos=5811431)
+      -   Reading chromosome chr20 (pos=5967370)
+      -   Reading chromosome chr21 (pos=6134546)
+      -   Reading chromosome chr22 (pos=6236184)
+      -   Reading chromosome chrX (pos=6346186)
+      -   Allocation genotype vector  npeople=19 nvars=12800000
+      -   GenotypeMatrix: allocating 231 MB of memory
+      -   Reading chromosome chrY (pos=6514882)
+      -   Chromosome  chr1    Markers   487717    Cumulative   487717
+      -   Chromosome  chr2    Markers   523319    Cumulative  1011036
+      -   Chromosome  chr3    Markers   438125    Cumulative  1449161
+      -   Chromosome  chr4    Markers   453640    Cumulative  1902801
+      -   Chromosome  chr5    Markers   399460    Cumulative  2302261
+      -   Chromosome  chr6    Markers   415024    Cumulative  2717285
+      -   Chromosome  chr7    Markers   367283    Cumulative  3084568
+      -   Chromosome  chr8    Markers   332480    Cumulative  3417048
+      -   Chromosome  chr9    Markers   285562    Cumulative  3702610
+      -   Chromosome chr10    Markers   313556    Cumulative  4016166
+      -   Chromosome chr11    Markers   309981    Cumulative  4326147
+      -   Chromosome chr12    Markers   306434    Cumulative  4632581
+      -   Chromosome chr13    Markers   238122    Cumulative  4870703
+      -   Chromosome chr14    Markers   189662    Cumulative  5060365
+      -   Chromosome chr15    Markers   188972    Cumulative  5249337
+      -   Chromosome chr16    Markers   193095    Cumulative  5442432
+      -   Chromosome chr17    Markers   191461    Cumulative  5633893
+      -   Chromosome chr18    Markers   177538    Cumulative  5811431
+      -   Chromosome chr19    Markers   155939    Cumulative  5967370
+      -   Chromosome chr20    Markers   167176    Cumulative  6134546
+      -   Chromosome chr21    Markers   101638    Cumulative  6236184
+      -   Chromosome chr22    Markers   110002    Cumulative  6346186
+      -   Chromosome  chrX    Markers   168696    Cumulative  6514882
+      -   Chromosome  chrY    Markers     5159    Cumulative  6520041
+
+[*]  Finished reading input files:  7943.44 ms 
+
+      -   Expected IBS for unrelated pairs: p.IBS0 = 0.0751  p.IBS1 = 0.4515  p.IBS2 = 0.4733
+      -   X-chromosome: pIBS2(X/X) = 0.6239 pIBS2(X/XX) = 0.1880   Mean MAF = 0.2843
+      -   (ibs_est)   480 p=0.924856 perr=0.000000
+      -   (ibs_est)    51 p=0.473318 perr=0.000000
+      -   (ibs_est)  X_X    39 p=0.376057 perr=0.000000
+      -   (ibs_est)  X_X   180 p=0.811972 perr=0.000000
+      -   (ibs_est) Thresholds for defining regions as IBD1 = 480, IBD2 = 51
+      -   (ibs_est) Inflation at edges IBS1 = 24.6, IBS2 = 2.2
+      -   Genome size: 2947475.236 kb
+      -   gs_threshold=24211.184044
+      -   (ibs_est) Adjust segment size to 24211 markers (from 480)
+      -   IBS1 threshold : 0.06 % of genome  (4000 markers) 
+      -   IBS2 threshold : 0.02 % of genome  (1000 markers) 
+
+
+
+[*]  Starting IBD segment analysis
+
+[*]  Estimated heterozygosity rate = 0.37637 
+
+      -   Allocation genotype vector transposed npeople=4 nvars=6520042
+      -   GenotypeMatrixTransposed: allocating 24 MB of memory
+
+[*]  Reading sex information file: (null)
+      -   No sex file specified
+      -   Warning: Sample IHCAPX8-1 has no available sex information.
+      -   Warning: Sample IHCAPX8-2 has no available sex information.
+      -   Warning: Sample IHCAPX8-3 has no available sex information.
+
+
+[*]  Genotype pre-processing duration:  8325.66 ms 
+
+ -  Compute IBD by IBS: (cpu=4/4) Nind = 3 Nvar = 6520042
+ -  Compute IBD by IBS: (cpu=1/4) Nind = 3 Nvar = 6520042
+ -  Compute IBD by IBS: (cpu=2/4) Nind = 3 Nvar = 6520042
+ -  Compute IBD by IBS: (cpu=3/4) Nind = 3 Nvar = 6520042
+
+[*] Finished processing 
+
+      -   Total time for analysis was 0.14 minutes (8.3 seconds)
+
+
+Number of IBD segments identified:
+11
+
+Input bim file: /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.bim
+Output folder: /home/share/data/s07_select_haploblocks/truffle
+
+PLINK v2.00a3.3LM 64-bit Intel (3 Jun 2022)    www.cog-genomics.org/plink/2.0/
+(C) 2005-2022 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.log.
+Options in effect:
+  --bfile /home/share/data/s07_select_haploblocks/IHCAPX8_ibis
+  --export vcf bgz
+  --out /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle
+
+Start time: Fri Jun 10 22:01:54 2022
+7859 MiB RAM detected; reserving 3929 MiB for main workspace.
+Using up to 4 compute threads.
+3 samples (0 females, 0 males, 3 ambiguous; 3 founders) loaded from
+/home/share/data/s07_select_haploblocks/IHCAPX8_ibis.fam.
+5761478 variants loaded from
+/home/share/data/s07_select_haploblocks/IHCAPX8_ibis.bim.
+Note: No phenotype data present.
+--export vcf bgz to
+/home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.vcf.gz ...
+0%0%1%1%2%2%3%3%4%4%5%5%6%6%7%7%8%8%9%9%10%10%11%11%12%12%13%13%14%14%15%15%16%16%17%17%18%18%19%19%20%20%21%21%22%22%23%23%24%24%25%25%26%26%27%27%28%28%29%29%30%30%31%31%32%32%33%33%34%34%35%35%36%36%37%37%38%38%39%39%40%40%41%41%42%42%43%43%44%44%45%45%46%46%47%47%48%48%49%50%50%51%51%52%52%53%53%54%54%55%55%56%56%57%57%58%58%59%59%60%60%61%61%62%62%63%63%64%64%65%65%66%66%67%67%68%68%69%69%70%70%71%71%72%72%73%73%74%74%75%75%76%76%77%77%78%78%79%79%80%80%81%81%82%82%83%83%84%84%85%85%86%86%87%87%88%88%89%89%90%90%91%91%92%92%93%93%94%94%95%95%96%96%97%97%98%98%99%done.
+End time: Fri Jun 10 22:01:56 2022
+
+     _               __  __ _       
+    | |             / _|/ _| |      
+    | |_ _ __ _   _| |_| |_| | ___  
+    | __| '__| | | |  _|  _| |/ _ \ 
+    | |_| |  | |_| | | | | | |  __/ 
+     \__|_|   \__,_|_| |_| |_|\___| 
+        
+         - TRUFFLE v1.38 -    
+
+
+
+***
+*** Non-commerical and educational use license.
+***
+
+
+[*]  Options in effect: 
+      -   Input file: /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.vcf.gz
+      -   Number of CPUs: 4
+
+      -   Reporting threshold: all pairs
+
+      -   Segment reporting: YES
+
+      -   Input file name: /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.vcf.gz
+      -   Opening output file /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.ibd  
+      -   Opening output file /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_bim_truffle.segments  
+      -   Number of samples: 3
+
+      -   Allocation genotype vector  npeople=19 nvars=200000
+      -   GenotypeMatrix: allocating 3 MB of memory
+      -   Excluding variants with missing rate > 0.020 (0 samples)
+
+      -   Excluding variants with allele frequency  < 0.060
+
+      -   Reading chromosome 1 (pos=0)
+      -   Allocation genotype vector  npeople=19 nvars=400000
+      -   GenotypeMatrix: allocating 7 MB of memory
+      -   Reading chromosome 2 (pos=382625)
+      -   Allocation genotype vector  npeople=19 nvars=800000
+      -   GenotypeMatrix: allocating 14 MB of memory
+      -   Reading chromosome 3 (pos=796229)
+      -   Allocation genotype vector  npeople=19 nvars=1600000
+      -   GenotypeMatrix: allocating 28 MB of memory
+      -   Reading chromosome 4 (pos=1144759)
+      -   Reading chromosome 5 (pos=1507687)
+      -   Allocation genotype vector  npeople=19 nvars=3200000
+      -   GenotypeMatrix: allocating 57 MB of memory
+      -   Reading chromosome 6 (pos=1825732)
+      -   Reading chromosome 7 (pos=2155891)
+      -   Reading chromosome 8 (pos=2445155)
+      -   Reading chromosome 9 (pos=2712870)
+      -   Reading chromosome 10 (pos=2941420)
+      -   Reading chromosome 11 (pos=3189174)
+      -   Allocation genotype vector  npeople=19 nvars=6400000
+      -   GenotypeMatrix: allocating 115 MB of memory
+      -   Reading chromosome 12 (pos=3437011)
+      -   Reading chromosome 13 (pos=3676390)
+      -   Reading chromosome 14 (pos=3854914)
+      -   Reading chromosome 15 (pos=4000872)
+      -   Reading chromosome 16 (pos=4147622)
+      -   Reading chromosome 17 (pos=4300047)
+      -   Reading chromosome 18 (pos=4445589)
+      -   Reading chromosome 19 (pos=4586981)
+      -   Reading chromosome 20 (pos=4704023)
+      -   Reading chromosome 21 (pos=4838219)
+      -   Reading chromosome 22 (pos=4909911)
+      -   Chromosome     1    Markers   382625    Cumulative   382625
+      -   Chromosome     2    Markers   413604    Cumulative   796229
+      -   Chromosome     3    Markers   348530    Cumulative  1144759
+      -   Chromosome     4    Markers   362928    Cumulative  1507687
+      -   Chromosome     5    Markers   318045    Cumulative  1825732
+      -   Chromosome     6    Markers   330159    Cumulative  2155891
+      -   Chromosome     7    Markers   289264    Cumulative  2445155
+      -   Chromosome     8    Markers   267715    Cumulative  2712870
+      -   Chromosome     9    Markers   228550    Cumulative  2941420
+      -   Chromosome    10    Markers   247754    Cumulative  3189174
+      -   Chromosome    11    Markers   247837    Cumulative  3437011
+      -   Chromosome    12    Markers   239379    Cumulative  3676390
+      -   Chromosome    13    Markers   178524    Cumulative  3854914
+      -   Chromosome    14    Markers   145958    Cumulative  4000872
+      -   Chromosome    15    Markers   146750    Cumulative  4147622
+      -   Chromosome    16    Markers   152425    Cumulative  4300047
+      -   Chromosome    17    Markers   145542    Cumulative  4445589
+      -   Chromosome    18    Markers   141392    Cumulative  4586981
+      -   Chromosome    19    Markers   117042    Cumulative  4704023
+      -   Chromosome    20    Markers   134196    Cumulative  4838219
+      -   Chromosome    21    Markers    71692    Cumulative  4909911
+      -   Chromosome    22    Markers    75026    Cumulative  4984937
+
+[*]  Finished reading input files:  4711.53 ms 
+
+      -   Expected IBS for unrelated pairs: p.IBS0 = 0.0749  p.IBS1 = 0.4512  p.IBS2 = 0.4739
+      -   X-chromosome: pIBS2(X/X) = 0.6246 pIBS2(X/XX) = 0.1877   Mean MAF = 0.2837
+      -   (ibs_est)   481 p=0.925073 perr=0.000000
+      -   (ibs_est)    51 p=0.473891 perr=0.000000
+      -   (ibs_est)  X_X    39 p=0.375445 perr=0.000000
+      -   (ibs_est)  X_X   181 p=0.812277 perr=0.000000
+      -   (ibs_est) Thresholds for defining regions as IBD1 = 481, IBD2 = 51
+      -   (ibs_est) Inflation at edges IBS1 = 24.7, IBS2 = 2.2
+      -   Genome size: 2746793.637 kb
+      -   gs_threshold=19863.217363
+      -   (ibs_est) Adjust segment size to 19863 markers (from 481)
+      -   IBS1 threshold : 0.08 % of genome  (4000 markers) 
+      -   IBS2 threshold : 0.02 % of genome  (1000 markers) 
+
+
+
+[*]  Starting IBD segment analysis
+
+[*]  Estimated heterozygosity rate = 0.37349 
+
+      -   Allocation genotype vector transposed npeople=4 nvars=4984938
+      -   GenotypeMatrixTransposed: allocating 19 MB of memory
+
+[*]  Reading sex information file: (null)
+      -   No sex file specified
+      -   Warning: Sample IHCAPX8-1_IHCAPX8-1 has no available sex information.
+      -   Warning: Sample IHCAPX8-2_IHCAPX8-2 has no available sex information.
+      -   Warning: Sample IHCAPX8-3_IHCAPX8-3 has no available sex information.
+
+
+[*]  Genotype pre-processing duration:  4999.43 ms 
+
+ -  Compute IBD by IBS: (cpu=4/4) Nind = 3 Nvar = 4984938
+ -  Compute IBD by IBS: (cpu=1/4) Nind = 3 Nvar = 4984938
+ -  Compute IBD by IBS: (cpu=2/4) Nind = 3 Nvar = 4984938
+ -  Compute IBD by IBS: (cpu=3/4) Nind = 3 Nvar = 4984938
+
+[*] Finished processing 
+
+      -   Total time for analysis was 0.08 minutes (5.0 seconds)
+
+
+Number of IBD segments identified:
+108
+
+Done.
+Fri Jun 10 22:02:01 UTC 2022
+
