@@ -30,28 +30,16 @@ echo ""
 
 echo "Extracting variants by chromosomes into individual VCF files..."
 echo ""
-# extract chromosomes 1-22 into separate files
-for i in {1..22}
+# extract chromosomes into separate files
+for i in {1..22} "X" "Y"
 do
   echo "Creating vcf for chr${i}..."
   vcf="${out_prefix}_chr${i}.vcf.gz"
-  bcftools view -r "chr${i}" -Oz "${in_vcf}" > "${vcf}"
+  bcftools filter -r "chr${i}" -Oz "${in_vcf}" > "${vcf}"
   echo "${vcf} created."
   echo "Indexing VCF..."
   bcftools index "${vcf}"
   echo ""
-done
-
-# extract sex chromosomes (X and Y)
-for i in "X" "Y"
-do 
-    echo "Creating vcf for chr${i}..."
-    vcf="${out_prefix}_chr${i}.vcf.gz"
-    bcftools view -r "chr${i}" -Oz "${in_vcf}" > "${vcf}"
-    echo "${vcf} created."
-    echo "Indexing VCF..."
-    bcftools index "${vcf}"
-    echo ""
 done
 
 # completion message
