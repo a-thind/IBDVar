@@ -1,5 +1,5 @@
 ./s01_extract_vars_by_chr.sh
-Fri Jun 10 19:18:40 UTC 2022
+Fri Jun 10 22:36:26 UTC 2022
 
 bcftools 
 Using htslib 1.15.1
@@ -7,7 +7,7 @@ Copyright (C) 2022 Genome Research Ltd.
 License Expat: The MIT/Expat license
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Fri Jun 10 19:18:40 UTC 2022
+Fri Jun 10 22:36:26 UTC 2022
 
 Input VCF: /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
 Output folder: /home/share/data/s05_import_to_R
@@ -111,5 +111,5 @@ Creating vcf for chrY...
 Indexing VCF...
 
 Done.
-Fri Jun 10 19:20:12 UTC 2022
+Fri Jun 10 22:37:58 UTC 2022
 
