@@ -5,6 +5,13 @@
 # Intended use:
 # ./s07_select_haploblocks_truffle.sh &> s07_select_haploblocks_truffle.log
 
+# stop script if non-zero exit status 
+set -e
+# stop script if variable value is unset
+set -u
+# stop entire pipe if non-zero status encountered
+set -o pipefail
+
 # starting message
 echo $0
 date
@@ -33,35 +40,12 @@ echo ""
     --cpu 4 \
     --segments \
     --ibs1markers 4000 \
-    --ibs2markers 1000 \
+    --ibs2markers 500 \
     --out "${out_vcf}" 
 echo ""
 
 echo "Number of IBD segments identified:"
-wc -l "${out_vcf}.segments" | awk '{print $1}'
-echo ""
-
-echo "Input bim file: ${out_bim}.bim"
-echo "Output folder: ${out_dir}"
-echo ""
-
-#echo "Recode VCF file from Plink dataset..."
-# use plink2 to generate vcf from bim file
-"${plink2}" -bfile "${plink_dataset}" \
-    --recode vcf bgz \
-    --out "${out_bim}"
-
-# run truffle
-"${truffle}" --vcf "${out_bim}.vcf.gz" \
-    --cpu 4 \
-    --segments \
-    --ibs1markers 4000 \
-    --ibs2markers 1000 \
-    --out "${out_bim}" 
-echo ""
-
-echo "Number of IBD segments identified:"
-wc -l "${out_bim}.segments" | awk '{print $1}'
+awk 'END{print NR-1}' "${out_vcf}.segments"
 echo ""
 
 # completion message

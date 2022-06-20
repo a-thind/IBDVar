@@ -1,12 +1,20 @@
 ./s05_select_haploblocks_with_ibis.sh
-Wed Jun  8 23:02:27 UTC 2022
+Mon Jun 20 14:02:46 UTC 2022
 
-Plink dataset: /home/share/data/s07_select_haploblocks/IHCAPX8_ibis
+Input plink dataset: /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis
+Output IBD segments file: /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.seg
+
+Detecting IBD segments using IBIS...
 IBIS Segment Caller!  v1.20.9    (Released December 7, 2020)
 
 Viewing arguments...
--f - setting output file /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.seg
-No -b or -bfile - Running with input files: /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.bed, /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.bim, /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.fam
+-bfile - Running with input files: /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.bed, /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.bim, /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.fam
+-ibd2 - running with IBD2 detection enabled
+-mt - running with minimum IBD1 marker threshold of 99.000000
+-hbd - runnning with HBD detection enabled
+-t - running with 4 threads
+-noFamID - assuming no Family ID in input
+-f - setting output file /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.seg
 Parsing SNP file... WARNING: marker chr1_1891450_G_C has same position as previous marker
 WARNING: marker chr1_1950071_C_T has same position as previous marker
 WARNING: marker chr1_1979589_T_A has same position as previous marker
@@ -6156,8 +6164,8 @@ Chromosome map shorter than 6 units of genetic distance.
 Defining Windows... done.
 Total Genetic Length in use:2787.917725
 Organizing genotype data for analysis... done.
-Beginning segment detection with 1 thread(s)...Total Segments Found: 11
+Beginning segment detection with 4 thread(s)...Total Segments Found: 13
 done.
 Done.
-Wed Jun  8 23:06:10 UTC 2022
+Mon Jun 20 14:06:29 UTC 2022
 

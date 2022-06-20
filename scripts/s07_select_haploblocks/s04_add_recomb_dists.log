@@ -1,15 +1,15 @@
 ./s04_add_recomb_dists.sh
-Wed Jun  8 21:15:54 UTC 2022
+Mon Jun 20 12:30:54 UTC 2022
 
-Plink dataset: /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.bim
+Input plink dataset: /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.bim
 Genetic map for hg38: /home/share/resources/recomb-hg38/genetic_map_hg38_without_X.txt
-IBIS folder: /home/share/tools/ibis
+Output plink dataset: /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.recomb.bim
 
 Inserting hg38 genetic map into bim file...
 
 Reading map file /home/share/resources/recomb-hg38/genetic_map_hg38_without_X.txt... done
-Processing bim/map file /home/share/data/s07_select_haploblocks/IHCAPX8_ibis.bim... done
+Processing bim/map file /home/share/data/s07_select_haploblocks/ibis/IHCAPX8_ibis.bim... done
 
 Done.
-Wed Jun  8 21:16:13 UTC 2022
+Mon Jun 20 12:31:14 UTC 2022
 
