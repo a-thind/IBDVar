@@ -2,3 +2,6 @@ data/
 resources/
 tools/
 test.sh
+*.RData
+*.Rhistory
+
