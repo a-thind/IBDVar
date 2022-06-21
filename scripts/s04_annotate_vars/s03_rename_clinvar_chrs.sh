@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# s03_rename_clinvar_chrs.sh - Renames ClinVar chromosomes so that they match input VCF file
 # Anisha Thind, 4June2022
 
 # Intended use:
@@ -7,9 +7,11 @@
 
 # stop at runtime errors
 set -e
+set -u 
+set -o pipefail
 
 # start message
-echo $0
+echo "Rename ClinVar Chromosomes"
 date
 echo ""
 
