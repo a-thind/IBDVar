@@ -29,8 +29,8 @@ usage()
 # display usage message if no args given
 [ $# -eq 0 ] && usage
 
-echo "------------------------------ Settings ------------------------------"
-
+echo "----------------------------------- Settings ----------------------------------"
+echo ""
 # check parameter arguments
 while getopts "c:m:h" arg; do
    case "${arg}" in
@@ -44,9 +44,10 @@ while getopts "c:m:h" arg; do
             if [ "${filename##*.}" == "config" ]; then
                 echo "Configuration file: ${OPTARG}"
                 echo ""
-                echo "Reading parameters from config file..."
                 . "${OPTARG}"
-                echo ""
+                printf 'Input VCF file:\t%-5s\n\n' "${IN_VCF}"
+                printf 'Output folder:\t%-5s\n\n' "${OUT_DIR}"
+                printf 'Number of threads:\t%-5s\n\n' "${THREADS}"
             else
                 echo "File ${OPTARG} is not a config file."
                 exit 1
@@ -60,7 +61,8 @@ while getopts "c:m:h" arg; do
          if [ -e "${OPTARG}" ]; then
             filename=` basename "${OPTARG}"`
             if [ "${filename##*.}" == "md5sum" ]; then
-               echo "------------------------------ MD5SUM Check ------------------------------"
+               echo "--------------------------------- MD5SUM Check --------------------------------"
+               echo ""
                echo "MD5SUM file: ${OPTARG}"
                echo ""
                # create folder for qc
@@ -97,22 +99,44 @@ fi
 #--------------------------------------------------------------------------------------------
 # QC
 #--------------------------------------------------------------------------------------------
-echo "------------------------------ Computing BCFtools Stats ------------------------------"
+echo "--------------------------- Computing BCFtools stats --------------------------"
 echo ""
-LOG="${OUT_DIR}/s01_short_vcf_qc/s02_bcfstats.log"
-. s01_short_vcf_qc/s02_bcfstats.sh "${IN_VCF}" "${OUT_DIR}" &> "${LOG}"
-cat "${LOG}"
+#LOG="${OUT_DIR}/s01_short_vcf_qc/s02_bcfstats.log"
+#. s01_short_vcf_qc/s02_bcfstats.sh "${IN_VCF}" "${OUT_DIR}" &> "${LOG}"
+#cat "${LOG}"
 echo ""
-
+echo ""
 #----------------------------------------------------------------------------------------------
 # Pre-processing
 #----------------------------------------------------------------------------------------------
-echo "------------------------------ Variant Pre-processing ------------------------------"
+echo "--------------------------- Variant Pre-processing ----------------------------"
 echo ""
-DATA_DIR="${OUT_DIR}/s02_retain_pass_filter_vars"
-mkdir -p "${DATA_DIR}"
-LOG="${DATA_DIR}/s01_retain_pass_filter_vars.sh"
+echo "Filtering VCF..."
+#DATA_DIR="${OUT_DIR}/s02_retain_pass_filter_vars"
+#LOG="s01_retain_pass_filter_vars.log"
+#. s02_retain_pass_filter_vars/s01_retain_pass_filter_vars.sh "${IN_VCF}" "${OUT_DIR}" &> "${LOG}"
+#cat "${LOG}"
+#mv "${LOG}" "${DATA_DIR}"
+#echo ""
+# plot stats
+#LOG="s02_check_vcf_stats.log"
+#. s02_retain_pass_filter_vars/s02_check_vcf_stats.sh "${OUT_DIR}" &> "${LOG}"
+#cat "${LOG}"
+#mv "${LOG}" "${DATA_DIR}"
+echo ""
+# multiallelic site parsing
+echo "Parsing multiallelic sites..."
+echo ""
+DATA_DIR="${OUT_DIR}/s03_split_MA_sites"
+LOG="s01_split_MA_sites.log"
+. s03_split_MA_sites/s01_split_MA_sites.sh "${OUT_DIR}" &> "${LOG}"
+cat "${LOG}"
+mv "${LOG}" "${DATA_DIR}"
+echo ""
+echo "------------------------------ Variant Annotation -----------------------------"
+echo ""
 
+echo ""
 # completion messages
 echo "Done."
 date
