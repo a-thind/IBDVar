@@ -1,0 +1,26 @@
+./s07_highlight_IBD.sh
+Mon Jun 20 15:22:26 UTC 2022
+
+PhenoGram Version:
+PhenoGram 1.2.1
+Mon Jun 20 15:22:26 UTC 2022
+
+IBD segment file: /home/share/data/s07_select_haploblocks/truffle/IHCAPX8_vcf_truffle.segments
+Phenogram input file: /home/share/data/s07_select_haploblocks/truffle/pheno_input.txt
+Output ideogram file: /home/share/data/s07_select_haploblocks/truffle/ideogram.png
+
+Creating ideogram showing IBD segments using PhenoGram...
+
+Creating input file for PhenoGram...
+
+hello
+Phenogram input file created.
+
+Creating ideogram...
+
+	Drawing /home/share/data/s07_select_haploblocks/truffle/ideogram.png... Created /home/share/data/s07_select_haploblocks/truffle/ideogram.png
+
+
+Done.
+Mon Jun 20 15:22:33 UTC 2022
+
