@@ -3,10 +3,11 @@
 # Anisha Thind, 10May2022
 
 # Intended use:
-# ./s01_check_vcf.sh vcf_file in_vcf md5sum out_dir &> s01_check_vcf.log
-# in_vcf: input VCF file
-# md5sum: md5sum file (ending with .md5sum extension)
-# out_dir: output directory (for creating "s01_short_vcf_qc" directory)
+# ./s01_check_vcf.sh vcf_file in_vcf md5sum &> s01_check_vcf.log
+# Options:
+#  in_vcf: input VCF file
+#  md5sum: md5sum file (ending with .md5sum extension)
+
 
 # stop at runtime errors
 set -e
@@ -23,7 +24,6 @@ echo ""
 # Store vcf filepath
 in_vcf=$1
 md5_file=$2
-out_dir=$3
 
 
 echo "Input VCF file: ${in_vcf}"
