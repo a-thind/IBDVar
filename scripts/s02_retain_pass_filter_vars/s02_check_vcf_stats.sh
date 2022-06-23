@@ -14,7 +14,7 @@ set -u
 set -o pipefail
 
 # start message
-echo $0
+printf "Script:\ts02_check_vcf_stats.sh"
 date
 echo ""
 
@@ -22,6 +22,13 @@ echo ""
 out_dir=$1
 out_dir="${out_dir}/s02_retain_pass_filter_vars"
 filtered_vcf=` find "${out_dir}" -name *.pass_filtered.vcf.gz `
+
+if [ ! -e "${filtered_vcf}" ]; then
+  echo "ERROR: filtered VCF file not found."
+  exit 1
+fi
+
+basename=` basename "${filtered_vcf}" .pass_filtered.vcf.gz `
 stats_dir="${out_dir}/bcfstats"
 stats_file="${stats_dir}/${basename}.vchk"
 mkdir -p "${stats_dir}"
@@ -29,10 +36,7 @@ mkdir -p "${stats_dir}"
 echo "Check VCF stats for filtered VCF (all PASS filters)"
 echo ""
 
-if [ ! -e "${filtered_vcf}" ]; then
-  echo "ERROR: filtered VCF file not found."
-  exit 1
-fi
+
 
 # Generate progress report
 bcftools --version

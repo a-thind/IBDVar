@@ -1,6 +1,13 @@
 #!/bin/bash
-
+# s07_highlight_IBD.sh - Draw ideograms from IBD segment files from IBIS / TRUFFLE, using phenogram
 # Anisha Thind, 16Jun2022
+
+# Intended use:
+# ./s07_highlight_IBD.sh out_dir phenogram genome &> s07_highlight_IBD.log
+# Parameters:
+#   out_dir: output folder
+#   phenogram: phenogram folder
+#   genome: Human genome text file with 3 columns (id, size, centromere), e.g. (http://visualization.ritchielab.org/downloads/human_genome.txt)
 
 # stop script if non-zero exit status 
 set -e
@@ -10,28 +17,37 @@ set -u
 set -o pipefail
 
 # starting message
-echo $0
+printf "Scripts:\ts07_highlight_IBD.sh\n"
 date
 echo ""
 
+for tool in ibis truffle 
+do
+printf "Drawing IBD segments in ideogram detected using ${tool}\n\n"
 # files and folders
-base_dir="/home/share"
-data_dir="${base_dir}/data/s07_select_haploblocks/truffle"
-pheno_input="${data_dir}/pheno_input.txt"
-pheno_colour="${data_dir}/pheno_colour.txt"
-pheno_output="${data_dir}/ideogram"
-ibd_file="${data_dir}/IHCAPX8_vcf_truffle.segments"
-phenogram="${base_dir}/tools/phenogram/pheno_gram.rb"
-human_genome="${phenogram%pheno_gram*}human_genome.txt"
+out_dir="${1}/s07_select_haploblocks/${tool}"
+pheno_input="${out_dir}/pheno_input.txt"
+pheno_colour="${out_dir}/pheno_colour.txt"
+pheno_output="${out_dir}/ideogram"
+ibd_file=` find "${out_dir}" -name *.seg* `
+phenogram="${2}/pheno_gram.rb"
+genome=$3
 
 # progress report
-printf "PhenoGram %s\n" ` ruby $phenogram --version `
+printf "PhenoGram %s\n" ` ruby "${phenogram}" --version `
 date
 echo ""
 echo "IBD segment file: ${ibd_file}"
 echo "Phenogram input file: ${pheno_input}"
+echo "Genome file: ${genome}"
 echo "Output ideogram file: ${pheno_output}.png"
 echo ""
+
+# check IBD segment file has been created
+if [ -z "${ibd_file}" ]; then
+  echo "IBD segment file not found in output folder."
+  exit 1
+fi
 
 
 # create file for phenogram
@@ -69,12 +85,14 @@ echo ""
 # create ideogram
 echo "Creating ideogram..."
 ruby "${phenogram}" -i "${pheno_colour}" \
-    -g "${human_genome}" \
+    -g "${genome}" \
     -c "exhaustive" \
     -p "proximity" \
     -T \
     -o "${pheno_output}"
 echo ""
+
+done
 
 # completion message
 echo "Done."

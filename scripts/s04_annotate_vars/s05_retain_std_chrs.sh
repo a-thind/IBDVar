@@ -1,38 +1,46 @@
 #!/bin/bash
-
+# s05_retain_std_chrs.sh - retain standard chromosomes (1-22,X and Y) in annotated VCF
 # Anisha Thind, 4Jun2022
 
 # Intended use:
-# ./s05_retain_std_chrs.sh $VCF &> s05_retain_std_chrs.sh
+# ./s05_retain_std_chrs.sh out_dir threads &> s05_retain_std_chrs.sh
+# out_dir: output directory
+# threads: number of threads
 
 # stop at runtime errors
 set -e
+# stop if any variable value is unset
+set -u
+# stop pipeline if any sub-program has non-zero status
+set -o pipefail
 
 # start message
-echo $0
+printf "Filtering Annotated VCF to retain only standard chromosomes\n\n"
+printf "Script:\ns05_retain_std_chrs.sh\n"
 date
 echo ""
 
 # files and folders
-VCF=$1
-std_chr="${VCF%%.vcf*}.std_chr.vcf.gz"
-updated_vcf="${std_chr%%.std*}.reheaded.vcf.gz"
-data_folder="/home/share/data/s04_annotate"
-HEADER="${data_folder}/header.txt"
+out_dir="${1}/s04_annotate_vars"
+threads=$2
+vcf=` find "${out_dir}" -name *.clinvar.vcf.gz `
+std_chr="${vcf%.vcf.gz}.std_chr.vcf.gz"
+updated_vcf="${std_chr%.std_chr*}.reheaded.vcf.gz"
+header="${out_dir}/header.txt"
 
 # progress report
 bcftools --version
 date
 echo ""
 
-echo "Input VCF file: ${VCF}"
-echo "Output VCF file: ${updated_vcf}"
+echo "Input VCF file: ${vcf}"
+echo "Output VCF file (with update header): ${updated_vcf}"
 echo ""
 
 echo "Selecting variants from standard chromosomes only..."
-bcftools annotate "${VCF}" \
+bcftools annotate "${vcf}" \
    -r chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY \
-   --threads 4 \
+   --threads "${threads}" \
    -Oz -o "${std_chr}"
 
 # Index VCF
@@ -41,7 +49,7 @@ echo ""
 
 # variant counts in original
 echo "-- Variant counts in annotated VCF file --"
-bcftools +counts "${VCF}"
+bcftools +counts "${vcf}"
 echo ""
 echo "-- Variant counts in standard chromosomes of annotated VCF --"
 bcftools +counts "${std_chr}"
@@ -56,11 +64,11 @@ echo ""
 
 # update header of VCF
 echo "Updating VCF header..."
-bcftools view -h "${std_chr}"| zgrep -E '(^##contig=<ID=chr([0-9]{1,2}|X|Y),)|^##[^contig].*|^#CHROM.*' > "${HEADER}"
+bcftools view -h "${std_chr}"| zgrep -E '(^##contig=<ID=chr([0-9]{1,2}|X|Y),)|^##[^contig].*|^#CHROM.*' > "${header}"
 # reheader VCF 
 bcftools reheader "${std_chr}" \
-   -h "${HEADER}" \
-   --threads 4 \
+   -h "${header}" \
+   --threads "${threads}" \
    -o "${updated_vcf}"
 echo ""
 

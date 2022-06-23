@@ -14,7 +14,7 @@ set -u
 set -o pipefail
 
 # start message
-echo $0
+printf "Script:\ts02_bcfstats.sh\n"
 date
 echo ""
 

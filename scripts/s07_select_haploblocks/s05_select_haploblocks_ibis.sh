@@ -1,10 +1,14 @@
 #!/bin/bash
-# s05_select_haploblocks_with_ibis.sh - runs IBIS to detect IBD segments
-
+# s05_select_haploblocks_ibis.sh - runs IBIS to detect IBD segments
 # Anisha Thind, 8Jun2022
 
 # Intended use:
-# ./s05_select_haploblocks_with_ibis.sh &> s05_select_haploblocks_with_ibis.log
+# ./s05_select_haploblocks_ibis.sh out_dir ibis ibis_mt threads &> s05_select_haploblocks_ibis.log
+# Parameters:
+#   out_dir: output folder
+#   ibis: IBIS folder path
+#   mt: min markers required for IBIS to call IBD 
+#   threads: number of threads
 
 # stop script if non-zero exit status 
 set -e
@@ -14,16 +18,17 @@ set -u
 set -o pipefail
 
 # starting message
-echo $0
+printf "Script:\ts05_select_haploblocks_ibis.sh\n"
 date
 echo ""
 
 # files and folders
-base_dir="/home/share"
-data_dir="${base_dir}/data/s07_select_haploblocks/ibis"
-plink_dataset="${data_dir}/IHCAPX8_ibis"
+out_dir="${1}/s07_select_haploblocks/ibis"
+plink_dataset="${out_dir}/ibis"
 ibd_segs="${plink_dataset}.seg"
-ibis="${base_dir}/tools/ibis/ibis"
+ibis="${2}/ibis"
+ibis_mt=$3
+threads=$4
 
 # progress report
 echo "Input plink dataset: ${plink_dataset}"
@@ -33,9 +38,9 @@ echo ""
 echo "Detecting IBD segments using IBIS..."
 "${ibis}" -bfile "${plink_dataset}" \
     -ibd2 \
-    -mt 100 \
+    -mt "${ibis_mt}" \
     -hbd \
-    -t 4 \
+    -t "${threads}" \
     -noFamID \
     -f "${plink_dataset}"  
 

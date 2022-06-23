@@ -23,13 +23,12 @@ echo ""
 # files and folders
 out_dir=$1
 out_dir="${out_dir}/s04_annotate_vars"
-echo "${out_dir}"
 clinvar=$2
 echo "${clinvar}"
 vcf=` find "${out_dir}" -name *.ID.vcf.gz `
 clinvar_chr="${out_dir}/clinvar_chr.txt"
 vcf_chr="${out_dir}/vcf_chr.txt"
-chr_map="${out_dir}/s02_clinvar_chr_map.txt"
+chr_map="${out_dir}/clinvar_chr_map.txt"
 
 if [ -z "${vcf}" ]; then
   echo "VCF file not found."
@@ -52,12 +51,12 @@ bcftools index -f "${clinvar}"
 
 echo "Checking ClinVar VCF..."
 # for each vcf get contig names
-bcftools index "${clinvar}" -s | awk 'NR > 25{ print $1 }' > "${clinvar_chr}"
-bcftools index "${vcf}" -s | awk 'NR > 25{ print $1 }' > "${vcf_chr}"
+bcftools index "${clinvar}" -s | awk 'NR<25{ print $1 }' > "${clinvar_chr}"
+bcftools index "${vcf}" -s | awk 'NR<25{ print $1 }' > "${vcf_chr}"
 
 echo "Creating translation table for chromosomes..."
 # combine chromosome names for translation table text file
-paste -d "\t" "${clinvar_chr}" "${vcf_chr}" > "${chr_map}"
+paste -d"\t" "${clinvar_chr}" "${vcf_chr}" > "${chr_map}"
 echo "Chromosome translation table created."
 # clean up contig names files
 rm "${clinvar_chr}" "${vcf_chr}"

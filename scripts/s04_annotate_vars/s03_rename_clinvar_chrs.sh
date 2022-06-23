@@ -3,7 +3,9 @@
 # Anisha Thind, 4June2022
 
 # Intended use:
-# ./s03_rename_clinvar_chrs.sh $VCF &> s03_rename_clinvar_chrs.log
+# ./s03_rename_clinvar_chrs.sh out_dir clinvar &> s03_rename_clinvar_chrs.log
+# out_dir: output directory
+# clinvar: path for ClinVar VCF
 
 # stop at runtime errors
 set -e
@@ -16,9 +18,12 @@ date
 echo ""
 
 # files and folders
-VCF=$1
-chr_map="/home/share/scripts/s04_annotate_vars/s02_clinvar_chr_map.txt"
-clinvar="/home/share/resources/clinvar/clinvar_20220507.vcf.gz"
+out_dir=$1
+out_dir="${out_dir}/s04_annotate_vars"
+vcf=` find ${out_dir} -name *.ID.vcf.gz `
+chr_map="${out_dir}/clinvar_chr_map.txt"
+clinvar=$2
+echo "clinvar"
 updated_clinvar="${clinvar%%.*}.updated.vcf.gz"
 
 # progress report
@@ -26,7 +31,12 @@ bcftools --version
 date
 echo ""
 
-echo "Input VCF: ${1}"
+if [ -z "${vcf}" ]; then
+  echo "VCF file not found."
+  exit 1
+fi
+
+echo "Input VCF: ${vcf}"
 echo "ClinVar: ${clinvar}"
 echo "Chromosome map file: ${chr_map}"
 echo ""
@@ -43,15 +53,14 @@ echo ""
 
 echo "--- Contigs in input VCF ---"
 echo ""
-bcftools view -h "${VCF}" | grep "^##contig" | head -n 25
-echo "..."
-echo ""
+bcftools view -h "${vcf}" | awk -F"\n" '$0 ~ /^##contig*/ { count++; if (count < 25) print $0}' 
+printf "...\n\n"
 
 echo "--- Chromosome Map File ---"
 cat "${chr_map}"
 echo ""
 
-echo "Updating ClinVar VCF..."
+printf "Updating ClinVar VCF...\n\n"
 # rename clinvar chromosomes
 bcftools annotate "${clinvar}" \
    --rename-chrs "${chr_map}" \

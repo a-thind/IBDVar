@@ -15,7 +15,7 @@ set -u
 # stop pipeline if non-zero status
 set -o pipefail
 
-echo $0
+printf "Script:\ts01_retain_pass_filter_vars.sh\n"
 date
 echo ""
 
@@ -24,7 +24,7 @@ in_vcf=$1
 out_dir=$2
 
 # create directory for output
-basename=`basename "${in_vcf}" .vcf.gz`
+basename=` basename "${in_vcf}" .vcf.gz`
 out_dir="${out_dir}/s02_retain_pass_filter_vars"
 mkdir -p "${out_dir}"
 # name for filtered VCF

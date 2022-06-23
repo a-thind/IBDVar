@@ -16,7 +16,7 @@ set -u
 set -o pipefail
 
 # start message
-echo $0
+printf "Script:\ts01_check_vcf.sh\n"
 date
 echo ""
 
