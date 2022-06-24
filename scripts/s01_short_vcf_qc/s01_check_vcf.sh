@@ -17,7 +17,7 @@ set -u
 set -o pipefail
 
 # start message
-printf "Script:\ts01_check_vcf.sh\n"
+printf "Script:\ts01_check_vcf.sh\n\n"
 date
 echo ""
 
@@ -29,6 +29,12 @@ md5_file=$2
 echo "Input VCF file: ${in_vcf}"
 echo "MD5SUM file: ${md5_file}"
 echo ""
+
+# check vcf file exists
+if [ ! -e "${in_vcf}" ]; then
+    echo "Input VCF file not found."
+    exit 1
+fi
 
 # if md5 file is provided
 if [ ! -z "${md5_file}" ]
