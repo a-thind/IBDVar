@@ -1,0 +1,14 @@
+Script:	s02_bcfstats.sh
+Fri Jun 24 13:24:33 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Input VCF file: /home/share/data/s00_source_data/IHCAPX8/s01_short_variants/IHCAPX8_dragen_joint.hard-filtered.vcf.gz
+Output folder: /home/share/data/output/IHCAPX8/s01_short_vcf_qc/bcfstats
+
+Indexing VCF file...

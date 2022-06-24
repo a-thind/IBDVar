@@ -1,5 +1,5 @@
 #!/bin/bash
-# s01_check_vcf.sh Checks md5sum matches between file and md5sum file
+# s01_check_vcf.sh - Checks md5sum matches between file and md5sum file
 # Anisha Thind, 10May2022
 
 # Intended use:
