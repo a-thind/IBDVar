@@ -17,7 +17,7 @@ set -u
 set -o pipefail
 
 # starting message
-printf "Scripts:\ts07_highlight_IBD.sh\n"
+printf "Script:\ts07_highlight_IBD.sh\n\n"
 date
 echo ""
 
@@ -61,7 +61,6 @@ if [ "${ibd_file#*.}" == "segments" ]
 then
     # extract required fields from IBD segments file
     awk 'BEGIN{ print "CHR", "\t", "POS", "\t", "END", "\t", "PHENOTYPE"} NR>1{ gsub("chr", "", $4); printf("%s\t%s\t%s\t%s-%s\n", $4,$5,$6,$2,$3) }' "${ibd_file}" > "${pheno_input}"
-    echo "hello"
 else
     awk 'BEGIN{ print "CHR", "\t", "POS", "\t", "END", "\t", "PHENOTYPE"} NR>1{ gsub("chr", "", $3); printf("%s\t%s\t%s\t%s-%s\n", $3,$4,$5,$1,$2) }' "${ibd_file}" > "${pheno_input}"
 fi
