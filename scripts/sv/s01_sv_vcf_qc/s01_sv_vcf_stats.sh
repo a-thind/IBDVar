@@ -14,10 +14,12 @@ echo ""
 base_dir="/home/share"
 data_dir="${base_dir}/data/s00_source_data/IHCAPX8/s02_structural_variants"
 in_vcf="${data_dir}/IHCAPX8_SV_dragen_joint.sv.vcf.gz"
+csv="${data_dir}"
 stats_dir="${base_dir}/data/sv/s01_sv_vcf_qc/bcfstats"
 mkdir -p "${stats_dir}"
-basename=` basename ${in_vcf} .sv.vcf.gz `
+basename=$( basename ${in_vcf} .sv.vcf.gz ) 
 stats_file="${stats_dir}/${basename}.vchk"
+
 
 # Progress report
 bcftools --version
@@ -49,7 +51,9 @@ bcftools view -H  "${in_vcf}" |
     sort | 
     uniq -c | 
     awk '{ printf("%s %s %s:\t%s\n", $2, $3, $4, $1) }'
-bcftools view -H "${in_vcf}" | awk ' END{ printf("Total number of SVs:\t%s\n\n", NR) } '
+bcftools view -H "${in_vcf}" | awk ' END{ printf("Number of SV:\t%s\n\n", NR) } '
+
+
 
 
 # Completion message
