@@ -61,7 +61,7 @@ echo ""
 
 # generate BCF stats plot
 echo "Generating BCF stats plots..."
-plot-vcfstats -p "${stats_dir}" "${stats_file}"
+plot-vcfstats -s -p "${stats_dir}" "${stats_file}"
 echo ""
 
 # Completion message
