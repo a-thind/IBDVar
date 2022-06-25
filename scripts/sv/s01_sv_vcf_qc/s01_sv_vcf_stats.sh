@@ -44,13 +44,12 @@ echo ""
 
 echo "Variant Counts"
 echo "------------------"
-bcftools view -H  "${in_vcf}" | 
-    awk '{print $8}' |
-    awk -F';' '{ for (i=1; i <= NF; i++) { if ($i ~ "SVTYPE=") { 
-        gsub(/SVTYPE=/, "", $i); printf("Number of %s\n" , $i) } }}' | 
-    sort | 
-    uniq -c | 
-    awk '{ printf("%s %s %s:\t%s\n", $2, $3, $4, $1) }'
+# extract SVTYPE info from VCF
+bcftools query -f "%SVTYPE\n"  "${in_vcf}" \
+    | sort 
+    | uniq -c 
+    | awk '{ printf("%s %s %s:\t%s\n", $2, $3, $4, $1) }'
+
 bcftools view -H "${in_vcf}" | awk ' END{ printf("Number of SV:\t%s\n\n", NR) } '
 
 
