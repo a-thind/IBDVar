@@ -5,6 +5,9 @@
 # Intended use:
 # ./s01_sv_vcf_stats.sh &> s01_sv_vcf_stats.log
 
+# stop at runtime errors, any variable value is unset or non-zero status in pipe
+set -euo pipefail
+
 # starting message
 printf "Script: s01_sv_vcf_stats.sh\n\n"
 date
@@ -42,17 +45,38 @@ echo ""
 #plot-vcfstats -s -p "${stats_dir}" "${stats_file}"
 #echo ""
 
-echo "Variant Counts"
-echo "------------------"
+echo -e "--- Summary of Variant Counts ---\n"
 # extract SVTYPE info from VCF
 bcftools query -f "%SVTYPE\n"  "${in_vcf}" \
-    | sort 
-    | uniq -c 
-    | awk '{ printf("%s %s %s:\t%s\n", $2, $3, $4, $1) }'
+    | sort \
+    | uniq -c \
+    | awk '{ printf("Number of %s:\t%s\n", $2, $1) }'
 
-bcftools view -H "${in_vcf}" | awk ' END{ printf("Number of SV:\t%s\n\n", NR) } '
+# number of SVs
+bcftools view -H "${in_vcf}" | awk ' END{ printf("Number of SVs:\t%s\n\n", NR) } '
 
+echo -e "--- Filters ---\n"
+bcftools query -f "%FILTER\n" -i "FILTER='PASS'" "${in_vcf}" | awk 'END{ printf("Number of SVs passing all filters (PASS): %s\n\n", NR)}'
 
+echo -e "Number of variants passing all filters by type and sample:\n"
+bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" | sort | uniq -c | awk '{ printf("Number of %s (PASS) in %s: %s\n", $3, $2, $1) }'
+
+echo -e "\n--- Variant counts by SV type and sample ---\n"
+bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" \
+    | sort \
+    | uniq -c \
+    | awk '{ printf("%s\t%s\t%s\n", $2, $3, $1) }' > "${stats_dir}/sv_stats.tsv"
+
+echo -e "Number of variants passing specific filters:\n"
+bcftools query -f "%FILTER\n" "${in_vcf}" | sort | uniq -c | awk '{ printf("%-5s %s\n", $1, $2) }'
+echo ""
+
+# Number of imprecise variants
+echo "--- Imprecise Variants ---"
+bcftools query -f "%SVTYPE %IMPRECISE\n" -i "IMPRECISE=1" "${in_vcf}" | sort | uniq -c | awk '{ printf("Number of imprecise %s: %s\n", $2, $1) }'
+# total number of imprecise variants
+bcftools query -f "%IMPRECISE\n" -i "IMPRECISE=1" "${in_vcf}" | awk 'END{ printf("Number of imprecise SVs: %s\n\n", NR)}'
+echo ""
 
 
 # Completion message
