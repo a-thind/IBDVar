@@ -1,11 +1,11 @@
 #!/bin/bash
 # s01_split_MA_sites.sh - Splits alternate multiallele sites
-# s01_split_MA_sites.sh
 # Anisha Thind, 18May2022
 
 # Intended use:
-# ./s01_split_MA_sites.sh out_dir &> s01_split_MA_sites.log
-# out_dir: output directory
+# ./s01_split_MA_sites.sh in_dir out_dir &> s01_split_MA_sites.log
+#   in_dir: input directory
+#   out_dir: output directory
 
 
 # stop at runtime errors
@@ -16,30 +16,42 @@ set -u
 set -o pipefail
 
 # start message
-printf "Multiallelic Site Parsing\n"
-printf "./s01_split_MA_sites.sh\n"
+echo -e "Multiallelic Site Parsing\n"
+echo -e "Script: s01_split_MA_sites.sh\n"
 date
 echo ""
 
 # set file and folder variables
-out_dir=$1
+in_dir="${1}"
+out_dir="${2}"
 data_dir="${out_dir}/s02_retain_pass_filter_vars"
-vcf=` find "${data_dir}" -name *.pass_filtered.vcf.gz `
-basename=` basename ${vcf} .vcf.gz `
-out_dir="${out_dir}/s03_split_MA_sites"
-mkdir -p "${out_dir}"
-MA_VCF="${out_dir}/${basename}.split_MA.vcf.gz"
+vcf=$( find "${in_dir}" -name *.pass_filtered.vcf.gz ) 
 
-# progress report
-printf "Input VCF file: ${vcf}\n\n"
-printf "Multi-allelic split VCF file: ${MA_VCF}\n\n"
-echo "${vcf}"
 # Check source vcf was found
 if [ -z "${vcf}" ]
 then
     echo "Error: VCF file not found."
     exit 1
 fi
+
+# check output
+if [ -z "${out_dir}" ]; then
+   echo "Error: Missing output directory argument."
+   exit 1
+elif [ ! -d "${out_dir}" ]; then
+   echo "Error: output directory argument: ${out_dir} is not a directory."
+   exit 1
+fi
+
+basename=$( basename "${vcf}" .vcf.gz ) 
+out_dir="${out_dir}/s03_split_MA_sites"
+mkdir -p "${out_dir}"
+ma_vcf="${out_dir}/${basename}.split_MA.vcf.gz"
+
+# progress report
+printf "Input VCF file: ${vcf}\n\n"
+printf "Multi-allelic split VCF file: ${ma_vcf}\n\n"
+
 
 # Make progress report
 bcftools --version
@@ -48,18 +60,18 @@ echo ""
 
 # Split MA sites
 printf "Split multiallelic sites...\n\n"
-bcftools norm -m-any "${vcf}" -Oz -o "${MA_VCF}"
+bcftools norm -m-any "${vcf}" -Oz -o "${ma_vcf}"
 echo ""
 
 # Indexing
 printf "Indexing VCF...\n\n"
-bcftools index "${MA_VCF}"
+bcftools index "${ma_vcf}"
 echo ""
 
 # count variants
 echo "Variant Counts"
 echo "-----------------"
-bcftools +counts "${MA_VCF}"
+bcftools +counts "${ma_vcf}"
 echo ""
 
 # Completion message

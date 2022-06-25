@@ -5,8 +5,9 @@
 
 # Intended use:
 # ./s01_retain_pass_filter_vars.sh in_vcf out_dir &> s01_retain_pass_filter_vars.sh
-# in_vcf: input VCF file
-# out_dir: output directory
+# Parameters:
+#   in_vcf: input VCF file
+#   out_dir: output directory
 
 # Stop at runtime errors
 set -e
@@ -15,31 +16,35 @@ set -u
 # stop pipeline if non-zero status
 set -o pipefail
 
-printf "Script:\ts01_retain_pass_filter_vars.sh\n"
+printf "Script: s01_retain_pass_filter_vars.sh\n"
 date
 echo ""
 
 # VCF file input
-in_vcf=$1
-out_dir=$2
+in_vcf="${1}"
+out_dir="${2}"
 
 # create directory for output
-basename=` basename "${in_vcf}" .vcf.gz`
+basename=$( basename "${in_vcf}" .vcf.gz ) 
 out_dir="${out_dir}/s02_retain_pass_filter_vars"
 mkdir -p "${out_dir}"
 # name for filtered VCF
 pass_vcf="${out_dir}/${basename}.pass_filtered.vcf.gz"
 
 # check VCF file exists
-if [ -z "${in_vcf}" ]
-then
+if [ -z "${in_vcf}" ]; then
   echo "Missing argument: VCF file"
   exit 1
+elif [ ! -e "${in_vcf}" ]; then
+  echo "Error: Input VCF file ${in_vcf} not found."
+  exit 1
 fi
-if [ ! -e "${in_vcf}" ]
-then
-  echo "Error: File ${in_vcf} cannot be found."
-  echo "Terminating script..."
+
+if [ -z "${out_dir}" ]; then
+  echo "Error: Missing argument for output directory."
+  exit 1
+elif [ ! -e "${out_dir}" ]; then
+  echo "Error: ${out_dir} is not a directory."
   exit 1
 fi
 

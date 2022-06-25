@@ -8,7 +8,7 @@
 # Anisha Thind, 24Jun2022
 
 # stop if runtime errors or non-zero status pipeline programs
-set -eo pipefail
+set -euo pipefail
 
 # set parameters
 in_vcf="${1}"
@@ -25,7 +25,7 @@ elif [ ! -e "${in_vcf}" ]; then
    exit 1
 fi
 
-# check output
+# check output dir
 if [ -z "${out_dir}" ]; then
    echo "Error: Missing output directory argument."
    exit 1
@@ -41,17 +41,20 @@ mkdir -p "${data_dir}"
 
 echo -e "============================== Short Variants QC ==============================\n"
 
-echo -e "--------------------------------- MD5SUM Check --------------------------------\n"
-
 # md5sum check if file is present
 if [ -e "${md5sum}" ]; then
+   echo -e "--------------------------------- MD5SUM Check --------------------------------\n"
    s01_short_vcf_qc/s01_check_vcf.sh "${in_vcf}" "${md5sum}" |& tee -a "${pipeline_log}"
-   elif [ ! -z "{md5sum}"]; then
+   echo ""
+   elif [ ! -z "${md5sum}" ]; then
       echo "Error: file ${md5sum} not found."
       exit 1
 fi
-echo ""
 
 echo -e "--------------------------- Computing BCFtools stats --------------------------\n"
 # create bcfstats
 s01_short_vcf_qc/s02_bcfstats.sh "${in_vcf}" "${out_dir}" |& tee -a "${pipeline_log}"
+
+echo "QC completed."
+date
+echo ""

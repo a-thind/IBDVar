@@ -17,13 +17,13 @@ set -u
 set -o pipefail
 
 # start message
-printf "Script:\ts01_check_vcf.sh\n\n"
+echo -e "Script: s01_check_vcf.sh\n"
 date
 echo ""
 
 # Store vcf filepath
-in_vcf=$1
-md5_file=$2
+in_vcf="${1}"
+md5_file="${2}"
 
 
 echo "Input VCF file: ${in_vcf}"
@@ -41,8 +41,8 @@ if [ ! -z "${md5_file}" ]
 then
    if [ ! -e "${md5_file}" ]
    then
-      cat "ERROR: File: ${md5_file} not found."
-      cat "ERROR: computed checksums could not be verfied."
+      cat "Error: File: ${md5_file} not found."
+      cat "Error: computed checksums could not be verfied."
       exit 1
    else
       # check the md5sums match
