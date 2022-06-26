@@ -9,15 +9,11 @@
 
 
 
-# stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u
-# stop pipeline if non-zero status
-set -o pipefail
+# stop at runtime errors, if any variable value is unset or if non-zero in pipe
+set -euo pipefail
 
 # Starting message
-echo "Add Variant IDs"
+echo "Script: s01_add_variant_ids.sh"
 date
 echo ""
 
@@ -27,19 +23,24 @@ date
 echo ""
 
 # set files and folders
-out_dir=$1
-threads=$2
+out_dir="${1}"
+threads="${2}"
 data_dir="${out_dir}/s03_split_MA_sites"
 out_dir="${out_dir}/s04_annotate_vars"
 mkdir -p "${out_dir}"
-vcf=` find "${data_dir}" -name *.split_MA.vcf.gz `
-filepath=` basename "${vcf}" .vcf.gz `
+vcf=$( find "${data_dir}" -name *.split_MA.vcf.gz ) 
+filepath=$( basename "${vcf}" .vcf.gz ) 
 basename="${filepath%%.*}"
-out_vcf="${out_dir}/${basename}".ID.vcf.gz
+out_vcf="${out_dir}/${basename}.ID.vcf.gz"
 
-# If no threads specified then default is 4
-if [ -z "${threads}" ]; then
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+ ]]; then
   threads=4
+fi
+
+if [ -z "${vcf}" ]; then
+  echo "Error: Missing MA split VCF file."
+  exit 1
 fi
 
 # input VCF

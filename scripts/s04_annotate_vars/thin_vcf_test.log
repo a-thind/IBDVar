@@ -1,11 +1,11 @@
-./thin_vcf_test.sh
-Mon Jun  6 17:12:27 UTC 2022
+Script: thin_vcf_test.sh
+Sun Jun 26 12:51:00 UTC 2022
 
 VCFtools (0.1.16)
-Mon Jun  6 17:12:27 UTC 2022
+Sun Jun 26 12:51:00 UTC 2022
 
-Input VCF: /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
-Output VCF: /home/share/data/s04_annotate/thinned.recode.vcf
+Input VCF: /home/share/data/output/IHCAPX8_1/s04_annotate_vars/IHCAPX8_dragen_joint.clinvar.std_chr.vcf.gz
+Output VCF: /home/share/data/output/IHCAPX8_1/s04_annotate_vars/thinned.recode.vcf
 
 Thinning VCF...
 
@@ -13,10 +13,10 @@ VCFtools - 0.1.16
 (C) Adam Auton and Anthony Marcketta 2009
 
 Parameters as interpreted:
-	--gzvcf /home/share/data/s04_annotate/IHCAPX8_dragen_joint.clinvar.reheaded.vcf.gz
+	--gzvcf /home/share/data/output/IHCAPX8_1/s04_annotate_vars/IHCAPX8_dragen_joint.clinvar.std_chr.vcf.gz
 	--recode-INFO-all
 	--thin 100000
-	--out /home/share/data/s04_annotate/thinned
+	--out /home/share/data/output/IHCAPX8_1/s04_annotate_vars/thinned
 	--recode
 
 Using zlib version: 1.2.11
@@ -43,10 +43,10 @@ After filtering, kept 29017 out of a possible 7548615 Sites
 Run Time = 16.00 seconds
 
 Number of contigs in input VCF header:
-24
+3366
 
 Number of contigs in output VCF header:
-24
+3366
 
 Variant counts in input VCF:
 Number of samples: 3
@@ -65,5 +65,5 @@ Number of others:  0
 Number of sites:   29017
 
 Done.
-Mon Jun  6 17:13:08 UTC 2022
+Sun Jun 26 12:51:41 UTC 2022
 

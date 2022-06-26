@@ -4,13 +4,12 @@
 
 # Intended use:
 # ./s03_rename_clinvar_chrs.sh out_dir clinvar &> s03_rename_clinvar_chrs.log
-# out_dir: output directory
-# clinvar: path for ClinVar VCF
+#   $1: (out_dir): output directory
+#   $2: (clinvar): path for ClinVar VCF
+#   $3: (threads) number of threads
 
 # stop at runtime errors
-set -e
-set -u 
-set -o pipefail
+set -euo pipefail
 
 # start message
 echo "Rename ClinVar Chromosomes"
@@ -18,12 +17,11 @@ date
 echo ""
 
 # files and folders
-out_dir=$1
-out_dir="${out_dir}/s04_annotate_vars"
-vcf=` find ${out_dir} -name *.ID.vcf.gz `
+out_dir="${1}/s04_annotate_vars"
+clinvar="${2}"
+threads="${3}"
+vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
 chr_map="${out_dir}/clinvar_chr_map.txt"
-clinvar=$2
-echo "clinvar"
 updated_clinvar="${clinvar%%.*}.updated.vcf.gz"
 
 # progress report
@@ -34,6 +32,25 @@ echo ""
 if [ -z "${vcf}" ]; then
   echo "VCF file not found."
   exit 1
+fi
+
+# check clinvar VCF exists
+if [ -z "${clinvar}" ]; then
+   echo "Error: Missing ClinVar VCF file path."
+   exit 1
+elif [ ! -e "${clinvar}"]; then
+   echo "Error: ClinVar VCF file not found."
+   exit 1
+fi
+
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+  ]]; then
+  threads=4
+fi
+
+# check translation map exists
+if [ ! -e "${chr_map}" ]; then
+  echo "Error: ${chr_map} not found."
 fi
 
 echo "Input VCF: ${vcf}"
@@ -64,7 +81,7 @@ printf "Updating ClinVar VCF...\n\n"
 # rename clinvar chromosomes
 bcftools annotate "${clinvar}" \
    --rename-chrs "${chr_map}" \
-   --threads 4 \
+   --threads "${threads}" \
    -Oz -o "${updated_clinvar}"
 
 # index updated clinvar
