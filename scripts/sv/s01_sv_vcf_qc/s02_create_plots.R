@@ -3,8 +3,12 @@
 # load library
 library(ggplot2)
 
+setwd("/home/share/scripts/sv/s01_sv_vcf_qc")
+
+file=
+
 # read in data from CSV
-df <- read.csv("../../../data/s00_source_data/IHCAPX8/s02_structural_variants/IHCAPX8_SV_dragen_joint.sv_metrics.csv", header=F)
+df <- read.csv(file, header=F)
 
 # remove surplus column
 df <- df[-1]
@@ -16,12 +20,18 @@ colnames(df) <- c("Sample", "Type", "Number")
 df[,2] <- sapply(df[,2], function(i) gsub("Number of | \\(PASS\\)", "", i))
 
 # plot SV types by sample
-ggplot(df, aes(fill=Type, y=Number, x=Sample)) + geom_bar(position="stack", stat="identity")
+ggplot(df, aes(fill=Type, y=Number, x=Sample)) + geom_bar(position="stack", 
+                                                          stat="identity")
 
+args = commandArgs(trailingOnly=TRUE)
 # save plot
-ggsave(filename="../../../data/sv/s01_sv_vcf_qc/sv_type_by_sample.png", device="png")
+ggsave(filename="../../../data/sv/s01_sv_vcf_qc/sv_type_by_sample.png", 
+       device="png")
 
 # plot by SV type
-ggplot(df, aes(fill=Sample, y=Number, x=Type)) + geom_bar(position="stack", stat="identity")
+ggplot(df, aes(fill=Sample, y=Number, x=Type)) + geom_bar(position="stack", 
+                                                          stat="identity")
 
+ggsave(filename="../../../data/sv/s01_sv_vcf_qc/sv_type_by_sample.png", 
+       device="png")
 
