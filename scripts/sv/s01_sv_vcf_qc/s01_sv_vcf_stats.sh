@@ -59,7 +59,11 @@ echo -e "--- Filters ---\n"
 bcftools query -f "%FILTER\n" -i "FILTER='PASS'" "${in_vcf}" | awk 'END{ printf("Number of SVs passing all filters (PASS): %s\n\n", NR)}'
 
 echo -e "Number of variants passing all filters by type and sample:\n"
-bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" | sort | uniq -c | awk '{ printf("Number of %s (PASS) in %s: %s\n", $3, $2, $1) }'
+bcftools query -f "[%SAMPLE %SVTYPE \n]" \
+    -i "FILTER='PASS'" "${in_vcf}" \
+    | sort \
+    | uniq -c \
+    | awk '{ printf("Number of %s (PASS) in %s: %s\n", $3, $2, $1) }'
 
 echo -e "\n--- Variant counts by SV type and sample ---\n"
 bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" \
@@ -78,6 +82,7 @@ bcftools query -f "%SVTYPE %IMPRECISE\n" -i "IMPRECISE=1" "${in_vcf}" | sort | u
 bcftools query -f "%IMPRECISE\n" -i "IMPRECISE=1" "${in_vcf}" | awk 'END{ printf("Number of imprecise SVs: %s\n\n", NR)}'
 echo ""
 
+# Add Rscript
 
 # Completion message
 echo "Done."

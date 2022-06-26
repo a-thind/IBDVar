@@ -1,6 +1,6 @@
 Script: s01_sv_vcf_stats.sh
 
-Fri Jun 24 11:32:13 UTC 2022
+Sat Jun 25 15:52:34 UTC 2022
 
 bcftools 
 Using htslib 1.15.1
@@ -8,19 +8,70 @@ Copyright (C) 2022 Genome Research Ltd.
 License Expat: The MIT/Expat license
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Fri Jun 24 11:32:13 UTC 2022
+Sat Jun 25 15:52:34 UTC 2022
 
 Input VCF: /home/share/data/s00_source_data/IHCAPX8/s02_structural_variants/IHCAPX8_SV_dragen_joint.sv.vcf.gz
 Output folder: /home/share/data/sv/s01_sv_vcf_qc/bcfstats
 
-Variant Counts
-------------------
+--- Summary of Variant Counts ---
+
 Number of BND:	3320
 Number of DEL:	6739
 Number of DUP:	580
 Number of INS:	8422
-Number of SV:	19061
+Number of SVs:	19061
+
+--- Filters ---
+
+Number of SVs passing all filters (PASS): 16428
+
+Number of variants passing all filters by type and sample:
+
+Number of BND (PASS) in IHCAPX8-1: 2696
+Number of DEL (PASS) in IHCAPX8-1: 5871
+Number of DUP (PASS) in IHCAPX8-1: 535
+Number of INS (PASS) in IHCAPX8-1: 7326
+Number of BND (PASS) in IHCAPX8-2: 2696
+Number of DEL (PASS) in IHCAPX8-2: 5871
+Number of DUP (PASS) in IHCAPX8-2: 535
+Number of INS (PASS) in IHCAPX8-2: 7326
+Number of BND (PASS) in IHCAPX8-3: 2696
+Number of DEL (PASS) in IHCAPX8-3: 5871
+Number of DUP (PASS) in IHCAPX8-3: 535
+Number of INS (PASS) in IHCAPX8-3: 7326
+
+--- Variant counts by SV type and sample ---
+
+Number of variants passing specific filters:
+
+382   MaxDepth
+24    MaxDepth;MaxMQ0Frac
+5     MaxDepth;MaxMQ0Frac;SampleFT
+7     MaxDepth;MinQUAL;SampleFT
+6     MaxDepth;NoPairSupport
+25    MaxDepth;SampleFT
+170   MaxMQ0Frac
+1     MaxMQ0Frac;MinQUAL
+2     MaxMQ0Frac;MinQUAL;SampleFT
+10    MaxMQ0Frac;NoPairSupport
+19    MaxMQ0Frac;SampleFT
+252   MinQUAL
+4     MinQUAL;NoPairSupport
+14    MinQUAL;NoPairSupport;SampleFT
+315   MinQUAL;SampleFT
+132   NoPairSupport
+3     NoPairSupport;SampleFT
+16428 PASS
+45    Ploidy
+1217  SampleFT
+
+--- Imprecise Variants ---
+Number of imprecise BND: 820
+Number of imprecise DEL: 131
+Number of imprecise DUP: 61
+Number of imprecise SVs: 1012
+
 
 Done.
-Fri Jun 24 11:32:13 UTC 2022
+Sat Jun 25 15:52:34 UTC 2022
 
