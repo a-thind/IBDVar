@@ -36,7 +36,52 @@ elif [ ! -d "${out_dir}" ]; then
     exit 1
 fi
 
-if [ -z "${threads}" ]; then
-    echo "Error: missing number of threads in config file."
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
+  threads=4
+fi
+
+if [ -z "${plink}" ]; then
+   echo "Error: Missing PLINK path."
+   exit 1
+elif [ ! -d "${plink}" ]; then 
+    echo "Error: Plink path is not a directory."
+    exit 1
+fi
+
+if [ -z "${clinvar}" ]; then
+   echo "Error: Missing ClinVar VCF file path."
+   exit 1
+elif [ ! -e "${clinvar}" ]; then
+    echo "Error: ClinVar VCF path does not exist."
+    exit 1
+fi
+
+if [ -z "${ibis}" ]; then
+  echo "Error: Missing IBIS argument."
+  exit 1
+elif [ ! -d "${ibis}" ]; then
+  echo "Error: IBIS path: ${ibis} is not a directory."
+  exit 1  
+fi
+
+if [[ "${ibis_mt}" =~ !^[0-9]+ ]]; then
+  echo "Error: 'ibis_mt' argument provided is non-numerical."
+  exit 1
+fi
+
+if [ -z "${phenogram}" ]; then
+    echo "Error: Missing phenogram path."
+    exit 1
+elif [ ! -e "${phenogram}" ]; then
+    echo "Error: Phenogram path does not exist."
+    exit 1
+fi
+
+if [ -z "${genome}" ]; then
+    echo "Error: Missing phenogram human genome text file."
+    exit 1
+elif [ ! -e "${genome}" ]; then
+    echo "Error: Phenogram human genome text file not found."
     exit 1
 fi
