@@ -1,5 +1,5 @@
 #!/bin/bash
-# s01_check_vcf.sh Checks md5sum matches between file and md5sum file
+# s01_check_vcf.sh - Checks md5sum matches between file and md5sum file
 # Anisha Thind, 10May2022
 
 # Intended use:
@@ -17,26 +17,32 @@ set -u
 set -o pipefail
 
 # start message
-printf "Script:\ts01_check_vcf.sh\n"
+echo -e "Script: s01_check_vcf.sh\n"
 date
 echo ""
 
 # Store vcf filepath
-in_vcf=$1
-md5_file=$2
+in_vcf="${1}"
+md5_file="${2}"
 
 
 echo "Input VCF file: ${in_vcf}"
 echo "MD5SUM file: ${md5_file}"
 echo ""
 
+# check vcf file exists
+if [ ! -e "${in_vcf}" ]; then
+    echo "Input VCF file not found."
+    exit 1
+fi
+
 # if md5 file is provided
 if [ ! -z "${md5_file}" ]
 then
    if [ ! -e "${md5_file}" ]
    then
-      cat "ERROR: File: ${md5_file} not found."
-      cat "ERROR: computed checksums could not be verfied."
+      cat "Error: File: ${md5_file} not found."
+      cat "Error: computed checksums could not be verfied."
       exit 1
    else
       # check the md5sums match

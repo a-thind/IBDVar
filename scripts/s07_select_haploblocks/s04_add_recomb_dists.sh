@@ -5,28 +5,42 @@
 # Intended use:
 # ./s04_add_recomb_dists.sh out_dir ibis genetic_map &> s04_add_recomb_dists.log
 # Parameters:
-#   out_dir: output folder
-#   ibis: ibis folder path
-#   genetic map: recombination genetic map for human genome
+#   $1: (out_dir) output folder
+#   $2: (ibis) ibis folder path
+#   $3: (genetic map) recombination genetic map for human genome
 
 # stop script if non-zero exit status 
-set -e
-# stop script if variable value is unset
-set -u
-# stop entire pipe if non-zero status encountered
-set -o pipefail
+set -euo pipefail
 
-printf "Script:\ts04_add_recomb_dists.sh\n"
+echo -e "Script: s04_add_recomb_dists.sh\n"
 date
 echo ""
 
 # files and folders
 out_dir="${1}/s07_select_haploblocks/ibis"
-ibis=$2
+ibis="${2}"
 add_map_plink="${ibis}/add-map-plink.pl"
 plink_dataset="${out_dir}/ibis"
-genetic_map=$3
+genetic_map="${3}"
 updated_plink="${out_dir}/ibis.recomb.bim"
+
+if [ -z "${ibis}" ]; then
+  echo "Error: Missing IBIS argument."
+  exit 1
+elif [ ! -d "${ibis}" ]; then
+  echo "Error: IBIS path: ${ibis} is not a directory."
+  exit 1  
+fi
+
+if [ ! -e "${genetic_map}" ]; then
+  echo "Error: genetic map path does not exist."
+  exit 1
+fi
+
+if [ ! -e "${add_map_plink}" ]; then
+  echo "Error: cannot find add_map_plink.pl script."
+  exit 1
+fi
 
 # progress report
 echo "Input plink dataset: ${plink_dataset}"

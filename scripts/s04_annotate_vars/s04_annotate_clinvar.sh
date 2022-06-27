@@ -4,19 +4,15 @@
 
 # Intended use:
 # ./s04_annotate_clinvar.sh out_dir clinvar threads &> s04_annotate_clinvar.log
-# out_dir: output directory
-# clinvar: ClinVar VCF path
-# threads: number of threads (CPU)
+#  $1 (out_dir): output directory
+#  $2 (clinvar): ClinVar VCF path
+#  $3 (threads): number of threads
 
 
 # ClinVar annotation of input VCF
 
 # stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u
-# stop pipeline if non-zero status
-set -o pipefail
+set -euo pipefail
 
 # starting message
 echo "Variant Annotation using ClinVar"
@@ -25,17 +21,40 @@ date
 echo ""
 
 # set files and folders
-out_dir=$1
-vcf=` find "${out_dir}" -name *.ID.vcf.gz `
-clinvar=$2
-echo "clinvar"
+out_dir="${1}"
+vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
+clinvar="${2}"
 clinvar="${clinvar%.vcf.gz}.updated.vcf.gz"
-threads=$3
+threads="${3}"
 annot_vcf="${vcf%%.*}.clinvar.vcf.gz"
 
+# check output
+if [ -z "${out_dir}" ]; then
+   echo "Error: Missing output directory argument."
+   exit 1
+elif [ ! -d "${out_dir}" ]; then
+   echo "Error: output directory argument: ${out_dir} is not a directory."
+   exit 1
+fi
+
+# check clinvar VCF exists
+if [ -z "${clinvar}" ]; then
+   echo "Error: Missing ClinVar VCF file path."
+   exit 1
+elif [ ! -e "${clinvar}"]; then
+   echo "Error: ClinVar VCF file not found."
+   exit 1
+fi
+
+# check update VCF exists
 if [ -z "${vcf}" ]; then
-  echo "VCF data file not found."
+  echo "Updated VCF file with IDs not found."
   exit 1
+fi
+
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
+  threads=4
 fi
 
 # progress report
