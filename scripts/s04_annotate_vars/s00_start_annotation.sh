@@ -18,7 +18,7 @@ threads="${3}"
 pipeline_log="${4}/s00_start_annotation.log"
 
 # If no threads specified or non-numeric then default is 4
-if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+ ]]; then
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 

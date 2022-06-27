@@ -40,7 +40,7 @@ if [ -z "${vcf}" ]; then
 fi
 
 # If no threads specified or non-numeric then default is 4
-if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+ ]]; then
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 
@@ -50,7 +50,7 @@ date
 echo ""
 
 echo "Input VCF file: ${vcf}"
-echo "Output VCF file (with update header): ${updated_vcf}"
+echo "Output VCF file (with updated header): ${updated_vcf}"
 echo ""
 
 echo "Selecting variants from standard chromosomes only..."

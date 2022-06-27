@@ -59,7 +59,7 @@ s03_split_MA_sites/s01_split_MA_sites.sh "${in_dir}" "${out_dir}" \
 
 echo "Multi-allelic site parsing completed."
 date
-echo ""
+echo -e "\n-------------------------------------------------------------------------------\n"
 
 echo "Variant pre-processing completed."
 date

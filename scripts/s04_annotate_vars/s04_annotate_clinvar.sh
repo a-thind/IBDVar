@@ -24,7 +24,6 @@ echo ""
 out_dir="${1}"
 vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
 clinvar="${2}"
-echo "clinvar"
 clinvar="${clinvar%.vcf.gz}.updated.vcf.gz"
 threads="${3}"
 annot_vcf="${vcf%%.*}.clinvar.vcf.gz"
@@ -54,7 +53,7 @@ if [ -z "${vcf}" ]; then
 fi
 
 # If no threads specified or non-numeric then default is 4
-if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+ ]]; then
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 

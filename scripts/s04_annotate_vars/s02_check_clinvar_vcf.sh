@@ -11,8 +11,7 @@
 set -euo pipefail
 
 # Starting message
-echo "Check ClinVar Chromosome Notation"
-echo "./s02_check_clinvar_vcf.sh"
+echo "Script: s02_check_clinvar_vcf.sh"
 date
 echo ""
 
@@ -39,10 +38,10 @@ elif [ ! -d "${out_dir}" ]; then
 fi
 
 # check clinvar VCF exists
-if [ -z "${clinvar_chr}" ]; then
+if [ -z "${clinvar}" ]; then
    echo "Error: Missing ClinVar VCF file path."
    exit 1
-elif [ ! -e "${clinvar_chr}"]; then
+elif [ ! -e "${clinvar}"]; then
    echo "Error: ClinVar VCF file not found."
    exit 1
 fi

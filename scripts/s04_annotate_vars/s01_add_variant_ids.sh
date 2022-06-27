@@ -34,7 +34,7 @@ basename="${filepath%%.*}"
 out_vcf="${out_dir}/${basename}.ID.vcf.gz"
 
 # If no threads specified or non-numeric then default is 4
-if [[ -z "${threads}" || "${threads}" =~ ^[0-9]+ ]]; then
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 

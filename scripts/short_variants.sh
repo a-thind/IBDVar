@@ -92,98 +92,25 @@ s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" "${out_dir}" \
 s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" "${out_dir}" \
    "${log_dir}" |& tee -a "${pipeline_log}"
 
-# echo "------------------------------ Variant Annotation -----------------------------"
-# echo ""
-# DATA_DIR="${out_dir}/s04_annotate_vars"
-# LOG="s01_add_variant_ids.log"
-# echo "Adding variant IDs..."
-# s04_annotate_vars/s01_add_variant_ids.sh "${out_dir}" "${threads}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
+# ------------------------------ Variant Annotation -----------------------------
+s04_annotate_vars/s00_start_annotation.sh "${out_dir}" "${clinvar}" "${threads}" \
+   "${log_dir}" |& tee -a "${pipeline_log}"
 
-# echo "Checking ClinVar VCF..."
-# LOG="s02_check_clinvar_vcf.log"
-# s04_annotate_vars/s02_check_clinvar_vcf.sh "${out_dir}" "${CLINVAR}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
+#-------------------------------- IBD Detection --------------------------------
+s07_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
+   "${plink}" \
+   "${threads}" \
+   "${ibis}" \
+   "${genetic_map}" \
+   "${ibis_mt}" \
+   "${truffle}" \
+   "${ibs1m}" \
+   "${ibs2m}" \
+   "${phenogram}" \
+   "${genome}" \
+   "${log_dir}" \
+   |& tee -a "${pipeline_log}" 
 
-# echo "Renaming Chromosomes in ClinVar VCF..."
-# LOG="s03_rename_clinvar_chrs.log"
-# s04_annotate_vars/s03_rename_clinvar_chrs.sh "${out_dir}" "${CLINVAR}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Annotating variants using ClinVar...\n\n"
-# LOG="s04_annotate_clinvar.log"
-# s04_annotate_vars/s04_annotate_clinvar.sh "${out_dir}" "${CLINVAR}" "${threads}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Retaining only standard chromosomes in annotated VCF...\n\n"
-# LOG="s05_retain_std_chrs.log"
-# s04_annotate_vars/s05_retain_std_chrs.sh "${out_dir}" "${threads}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# echo "-------------------------------- IBD Detection --------------------------------"
-# echo ""
-
-# echo "Creating Plink dataset..."
-# echo ""
-# DATA_DIR="${out_dir}/s07_select_haploblocks"
-# LOG="s01_make_plink_dataset.log"
-# s07_select_haploblocks/s01_make_plink_dataset.sh "${out_dir}" "${PLINK}" "${threads}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# echo "Adding recombination distances to Plink dataset..."
-# echo ""
-# LOG="s02_add_recomb_dists.log"
-# s07_select_haploblocks/s02_add_recomb_dists.sh "${out_dir}" "${IBIS}" "${GENETIC_MAP}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Excluding SNPs lacking recombination distances...\n\n"
-# LOG="s03_retain_snps_with_recomb_dists.log"
-# s07_select_haploblocks/s03_retain_snps_with_recomb_dists.sh "${out_dir}" "${PLINK}" "${threads}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Adding recombination distances to filtered Plink dataset...\n\n"
-# LOG="s04_add_recomb_dists.log"
-# s07_select_haploblocks/s04_add_recomb_dists.sh "${out_dir}" "${IBIS}" "${GENETIC_MAP}" &> "${LOG}"
-# cat "${LOG}"
-# mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Detecting IBD segments with IBIS...\n\n"
-# #LOG="s05_select_haploblocks_ibis.log"
-# #s07_select_haploblocks/s05_select_haploblocks_ibis.sh "${out_dir}" "${IBIS}" "${IBIS_MT}" "${threads}" &> "${LOG}"
-# #cat "${LOG}"
-# #mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Detecting IBD segments with TRUFFLE...\n\n"
-# #LOG="s06_select_haploblocks_truffle.log"
-# #s07_select_haploblocks/s06_select_haploblocks_truffle.sh "${out_dir}" "${TRUFFLE}" "${IBS1M}" "${IBS2M}" "${threads}" &> "${LOG}"
-# #cat "${LOG}"
-# #mv "${LOG}" "${DATA_DIR}"
-# echo ""
-
-# printf "Drawing ideograms highlighting IBD segments...\n\n"
-# #LOG="s07_highlight_IBD.log"
-# #s07_select_haploblocks/s07_highlight_IBD.sh "${out_dir}" "${PHENOGRAM}" "${GENOME}" &> "${LOG}"
-# #cat "${LOG}"
-# #mv "${LOG}" "${DATA_DIR}"
-# echo ""
 
 # completion messages
 echo "Pipeline completed."

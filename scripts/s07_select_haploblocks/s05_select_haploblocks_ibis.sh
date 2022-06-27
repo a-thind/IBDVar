@@ -5,30 +5,44 @@
 # Intended use:
 # ./s05_select_haploblocks_ibis.sh out_dir ibis ibis_mt threads &> s05_select_haploblocks_ibis.log
 # Parameters:
-#   out_dir: output folder
-#   ibis: IBIS folder path
-#   mt: min markers required for IBIS to call IBD 
-#   threads: number of threads
+#   $1: (out_dir) output folder
+#   $2: (ibis) IBIS folder path
+#   $3: (ibis_mt) min markers required for IBIS to call an IBD segment 
+#   $4: (threads) number of threads
 
 # stop script if non-zero exit status 
-set -e
-# stop script if variable value is unset
-set -u
-# stop entire pipe if non-zero status encountered
-set -o pipefail
+set -euo pipefail
 
 # starting message
-printf "Script:\ts05_select_haploblocks_ibis.sh\n"
+echo -e "Script: s05_select_haploblocks_ibis.sh\n"
 date
 echo ""
 
-# files and folders
+# parameters
 out_dir="${1}/s07_select_haploblocks/ibis"
+ibis="${2}/ibis"
+ibis_mt="${3}"
+threads="${4}"
+# output files
 plink_dataset="${out_dir}/ibis"
 ibd_segs="${plink_dataset}.seg"
-ibis="${2}/ibis"
-ibis_mt=$3
-threads=$4
+
+# check for ibis plink dataset
+if [[ ! -e "${ibis}" ]]; then
+  echo "Error: Plink dataset for IBIS not found."
+  exit 1
+fi
+
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
+  threads=4
+fi
+
+# check ibis min threshold parameter
+if [[ "${ibis_mt}" =~ !^[0-9]+ ]]; then
+  echo "Error: 'ibis_mt' argument provided is non-numerical."
+  exit 1
+fi
 
 # progress report
 echo "Input plink dataset: ${plink_dataset}"
@@ -46,6 +60,7 @@ echo "Detecting IBD segments using IBIS..."
 
 # Insert header into segment file
 sed -i '1i sample1  sample2  chrom    phys_start_pos phys_end_pos    IBD_type   genetic_start_pos genetic_end_pos genetic_seg_length  marker_count error_count error_density' "${ibd_segs}"
+echo ""
 
 # completion message
 echo "Done."
