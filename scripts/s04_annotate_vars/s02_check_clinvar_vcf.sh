@@ -8,24 +8,17 @@
 # clinvar: clinvar VCF path
 
 # Stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u
-# stop pipeline if any program has non-zero status
-set -o pipefail
+set -euo pipefail
 
 # Starting message
-echo "Check ClinVar Chromosome Notation"
-echo "./s02_check_clinvar_vcf.sh"
+echo "Script: s02_check_clinvar_vcf.sh"
 date
 echo ""
 
 # files and folders
-out_dir=$1
-out_dir="${out_dir}/s04_annotate_vars"
-clinvar=$2
-echo "${clinvar}"
-vcf=` find "${out_dir}" -name *.ID.vcf.gz `
+out_dir="${1}/s04_annotate_vars"
+clinvar="${2}"
+vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
 clinvar_chr="${out_dir}/clinvar_chr.txt"
 vcf_chr="${out_dir}/vcf_chr.txt"
 chr_map="${out_dir}/clinvar_chr_map.txt"
@@ -33,6 +26,24 @@ chr_map="${out_dir}/clinvar_chr_map.txt"
 if [ -z "${vcf}" ]; then
   echo "VCF file not found."
   exit 1
+fi
+
+# check output
+if [ -z "${out_dir}" ]; then
+   echo "Error: Missing output directory argument."
+   exit 1
+elif [ ! -d "${out_dir}" ]; then
+   echo "Error: output directory argument: ${out_dir} is not a directory."
+   exit 1
+fi
+
+# check clinvar VCF exists
+if [ -z "${clinvar}" ]; then
+   echo "Error: Missing ClinVar VCF file path."
+   exit 1
+elif [ ! -e "${clinvar}"]; then
+   echo "Error: ClinVar VCF file not found."
+   exit 1
 fi
 
 # contig names from clinvar vcf

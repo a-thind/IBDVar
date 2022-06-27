@@ -5,29 +5,42 @@
 # Intended use:
 # ./s02_add_recomb_dists.sh out_dir ibis genetic_map threads &> s02_add_recomb_dists.log
 # Paramters:
-#   out_dir: output folder
-#   ibis: IBIS folder
-#   genetic_map: recombination genetic map
+#   $1: (out_dir) output folder
+#   $2: (ibis) IBIS folder
+#   $3: (genetic_map) recombination genetic map
 
-# stop script if non-zero exit status 
-set -e
-# stop script if variable value is unset
-set -u
-# stop entire pipe if non-zero status encountered
-set -o pipefail
+# stop at runtime errors 
+set -euo pipefail
 
 # start message
-printf "Script:\ts02_add_recomb_dists\n"
+printf "Script: s02_add_recomb_dists.sh\n"
 date
 echo ""
 
 # files and folders
 out_dir="${1}/s07_select_haploblocks/plink"
-ibis=$2
-genetic_map=$3
+ibis="${2}"
+genetic_map="${3}"
 add_map_plink="${ibis}/add-map-plink.pl"
 plink_dataset="${out_dir}/autosomal_snps"
 
+if [ -z "${ibis}" ]; then
+  echo "Error: Missing IBIS argument."
+  exit 1
+elif [ ! -d "${ibis}" ]; then
+  echo "Error: IBIS path: ${ibis} is not a directory."
+  exit 1  
+fi
+
+if [ ! -e "${genetic_map}" ]; then
+  echo "Error: genetic map path does not exist."
+  exit 1
+fi
+
+if [ ! -e "${add_map_plink}" ]; then
+  echo "Error: cannot find add_map_plink.pl script."
+  exit 1
+fi
 
 # Downloaded genetic map for Hg38 from:
 # https://alkesgroup.broadinstitute.org/Eagle/downloads/tables/

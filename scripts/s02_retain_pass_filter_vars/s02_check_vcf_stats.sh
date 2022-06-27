@@ -4,7 +4,8 @@
 
 # Intended use:
 # ./s02_check_vcf_stats.sh out_dir &> s02_check_vcf_stats.log
-# out_dir: output directory
+# Parameters:
+#   out_dir: output directory
 
 # stop at runtime errors
 set -e
@@ -14,29 +15,25 @@ set -u
 set -o pipefail
 
 # start message
-printf "Script:\ts02_check_vcf_stats.sh"
+echo -e "Script: s02_check_vcf_stats.sh"
 date
 echo ""
 
 # set files and folder variables
-out_dir=$1
-out_dir="${out_dir}/s02_retain_pass_filter_vars"
-filtered_vcf=` find "${out_dir}" -name *.pass_filtered.vcf.gz `
+out_dir="${1}/s02_retain_pass_filter_vars"
+filtered_vcf=$( find "${out_dir}" -name *.pass_filtered.vcf.gz ) 
 
 if [ ! -e "${filtered_vcf}" ]; then
-  echo "ERROR: filtered VCF file not found."
+  echo "Error: filtered VCF file not found."
   exit 1
 fi
 
-basename=` basename "${filtered_vcf}" .pass_filtered.vcf.gz `
+basename=$( basename "${filtered_vcf}" .pass_filtered.vcf.gz ) 
 stats_dir="${out_dir}/bcfstats"
 stats_file="${stats_dir}/${basename}.vchk"
 mkdir -p "${stats_dir}"
 
-echo "Check VCF stats for filtered VCF (all PASS filters)"
-echo ""
-
-
+echo -e "Check VCF stats for filtered VCF (all PASS filters)\n"
 
 # Generate progress report
 bcftools --version

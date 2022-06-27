@@ -8,25 +8,41 @@
 # threads: number of threads
 
 # stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u
-# stop pipeline if any sub-program has non-zero status
-set -o pipefail
+set -euo pipefail
 
 # start message
 printf "Filtering Annotated VCF to retain only standard chromosomes\n\n"
-printf "Script:\ns05_retain_std_chrs.sh\n"
+printf "Script: s05_retain_std_chrs.sh\n"
 date
 echo ""
 
 # files and folders
 out_dir="${1}/s04_annotate_vars"
-threads=$2
-vcf=` find "${out_dir}" -name *.clinvar.vcf.gz `
+threads="$2"
+vcf=$( find "${out_dir}" -name *.clinvar.vcf.gz ) 
 std_chr="${vcf%.vcf.gz}.std_chr.vcf.gz"
 updated_vcf="${std_chr%.std_chr*}.reheaded.vcf.gz"
 header="${out_dir}/header.txt"
+
+# check output
+if [ -z "${out_dir}" ]; then
+   echo "Error: Missing output directory argument."
+   exit 1
+elif [ ! -d "${out_dir}" ]; then
+   echo "Error: output directory argument: ${out_dir} is not a directory."
+   exit 1
+fi
+
+# check update VCF exists
+if [ -z "${vcf}" ]; then
+  echo "Updated ClinVar VCF file not found."
+  exit 1
+fi
+
+# If no threads specified or non-numeric then default is 4
+if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
+  threads=4
+fi
 
 # progress report
 bcftools --version
@@ -34,7 +50,7 @@ date
 echo ""
 
 echo "Input VCF file: ${vcf}"
-echo "Output VCF file (with update header): ${updated_vcf}"
+echo "Output VCF file (with updated header): ${updated_vcf}"
 echo ""
 
 echo "Selecting variants from standard chromosomes only..."
@@ -73,7 +89,7 @@ bcftools reheader "${std_chr}" \
 echo ""
 
 # index VCF
-echo "Indexing VCF file..."
+echo -e "Indexing VCF file...\n"
 bcftools index "${updated_vcf}"
 
 # verify changes have been made

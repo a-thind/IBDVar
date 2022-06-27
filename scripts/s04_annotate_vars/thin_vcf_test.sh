@@ -9,14 +9,14 @@
 set -e
 
 # Starting message
-echo $0
+echo "Script: thin_vcf_test.sh"
 date
 echo ""
 
 # files and folders
-VCF=$1
 base_dir="/home/share"
-data_dir="${base_dir}/data/s04_annotate"
+data_dir="${base_dir}/data/output/IHCAPX8_1/s04_annotate_vars"
+VCF="${data_dir}/IHCAPX8_dragen_joint.clinvar.std_chr.vcf.gz"
 output_vcf="${data_dir}/thinned.recode.vcf"
 
 

@@ -5,19 +5,16 @@
 # Intended use:
 # ./s07_highlight_IBD.sh out_dir phenogram genome &> s07_highlight_IBD.log
 # Parameters:
-#   out_dir: output folder
-#   phenogram: phenogram folder
-#   genome: Human genome text file with 3 columns (id, size, centromere), e.g. (http://visualization.ritchielab.org/downloads/human_genome.txt)
+#   $1: (out_dir) output folder
+#   $2: (phenogram) phenogram folder
+#   $3: (genome) Human genome text file with 3 columns (id, size, centromere), 
+#       (for example seehttp://visualization.ritchielab.org/downloads/human_genome.txt)
 
 # stop script if non-zero exit status 
-set -e
-# stop script if variable value is unset
-set -u
-# stop entire pipe if non-zero status encountered
-set -o pipefail
+set -euo pipefail
 
 # starting message
-printf "Scripts:\ts07_highlight_IBD.sh\n"
+printf "Script:\ts07_highlight_IBD.sh\n\n"
 date
 echo ""
 
@@ -26,17 +23,41 @@ do
 printf "Drawing IBD segments in ideogram detected using ${tool}\n\n"
 # files and folders
 out_dir="${1}/s07_select_haploblocks/${tool}"
+phenogram="${2}/pheno_gram.rb"
+genome="${3}"
+# output files
 pheno_input="${out_dir}/pheno_input.txt"
 pheno_colour="${out_dir}/pheno_colour.txt"
 pheno_output="${out_dir}/ideogram"
-ibd_file=` find "${out_dir}" -name *.seg* `
-phenogram="${2}/pheno_gram.rb"
-genome=$3
+ibd_file=$( find "${out_dir}" -name *.seg* )
+
+if [ ! -e "${out_dir}" ]; then
+    echo "Error: could not find ${out_dir} data folder."
+    exit 1
+fi
+
+if [ -z "${phenogram}" ]; then
+    echo "Error: Missing phenogram path."
+    exit 1
+elif [ ! -e "${phenogram}" ]; then
+    echo "Error: Phenogram path does not exist."
+    exit 1
+fi
+
+if [ -z "${genome}" ]; then
+    echo "Error: Missing phenogram human genome text file."
+    exit 1
+elif [ ! -e "${genome}" ]; then
+    echo "Error: Phenogram human genome text file not found."
+    exit 1
+fi
+
 
 # progress report
-printf "PhenoGram %s\n" ` ruby "${phenogram}" --version `
+printf "PhenoGram %s\n" $( ruby "${phenogram}" --version )  
 date
 echo ""
+
 echo "IBD segment file: ${ibd_file}"
 echo "Phenogram input file: ${pheno_input}"
 echo "Genome file: ${genome}"
@@ -61,7 +82,6 @@ if [ "${ibd_file#*.}" == "segments" ]
 then
     # extract required fields from IBD segments file
     awk 'BEGIN{ print "CHR", "\t", "POS", "\t", "END", "\t", "PHENOTYPE"} NR>1{ gsub("chr", "", $4); printf("%s\t%s\t%s\t%s-%s\n", $4,$5,$6,$2,$3) }' "${ibd_file}" > "${pheno_input}"
-    echo "hello"
 else
     awk 'BEGIN{ print "CHR", "\t", "POS", "\t", "END", "\t", "PHENOTYPE"} NR>1{ gsub("chr", "", $3); printf("%s\t%s\t%s\t%s-%s\n", $3,$4,$5,$1,$2) }' "${ibd_file}" > "${pheno_input}"
 fi
