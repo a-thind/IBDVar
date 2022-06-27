@@ -1,0 +1,19 @@
+Script: s01_check_annot_file.sh
+
+Sat Jun 25 22:37:47 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Sat Jun 25 22:37:47 UTC 2022
+
+Input VCF file: /home/share/data/sv/s03_filter_imprecise_vars/IHCAPX8_SV_dragen_joint.sv.pass.precise.vcf.gz
+Annotation GTF: /home/share/resources/refseq/hg38.ncbiRefSeq.gtf.gz
+
+Chromosomes in VCF file: 
+Done.
+Sat Jun 25 22:37:47 UTC 2022
+
