@@ -1,0 +1,49 @@
+Script: s04_annotate_sv.sh
+Tue Jun 28 11:17:48 UTC 2022
+
+bedtools v2.30.0
+Tue Jun 28 11:17:48 UTC 2022
+
+Input VCF file: /home/share/data/sv/s03_filter_imprecise_vars/IHCAPX8_SV_dragen_joint.sv.pass.precise.vcf.gz
+GTF annotation file: /home/share/resources/refseq/hg38.ncbiRefSeq.gtf.gz
+Output exons bed file: /home/share/resources/refseq/exons.bed
+
+Decompressing RefSeq GTF file...
+
+Sorting GTF file by chromosome then start position...
+
+Chromosome order in GTF...
+chr1
+chr10
+chr10_GL383545v1_alt
+chr10_GL383546v1_alt
+chr10_KI270824v1_alt
+chr10_KI270825v1_alt
+chr10_KN196480v1_fix
+chr10_KN538366v1_fix
+chr10_KQ090020v1_alt
+chr10_KQ090021v1_fix
+chr10_ML143354v1_fix
+chr10_ML143355v1_fix
+chr11
+chr11_JH159136v1_alt
+chr11_JH159137v1_alt
+chr11_KI270721v1_random
+chr11_KI270826v1_alt
+chr11_KI270827v1_alt
+chr11_KI270829v1_alt
+chr11_KI270830v1_alt
+chr11_KI270831v1_alt
+chr11_KI270832v1_alt
+chr11_KI270902v1_alt
+chr11_KI270903v1_alt
+
+Extract exons from GTF...
+
+Finding overlaps between SV and genes...
+
+Total number of overlaps: 2912
+
+Done.
+Tue Jun 28 11:18:00 UTC 2022
+
