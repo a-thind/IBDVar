@@ -56,6 +56,10 @@ echo "Indexing VCF file..."
 bcftools index -f "${in_vcf}"
 echo ""
 
+echo "Names of samples:"
+bcftools query -l "${in_vcf}"
+echo ""
+
 # count variants
 echo "Variant Counts"
 echo "-----------------"

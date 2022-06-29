@@ -2,10 +2,8 @@
 # short_variants.sh - Script for starting short variants prioritisation pipeline
 # Anisha Thind, 15June2022
 
-# stop at runtime errors
-set -e
-# stop pipeline if non-zero status error
-set -o pipefail
+# stop at runtime errors and if pipe contains a non-zero status
+set -eo pipefail
 
 # starting message
 echo -e "Short Variants Pipeline\n"
@@ -105,7 +103,7 @@ short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
    |& tee -a "${pipeline_log}"
 
 #-------------------------------- IBD Detection --------------------------------
-s07_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
+short_variants/s07_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
    "${plink}" \
    "${threads}" \
    "${ibis}" \

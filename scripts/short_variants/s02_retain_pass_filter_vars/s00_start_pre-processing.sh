@@ -40,11 +40,11 @@ echo -e "=========================== Variant Pre-processing ====================
 echo -e "---------------------- Filter Variants using Filter Field ---------------------\n"
 base_dir="short_variants"
 scripts_dir="${base_dir}/s02_retain_pass_filter_vars"
-s02_retain_pass_filter_vars/s01_retain_pass_filter_vars.sh "${in_vcf}" \
+"${scripts_dir}"/s01_retain_pass_filter_vars.sh "${in_vcf}" \
    "${out_dir}" \
    |& tee -a "${pipeline_log}"
 
-s02_retain_pass_filter_vars/s02_check_vcf_stats.sh "${out_dir}" \
+"${scripts_dir}"/s02_check_vcf_stats.sh "${out_dir}" \
     |& tee -a "${pipeline_log}"
 
 # completion message
@@ -53,11 +53,13 @@ date
 echo ""
 
 echo -e "------------------------- Multi-allelic Site Parsing --------------------------\n"
+# set dirs
 in_dir="${data_dir}"
 out_dir="${out_dir}/s03_split_MA_sites"
 mkdir -p "${out_dir}"
+scripts_dir="${base_dir}/s03_split_MA_sites"
 
-s03_split_MA_sites/s01_split_MA_sites.sh "${in_dir}" "${out_dir}" \
+"${scripts_dir}"/s01_split_MA_sites.sh "${in_dir}" "${out_dir}" \
     |& tee -a "${pipeline_log}"
 
 echo "Multi-allelic site parsing completed."

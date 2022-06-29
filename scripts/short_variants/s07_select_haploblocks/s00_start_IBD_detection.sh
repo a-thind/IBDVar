@@ -57,32 +57,32 @@ elif [ ! -d "${log_dir}" ]; then
 fi
 
 echo -e "--------------------------- Generating PLINK Dataset --------------------------\n"
-
-s07_select_haploblocks/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
+scripts_dir="short_variants/s07_select_haploblocks"
+"${scripts_dir}"/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
     |& tee -a "${pipeline_log}"
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s02_add_recomb_dists.sh "${out_dir}" "${ibis}" "${genetic_map}" \
+"${scripts_dir}"/s02_add_recomb_dists.sh "${out_dir}" "${ibis}" "${genetic_map}" \
     |& tee -a "${pipeline_log}"
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s03_retain_snps_with_recomb_dists.sh "${out_dir}" \
+"${scripts_dir}"/s03_retain_snps_with_recomb_dists.sh "${out_dir}" \
     "${plink}" \
     "${threads}" \
     |& tee -a "${pipeline_log}"
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s04_add_recomb_dists.sh "${out_dir}" \
+"${scripts_dir}"/s04_add_recomb_dists.sh "${out_dir}" \
     "${ibis}" \
     "${genetic_map}" \
     |& tee -a "${pipeline_log}"
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s05_select_haploblocks_ibis.sh "${out_dir}" \
+"${scripts_dir}"/s05_select_haploblocks_ibis.sh "${out_dir}" \
     "${ibis}" \
     "${ibis_mt}" \
     "${threads}" \
@@ -90,7 +90,7 @@ s07_select_haploblocks/s05_select_haploblocks_ibis.sh "${out_dir}" \
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s06_select_haploblocks_truffle.sh "${out_dir}" \
+"${scripts_dir}"/s06_select_haploblocks_truffle.sh "${out_dir}" \
     "${truffle}" \
     "${ibs1m}" \
     "${ibs2m}" \
@@ -99,7 +99,7 @@ s07_select_haploblocks/s06_select_haploblocks_truffle.sh "${out_dir}" \
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-s07_select_haploblocks/s07_highlight_IBD.sh "${out_dir}" \
+"${scripts_dir}"/s07_highlight_IBD.sh "${out_dir}" \
     "${phenogram}" \
     "${genome}" \
     |& tee -a "${pipeline_log}"
