@@ -38,8 +38,11 @@ echo ""
 
 echo -e "=========================== Variant Pre-processing ============================\n"
 echo -e "---------------------- Filter Variants using Filter Field ---------------------\n"
-s02_retain_pass_filter_vars/s01_retain_pass_filter_vars.sh "${in_vcf}" "${out_dir}" \
-    |& tee -a "${pipeline_log}"
+base_dir="short_variants"
+scripts_dir="${base_dir}/s02_retain_pass_filter_vars"
+s02_retain_pass_filter_vars/s01_retain_pass_filter_vars.sh "${in_vcf}" \
+   "${out_dir}" \
+   |& tee -a "${pipeline_log}"
 
 s02_retain_pass_filter_vars/s02_check_vcf_stats.sh "${out_dir}" \
     |& tee -a "${pipeline_log}"

@@ -85,20 +85,19 @@ log_dir="${out_dir}/logs"
 mkdir -p "${log_dir}"
 pipeline_log="${log_dir}/pipeline.log"
 
-short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
-   "${out_dir}" \
+s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" "${out_dir}" \
    "${md5sum}" \
-   "${log_dir}" \
+   "${log_dir}" 
    |& tee -a "${pipeline_log}"
 
 #--------------------------- Variant Pre-processing ----------------------------
-short_variants/s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" \
+s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" \
    "${out_dir}" \
    "${log_dir}" \
    |& tee -a "${pipeline_log}"
 
 # ------------------------------ Variant Annotation -----------------------------
-short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
+s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
    "${clinvar}" \
    "${threads}" \
    "${log_dir}" \

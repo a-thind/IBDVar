@@ -40,6 +40,10 @@ bcftools --version
 date
 echo ""
 
+echo "Names of samples:"
+bcftools query -l "${filtered_vcf}"
+echo ""
+
 # count variants
 echo "Variant Counts"
 echo "-----------------"
@@ -55,7 +59,6 @@ echo ""
 echo "Generating BCF stats plots..."
 plot-vcfstats -p "${stats_dir}" "${stats_file}"
 echo ""
-
 
 # Completion message
 echo "Done."

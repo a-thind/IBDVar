@@ -41,10 +41,11 @@ mkdir -p "${data_dir}"
 
 echo -e "============================== Short Variants QC ==============================\n"
 
+scripts_dir="short_variants/s01_short_vcf_qc"
 # md5sum check if file is present
 if [ -e "${md5sum}" ]; then
    echo -e "--------------------------------- MD5SUM Check --------------------------------\n"
-   s01_short_vcf_qc/s01_check_vcf.sh "${in_vcf}" "${md5sum}" |& tee -a "${pipeline_log}"
+   "${scripts_dir}"/s01_check_vcf.sh "${in_vcf}" "${md5sum}" |& tee -a "${pipeline_log}"
    echo ""
    elif [ ! -z "${md5sum}" ]; then
       echo "Error: file ${md5sum} not found."
@@ -53,7 +54,7 @@ fi
 
 echo -e "--------------------------- Computing BCFtools stats --------------------------\n"
 # create bcfstats
-s01_short_vcf_qc/s02_bcfstats.sh "${in_vcf}" "${out_dir}" |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s02_bcfstats.sh "${in_vcf}" "${out_dir}" |& tee -a "${pipeline_log}"
 
 echo "QC completed."
 date

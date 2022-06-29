@@ -9,12 +9,8 @@
 #   in_vcf: input VCF file
 #   out_dir: output directory
 
-# Stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u
-# stop pipeline if non-zero status
-set -o pipefail
+# Stop at runtime errors, if any variable value is unset or a non-zero pipe status
+set -euo pipefail
 
 printf "Script: s01_retain_pass_filter_vars.sh\n"
 date
