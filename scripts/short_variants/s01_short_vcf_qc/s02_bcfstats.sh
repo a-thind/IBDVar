@@ -9,11 +9,7 @@
 #  out_dir: output folder
 
 # stop at runtime errors
-set -e
-# stop if a variable value is unset
-set -u
-# stop pipeline if non-zero status
-set -o pipefail
+set -euo pipefail
 
 # start message
 echo -e "Script:\ts02_bcfstats.sh\n"
@@ -63,7 +59,7 @@ echo ""
 # count variants
 echo "Variant Counts"
 echo "-----------------"
-bcftools +counts "${in_vcf}"
+bcftools +counts "${in_vcf}" 
 echo ""
 
 # generate BCFstats

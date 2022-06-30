@@ -42,6 +42,9 @@ vcf=$( find "${out_dir}" -name *.clinvar.reheaded.vcf.gz )
 out_dir="${out_dir}/s07_select_haploblocks/plink"
 mkdir -p "${out_dir}"
 plink_dataset="${out_dir}/autosomal_snps"
+pos_pattern="${out_dir}/pos_patterns.txt"
+dup_pos_snps="${out_dir}/dup_pos_snps.txt"
+plink_uniq_pos="${plink_dataset}_uniq_pos"
 
 # check output dir
 if [ -z "${out_dir}" ]; then
@@ -73,14 +76,34 @@ echo ""
 
 echo "Creating plink dataset..."
 "${plink}" --vcf "${vcf}" \
-    --vcf-half-call "missing" \
-    --autosome \
-    --snps-only \
-    --make-bed \
-    --silent \
-    --threads "${threads}" \
-    --out "${plink_dataset}"
+   --vcf-half-call "missing" \
+   --autosome \
+   --snps-only \
+   --mind 1 \
+   --geno 0.01 \
+   --maf 0.05 \
+   --make-bed \
+   --silent \
+   --threads "${threads}" \
+   --out "${plink_dataset}"
 
+echo ""
+
+# remove SNPs with identical physical positions
+# find duplicate positions and create patterns for 
+# checking
+cut -f2 "${plink_dataset}.bim" | sed 's/....$/_._./' \
+   | sort \
+   | uniq -d > "${pos_pattern}"
+
+# find the duplicate patterns in the bim file
+grep -o -f "${pos_pattern}" "${plink_dataset}.bim" > "${dup_pos_snps}"
+
+"${plink}" -bfile "${plink_dataset}" \
+   --exclude "${dup_pos_snps}" \
+   --make-bed \
+   --threads "${threads}" \
+   --out "${plink_uniq_pos}"
 echo ""
 
 # Completion message

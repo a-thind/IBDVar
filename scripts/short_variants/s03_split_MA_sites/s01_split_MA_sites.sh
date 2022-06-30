@@ -25,7 +25,7 @@ echo ""
 in_dir="${1}"
 out_dir="${2}"
 data_dir="${out_dir}/s02_retain_pass_filter_vars"
-vcf=$( find "${in_dir}" -name *.pass_filtered.vcf.gz ) 
+vcf=$( find "${in_dir}" -name *.filtered.vcf.gz ) 
 
 # Check source vcf was found
 if [ -z "${vcf}" ]

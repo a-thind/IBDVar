@@ -3,6 +3,9 @@
 # Parameters:
 #  in_vcf: input vcf
 #  out_dir: output folder
+#  GQ: geotype quality
+#  DP: depth
+#  threads: number of threads
 
 # Anisha Thind, 24Jun2022
 
@@ -12,6 +15,9 @@ set -euo pipefail
 # parameters
 in_vcf="${1}"
 out_dir="${2}"
+GQ="${3}"
+DP="${4}"
+threads="${5}"
 
 # check input vcf
 if [ -z "${in_vcf}" ]; then
@@ -31,7 +37,7 @@ elif [ ! -d "${out_dir}" ]; then
    exit 1
 fi
 
-pipeline_log="${3}/s00_start_pre-processing.log"
+pipeline_log="${6}/s00_start_pre-processing.log"
 data_dir="${out_dir}/s02_retain_pass_filter_vars"
 mkdir -p "${data_dir}"
 echo ""
@@ -42,6 +48,9 @@ base_dir="short_variants"
 scripts_dir="${base_dir}/s02_retain_pass_filter_vars"
 "${scripts_dir}"/s01_retain_pass_filter_vars.sh "${in_vcf}" \
    "${out_dir}" \
+   "${GQ}" \
+   "${DP}" \
+   "${threads}" \
    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s02_check_vcf_stats.sh "${out_dir}" \

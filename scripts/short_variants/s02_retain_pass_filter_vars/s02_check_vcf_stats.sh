@@ -21,7 +21,7 @@ echo ""
 
 # set files and folder variables
 out_dir="${1}/s02_retain_pass_filter_vars"
-filtered_vcf=$( find "${out_dir}" -name *.pass_filtered.vcf.gz ) 
+filtered_vcf=$( find "${out_dir}" -name *.filtered.vcf.gz ) 
 
 if [ ! -e "${filtered_vcf}" ]; then
   echo "Error: filtered VCF file not found."
@@ -33,7 +33,7 @@ stats_dir="${out_dir}/bcfstats"
 stats_file="${stats_dir}/${basename}.vchk"
 mkdir -p "${stats_dir}"
 
-echo -e "Check VCF stats for filtered VCF (all PASS filters)\n"
+echo -e "Checking VCF stats for filtered VCF...\n"
 
 # Generate progress report
 bcftools --version
@@ -49,6 +49,9 @@ echo "Variant Counts"
 echo "-----------------"
 bcftools +counts "${filtered_vcf}"
 echo ""
+
+bcftools view -H "${filtered_vcf}" \
+  | awk 'END{ printf("Number of variants retained (PASS): %d\n\n", NR) }'
 
 # generate BCFstats
 echo "Calculating BCF stats..."

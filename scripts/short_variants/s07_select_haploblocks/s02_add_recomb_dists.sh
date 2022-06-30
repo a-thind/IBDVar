@@ -22,7 +22,7 @@ out_dir="${1}/s07_select_haploblocks/plink"
 ibis="${2}"
 genetic_map="${3}"
 add_map_plink="${ibis}/add-map-plink.pl"
-plink_dataset="${out_dir}/autosomal_snps"
+plink_dataset="${out_dir}/autosomal_snps_uniq_pos"
 
 if [ -z "${ibis}" ]; then
   echo "Error: Missing IBIS argument."

@@ -41,6 +41,17 @@ if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 
+# Filtering parameters 
+if [[ -z "${GQ}" || "${GQ}" =~ !^[0-9]+ ]]; then
+  echo "GQ parameter unspecified in config file... using default value (20)"
+  GQ=20
+fi
+
+if [[ -z "${DP}" || "${DP}" =~ !^[0-9]+ ]]; then
+  echo "DP parameter unspecified in config file... using default value (10)"
+  DP=10
+fi
+
 if [ -z "${plink}" ]; then
    echo "Error: Missing PLINK path."
    exit 1
@@ -56,6 +67,8 @@ elif [ ! -e "${clinvar}" ]; then
     echo "Error: ClinVar VCF path does not exist."
     exit 1
 fi
+
+# IBD detection parameters
 
 if [ -z "${ibis}" ]; then
   echo "Error: Missing IBIS argument."

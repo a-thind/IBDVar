@@ -21,7 +21,7 @@ echo ""
 out_dir="${1}/s07_select_haploblocks"
 plink="${2}/plink2"
 threads="${3}"
-plink_dataset="${out_dir}/plink/autosomal_snps"
+plink_dataset="${out_dir}/plink/autosomal_snps_uniq_pos"
 
 if [ ! -d "${out_dir}" ]; then
     echo "${out_dir}"
@@ -67,7 +67,7 @@ awk 'END{printf("Number of SNPS lacking recombination data: %s\n\n", NR)}' "${ex
     --silent \
     --threads "${threads}" \
     --out "${filtered_plink}"
-
+ 
 echo ""
 
 # completion message
