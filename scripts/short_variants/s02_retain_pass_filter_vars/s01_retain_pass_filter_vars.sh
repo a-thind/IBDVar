@@ -68,11 +68,12 @@ bcftools view -i "GQ>=20 && FORMAT/DP>=10" "${pass_vcf}" \
   -Oz \
   -o "${filtered_vcf}" 
 
-awk 'END{printf("Number of variants after filtering: %s\n\n", NR)}' "${pass_vcf}"
+zgrep -v "^#" "${filtered_vcf}" \
+  | awk 'END{printf("Number of variants after filtering: %s\n\n", NR)}' 
 
 # Index VCF file
 echo "Indexing Filtered VCF file..."
-bcftools index "${pass_vcf}"
+bcftools index "${filtered_vcf}"
 echo ""
 
 # completion message
