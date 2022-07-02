@@ -1,5 +1,6 @@
 #!/bin/bash
-# s01_retain_pass_filter_vars.sh - uses "FILTER" field to retain only those variants
+# s01_retain_pass_filter_vars.sh - filter variants so only those that pass all filters and
+#   meet DP and GQ thresholds are retained.
 # which pass all filters (PASS)
 # Anisha Thind, 16May2022
 

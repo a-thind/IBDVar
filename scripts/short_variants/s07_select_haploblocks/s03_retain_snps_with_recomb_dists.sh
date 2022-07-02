@@ -23,8 +23,13 @@ plink="${2}/plink2"
 threads="${3}"
 plink_dataset="${out_dir}/plink/autosomal_snps_uniq_pos"
 
-if [ ! -d "${out_dir}" ]; then
-    echo "${out_dir}"
+# check output dir
+if [ -z "${out_dir}" ]; then
+   echo "Error: Missing output directory argument."
+   exit 1
+elif [ ! -d "${out_dir}" ]; then
+   echo "Error: output directory argument: ${out_dir} is not a directory."
+   exit 1
 fi
 
 # make dir for ibis data

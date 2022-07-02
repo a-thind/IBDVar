@@ -99,9 +99,7 @@ echo -e "-----------------------------------------------------------------------
 
 echo -e "-------------------------------------------------------------------------------\n"
 
-"${scripts_dir}"/s07_highlight_IBD.sh "${out_dir}" \
-    "${phenogram}" \
-    "${genome}" \
+"${scripts_dir}"/s07_draw_ideogram.sh "${out_dir}" "${scripts_dir}" \
     |& tee -a "${pipeline_log}"
 
 echo "IBD regions detected."
