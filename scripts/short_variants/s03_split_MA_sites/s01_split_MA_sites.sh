@@ -24,7 +24,6 @@ echo ""
 # set file and folder variables
 in_dir="${1}"
 out_dir="${2}"
-data_dir="${out_dir}/s02_retain_pass_filter_vars"
 vcf=$( find "${in_dir}" -name *.filtered.vcf.gz ) 
 
 # Check source vcf was found
@@ -44,8 +43,6 @@ elif [ ! -d "${out_dir}" ]; then
 fi
 
 basename=$( basename "${vcf}" .vcf.gz ) 
-out_dir="${out_dir}/s03_split_MA_sites"
-mkdir -p "${out_dir}"
 ma_vcf="${out_dir}/${basename}.split_MA.vcf.gz"
 
 # progress report
@@ -57,6 +54,11 @@ printf "Multi-allelic split VCF file: ${ma_vcf}\n\n"
 bcftools --version
 date
 echo ""
+
+bcftools view -H "${vcf}" \
+   | awk 'BEGIN{count=0} 
+      $5~/,/{count++} 
+      END{printf("Number of multi-allelic sites: %s\n\n", count)}'
 
 # Split MA sites
 printf "Split multiallelic sites...\n\n"
