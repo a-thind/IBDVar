@@ -89,27 +89,27 @@ done
 echo -e "=================================== Pipeline ===================================\n"
 
 
-# short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
-#    "${out_dir}" \
-#    "${md5sum}" \
-#    "${log_dir}" \
-#    |& tee -a "${pipeline_log}"
+short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
+    "${out_dir}" \
+    "${md5sum}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
-# #--------------------------- Variant Pre-processing ----------------------------
-# short_variants/s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" \
-#    "${out_dir}" \
-#    "${GQ}" \
-#    "${DP}" \
-#    "${threads}" \
-#    "${log_dir}" \
-#    |& tee -a "${pipeline_log}"
+#--------------------------- Variant Pre-processing ----------------------------
+short_variants/s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" \
+    "${out_dir}" \
+    "${GQ}" \
+    "${DP}" \
+    "${threads}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
 # # ------------------------------ Variant Annotation -----------------------------
-# short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
-#    "${clinvar}" \
-#    "${threads}" \
-#    "${log_dir}" \
-#    |& tee -a "${pipeline_log}"
+short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
+    "${clinvar}" \
+    "${threads}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
 #-------------------------------- IBD Detection --------------------------------
 short_variants/s07_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
