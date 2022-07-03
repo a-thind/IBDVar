@@ -1,33 +1,19 @@
 Script: s03_explore_overlaps.sh
-Tue Jun 28 15:24:01 UTC 2022
+Sat Jul  2 23:51:00 UTC 2022
 
-Input VCF file: /home/share//data/sv/s04_annotate_SV/sv_overlaps.vcf
-Output IBD overlaps: /home/share//data/sv/s04_annotate_SV/ibd_sv.bed
+Input VCF file: /home/share//data/sv/s04_annotate_sv/sv_overlaps.vcf
+Output IBD overlaps: /home/share//data/sv/s04_annotate_sv/ibd_sv.bed
 
-Number of genes with SV overlaps: 595
+Number of genes with SV overlaps: 2874
 
 Creating bed file from IBD segments...
 
-Number of overlaps in IBD segments: 28
+Number of overlaps in IBD segments: 824
 
-Number of SVs overlapping with exons in IBD regions:
+Number of SVs overlapping with genes in IBD regions:
 
-      1 "C2orf73"
-      1 "DYNLL1P2"
-      1 "IRF2BPL"
-      4 "KSR2"
-      2 "LIN52"
-      2 "LOC107984686"
-      2 "NDUFB8P3"
-      2 "NKAIN2"
-      1 "OR2BH1P"
-      3 "PCDHA10"
-      2 "PCDHA8"
-      2 "PCDHA9"
-      1 "PCDHA@"
-      1 "RBM25"
-      3 "XPR1"
+250
 
 Done.
-Tue Jun 28 15:24:01 UTC 2022
+Sat Jul  2 23:51:00 UTC 2022
 

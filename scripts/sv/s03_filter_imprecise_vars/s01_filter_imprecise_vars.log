@@ -1,6 +1,6 @@
 Script: s01_filter_imprecise_vars
 
-Sat Jun 25 17:44:48 UTC 2022
+Sat Jul  2 20:53:51 UTC 2022
 
 Input VCF: /home/share/data/sv/s02_retain_pass_filter_vars/IHCAPX8_SV_dragen_joint.sv.pass.vcf.gz
 Output VCF: /home/share/data/sv/s03_filter_imprecise_vars/IHCAPX8_SV_dragen_joint.sv.pass.precise.vcf.gz
@@ -15,5 +15,5 @@ Indexing VCF file...
 Total number of variants AFTER filtering: 15716
 
 Done.
-Sat Jun 25 17:44:48 UTC 2022
+Sat Jul  2 20:53:51 UTC 2022
 
