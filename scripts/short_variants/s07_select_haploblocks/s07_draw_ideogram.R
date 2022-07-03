@@ -3,15 +3,16 @@
 # Anisha Thind, 30Jun2022 
 
 # install packages
-#devtools::install_github("freestatman/ideogRam")
-#install.packages("htmltools")
 #install.packages("optparse")
-#install.packages("rjson")
+if (!require("DescTools")) {
+    install.packages("DescTools")
+}
 
 # load libraries
 library(optparse)
 library(scales)
 library(ideogram)
+library(DescTools)
 
 # clear workspace
 rm(list=ls())
@@ -59,6 +60,8 @@ ibd <- ibd[, -c(1,2)]
 ibd$name <- as.factor(ibd$name)
 # create colours
 color <- hue_pal()(length(levels(ibd$name)))
+# add alpha
+color <- SetAlpha(color, alpha=0.65)
 # map the colours to the samples
 ibd$color <- factor(ibd$name, labels=color)
 
