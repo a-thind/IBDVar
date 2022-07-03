@@ -12,7 +12,7 @@ date
 echo ""
 
 # Check input
-# generate usage message
+# function to generate usage message
 usage()
 {
    echo -e "Usage: ./short_variants.sh -c short_variants.config [-m md5sum_file.md5sum]\n" 
@@ -26,6 +26,7 @@ usage()
 [ $# -eq 0 ] && usage
 
 echo -e "----------------------------------- Settings ----------------------------------\n"
+echo getopts
 # check parameter arguments
 while getopts "C:m:h" arg; do
    case "${arg}" in
@@ -85,10 +86,15 @@ while getopts "C:m:h" arg; do
    esac
 done
 
+# shift processed params so next param is $1
+shift $((OPTIND-1))
+
+# if there is a remaining param display usage
+if [ ! -z "${1}" ]; then
+   usage
+fi
 
 echo -e "=================================== Pipeline ===================================\n"
-
-
 short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
     "${out_dir}" \
     "${md5sum}" \
@@ -104,7 +110,7 @@ short_variants/s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf
     "${log_dir}" \
     |& tee -a "${pipeline_log}"
 
-# # ------------------------------ Variant Annotation -----------------------------
+#------------------------------ Variant Annotation -----------------------------
 short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     "${clinvar}" \
     "${threads}" \
