@@ -12,17 +12,46 @@ if (!require(GenomicRanges)) {
 }
 
 # load libraries
-library(GenomicRanges)
+suppressMessages(suppressWarnings(library(GenomicRanges, quietly=TRUE)))
+suppressMessages(suppressWarnings(library(optparse, quietly=TRUE)))
 
 # clear workspace
 rm(list=ls())
 graphics.off()
 
-file="ccds/CCDS.current.bed"
-out_file="ccds/CCDS.current_filtered.bed"
+opt_list <- list(
+    make_option(c('-f', '--file', metavar='character', type='character',
+        help='Input SV VCF file', default=NULL)),
+    make_option(c('-o', '--outdir', metavar='character', type='character',
+        help='Output folder for output overlaps file', default=NULL))
+    )
 
-# read ccds data
-cds <- read.table(file, sep='\t', header=F)
+# parse options
+opt_parser <- OptionParser(option_list=opt_list)
+opts <- parse_args(opt_parser)
+
+# check parsed options
+if (is.null(opts$file)) {
+    stop("Input file has not been provided.")
+}
+
+if (is.null(opts$outdir)) {
+    stop("Output directory has not been provided.")
+}
+
+if (!file.exists(opts$file)) {
+    stop(sprintf("File '%s' does not exist.", opts$file))
+}
+
+if (!file.exists(opts$outdir)) {
+    stop(sprintf("Output folder '%s' does not exist.", opts$outdir))
+}
+
+in_file <-  opts$file
+out_file <- "ccds_filtered.bed"
+out_file <- sprintf("%s/%s", opts$outdir, out_file)
+
+cds <- read.table(in_file, sep='\t', header=F)
 
 
 cat(sprintf("Total number of coding sequences in CCDS file: %s\n", 
@@ -49,5 +78,6 @@ filtered_cds <- filtered_cds[, c('seqnames', 'start', 'end', 'nc_accession',
 
 cat(sprintf("Total number of coding sequences in filtered CCDS file: %s\n", 
     nrow(filtered_cds)))
+
 # write out filtered bed file
-write.table(filtered_cds, file=out_file, quote=F, sep='\t', col.names=F )
+write.table(filtered_cds, file=out_file, quote=F, sep='\t', col.names=F, row.names=F)

@@ -7,7 +7,7 @@ set -euo pipefail
 
 # files and folders
 base_dir="/home/share/data"
-out_dir="${base_dir}/sv/s02_retain_pass_filter_vars"
+out_dir="${base_dir}/sv/s02_filtering_sv"
 mkdir -p "${out_dir}"
 in_vcf="${base_dir}/s00_source_data/IHCAPX8/s02_structural_variants/IHCAPX8_SV_dragen_joint.sv.vcf.gz"
 basename=$( basename "${in_vcf}" .vcf.gz )

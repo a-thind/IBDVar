@@ -6,7 +6,6 @@
 #devtools::install_github("freestatman/ideogRam")
 #install.packages("htmltools")
 #install.packages("optparse")
-#install.packages("rjson")
 
 # load libraries
 library(optparse)

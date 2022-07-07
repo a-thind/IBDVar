@@ -1,6 +1,6 @@
 Script: s01_retain_pass_filter_var.sh
 
-Sat Jul  2 20:53:35 UTC 2022
+Wed Jul  6 17:48:30 UTC 2022
 
 bcftools 
 Using htslib 1.15.1
@@ -8,11 +8,11 @@ Copyright (C) 2022 Genome Research Ltd.
 License Expat: The MIT/Expat license
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Sat Jul  2 20:53:35 UTC 2022
+Wed Jul  6 17:48:30 UTC 2022
 
 Input VCF: /home/share/data/s00_source_data/IHCAPX8/s02_structural_variants/IHCAPX8_SV_dragen_joint.sv.vcf.gz
-PASS filtered VCF: /home/share/data/sv/s02_retain_pass_filter_vars/IHCAPX8_SV_dragen_joint.sv.pass.vcf.gz
-Output folder: /home/share/data/sv/s02_retain_pass_filter_vars
+PASS filtered VCF: /home/share/data/sv/s02_filtering_sv/IHCAPX8_SV_dragen_joint.sv.pass.vcf.gz
+Output folder: /home/share/data/sv/s02_filtering_sv
 
 Total number of variants BEFORE filtering: 19061
 
@@ -23,5 +23,5 @@ Indexing VCF file...
 Total number of variants AFTER filtering: 16428
 
 Done.
-Sat Jul  2 20:53:35 UTC 2022
+Wed Jul  6 17:48:30 UTC 2022
 

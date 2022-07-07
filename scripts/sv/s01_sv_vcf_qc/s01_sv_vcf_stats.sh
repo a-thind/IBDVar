@@ -19,7 +19,6 @@ data_dir="${base_dir}/data/s00_source_data/IHCAPX8/s02_structural_variants"
 in_vcf="${data_dir}/IHCAPX8_SV_dragen_joint.sv.vcf.gz"
 csv="${data_dir}"
 stats_dir="${base_dir}/data/sv/s01_sv_vcf_qc/bcfstats"
-mkdir -p "${stats_dir}"
 basename=$( basename ${in_vcf} .sv.vcf.gz ) 
 stats_file="${stats_dir}/${basename}.vchk"
 
@@ -33,17 +32,8 @@ echo "Input VCF: ${in_vcf}"
 echo "Output folder: ${stats_dir}"
 echo ""
 
-#echo "Indexing VCF..."
-#bcftools index -f "${in_vcf}"
-#echo ""
-
-#echo "Generating bcfstats file..."
-#bcftools stats -s - "${in_vcf}" > "${stats_file}"
-#echo ""
-
-#echo "Creating bcfstats plots"
-#plot-vcfstats -s -p "${stats_dir}" "${stats_file}"
-#echo ""
+echo "Indexing VCF..."
+bcftools index -f "${in_vcf}"
 
 echo -e "--- Summary of Variant Counts ---\n"
 # extract SVTYPE info from VCF
@@ -74,6 +64,13 @@ bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" \
 echo -e "Number of variants passing specific filters:\n"
 bcftools query -f "%FILTER\n" "${in_vcf}" | sort | uniq -c | awk '{ printf("%-5s %s\n", $1, $2) }'
 echo ""
+
+# Number of structural variants
+bcftools query -f "%SVTYPE %SVLEN\n" -i "SVTYPE='BND'" "${in_vcf}" | sort | uniq -c
+bcftools query -f "%FILTER %SVTYPE %SVLEN\n" -i "SVTYPE='INS' && FILTER='PASS'" "${in_vcf}" | sort | uniq -c
+# Average length of insertions
+bcftools query -f "%SVLEN\n" -i "SVTYPE='INS'" $in_vcf | awk '{sum+=$1} END{print sum / NR}'
+bcftools query -f "%SVLEN\n" -i "SVTYPE='INS'" $in_vcf | awk '{sum+=$1} END{print sum / NR}'
 
 # Number of imprecise variants
 echo "--- Imprecise Variants ---"

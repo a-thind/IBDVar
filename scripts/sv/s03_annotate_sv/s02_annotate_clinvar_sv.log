@@ -1,0 +1,28 @@
+Script: s01_annotate_sv.sh
+Wed Jul  6 18:25:57 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Wed Jul  6 18:25:57 UTC 2022
+
+Input VCF file: /home/share/data/sv/s03_annotate_sv/IHCAPX8_SV_dragen_joint.sv.pass.read_support_updated.vcf.gz
+Output annotated VCF file: /home/share/data/sv/s03_annotate_sv/IHCAPX8_SV_dragen_joint.sv.pass.read_support_updated.clinvar.vcf.gz
+ClinVar VCF: /home/share/resources/clinvar/sv/nstd102.GRCh38.variant_call.vcf.gz
+
+
+Annotating Variants with ClinVar...
+
+Indexing annotated VCF file...
+
+The number of variants lacking annotation:
+10114
+Number of variants with ClinVar annotation:
+0
+10114
+Done.
+Wed Jul  6 18:25:58 UTC 2022
+
