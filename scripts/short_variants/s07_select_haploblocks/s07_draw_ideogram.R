@@ -3,10 +3,14 @@
 # Anisha Thind, 30Jun2022 
 
 # install packages
-#install.packages("optparse")
+
+if (!require("optparse")) {
+    install.packages("optparse")
+}
 if (!require("DescTools")) {
     install.packages("DescTools")
 }
+
 
 # load libraries
 library(optparse)
