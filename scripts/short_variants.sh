@@ -102,14 +102,15 @@ short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
     |& tee -a "${pipeline_log}"
 
 #--------------------------- Variant Pre-processing ----------------------------
-short_variants/s02_retain_pass_filter_vars/s00_start_pre-processing.sh "${in_vcf}" \
+short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
     "${out_dir}" \
     "${GQ}" \
     "${DP}" \
+    "${MAF}"
     "${threads}" \
     "${log_dir}" \
     |& tee -a "${pipeline_log}"
-
+exit 1
 #------------------------------ Variant Annotation -----------------------------
 short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     "${clinvar}" \

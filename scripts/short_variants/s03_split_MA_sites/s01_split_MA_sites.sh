@@ -9,11 +9,7 @@
 
 
 # stop at runtime errors
-set -e
-# stop if any variable value is unset
-set -u 
-# stop pipeline if non-zero status
-set -o pipefail
+set -euo pipefail
 
 # start message
 echo -e "Multiallelic Site Parsing\n"

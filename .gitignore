@@ -4,4 +4,6 @@ tools/
 test.sh
 *.RData
 *.Rhistory
+.nextflow*
+
 

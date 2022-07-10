@@ -15,15 +15,15 @@ echo ""
 
 # files and folder
 base_dir="/home/share"
-data_dir="${base_dir}/data/s04_annotate"
+data_dir="${base_dir}/data/output/IHCAPX8/s04_annotate_vars"
 basename="IHCAPX8_dragen_joint.clinvar.reheaded"
-input_vcf="${data_dir}/${basename}.vcf.gz"
-output_vcf="${data_dir}/${basename}.VEP.vcf.gz"
+in_vcf="${data_dir}/${basename}.vcf.gz"
+output_vcf="${data_dir}/${basename}.VEP2.vcf.gz"
 
 # Vep script
 VEP="${base_dir}/tools/ensembl-vep/vep"
-vep_report="${data_dir}/${basename}.VEP.html"
-vep_cache_info="${data_dir}/${basename}.VEP.vep_cache_info.txt"
+vep_report="${data_dir}/${basename}.VEP2.html"
+vep_cache_info="${data_dir}/${basename}.VEP2.vep_cache_info.txt"
 # VEP cache
 vep_cache_dir="${base_dir}/tools/ensembl-vep/cache"
 fasta="${vep_cache_dir}/homo_sapiens/106_GRCh38/Homo_sapiens.GRCh38.dna.toplevel.fa.gz"
@@ -36,7 +36,7 @@ cadd_indels="${cadd_dir}/gnomad.genomes.r3.0.indel.tsv.gz"
 
 echo "-- Files --"
 echo ""
-echo "Input VCF file: ${input_vcf}"
+echo "Input VCF file: ${in_vcf}"
 echo "Output VCF file: ${output_vcf}"
 echo "VEP report: ${vep_report}"
 echo ""
@@ -50,28 +50,37 @@ echo "${cadd_snv}"
 echo "${cadd_indels}"
 echo ""
 
-echo "Annotating with VEP..."
-tabix -h -f "${input_vcf}" chr1 | "${VEP}" \
---format vcf \
---output_file "${output_vcf}" \
---stats_file "${vep_report}" \
---vcf \
---force_overwrite \
---compress_output bgzip \
---fork 4 \
---offline \
---cache \
---species homo_sapiens \
---dir "${vep_cache_dir}" \
---cache_version "${cache_version}" \
---assembly "${cache_assembly}" \
---pick \
---gencode_basic \
---sift b \
---polyphen b \
---symbol \
---max_af \
---plugin CADD,"${cadd_snv}","${cadd_indels}" 
+# echo "Annotating with VEP..."
+# "${VEP}" \
+# -i "${in_vcf}" \
+# --format vcf \
+# --output_file "${output_vcf}" \
+# --stats_file "${vep_report}" \
+# --vcf \
+# --force_overwrite \
+# --compress_output bgzip \
+# --fork 4 \
+# --offline \
+# --cache \
+# --species homo_sapiens \
+# --dir "${vep_cache_dir}" \
+# --cache_version "${cache_version}" \
+# --assembly "${cache_assembly}" \
+# --per_gene \
+# --gencode_basic \
+# --sift b \
+# --polyphen b \
+# --symbol \
+# --max_af \
+# --hgvs \
+# --pubmed \
+# --check_existing \
+# --total_length \
+# --nearest symbol \
+# --regulatory \
+# --check_ref \
+# --exclude_null_alleles \
+# --plugin CADD,"${cadd_snv}","${cadd_indels}" 
 
 #--fasta "${fasta}" 
 #--hgvs, --numbers, --domains, --canonical, , --af, --af_1kg, --af_esp, --af_gnomad, --pubmed, --uniprot, --mane, --tsl, --appris, --gene_phenotype, 

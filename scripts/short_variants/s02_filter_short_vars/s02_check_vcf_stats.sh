@@ -20,7 +20,7 @@ date
 echo ""
 
 # set files and folder variables
-out_dir="${1}/s02_retain_pass_filter_vars"
+out_dir="${1}/s02_filter_short_vars"
 filtered_vcf=$( find "${out_dir}" -name *.filtered.vcf.gz ) 
 
 if [ ! -e "${filtered_vcf}" ]; then
@@ -28,7 +28,7 @@ if [ ! -e "${filtered_vcf}" ]; then
   exit 1
 fi
 
-basename=$( basename "${filtered_vcf}" .pass_filtered.vcf.gz ) 
+basename=$( basename "${filtered_vcf}" .filtered.vcf.gz ) 
 stats_dir="${out_dir}/bcfstats"
 stats_file="${stats_dir}/${basename}.vchk"
 mkdir -p "${stats_dir}"

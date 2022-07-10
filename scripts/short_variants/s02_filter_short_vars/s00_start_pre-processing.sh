@@ -5,6 +5,7 @@
 #  out_dir: output folder
 #  GQ: geotype quality
 #  DP: depth
+#  MAF: minor allele frequency
 #  threads: number of threads
 
 # Anisha Thind, 24Jun2022
@@ -17,7 +18,8 @@ in_vcf="${1}"
 out_dir="${2}"
 GQ="${3}"
 DP="${4}"
-threads="${5}"
+MAF="${5}"
+threads="${6}"
 
 # check input vcf
 if [ -z "${in_vcf}" ]; then
@@ -38,18 +40,19 @@ elif [ ! -d "${out_dir}" ]; then
 fi
 
 pipeline_log="${6}/s00_start_pre-processing.log"
-data_dir="${out_dir}/s02_retain_pass_filter_vars"
+data_dir="${out_dir}/s02_filter_short_vars"
 mkdir -p "${data_dir}"
 echo ""
 
 echo -e "=========================== Variant Pre-processing ============================\n"
 echo -e "---------------------- Filter Variants using Filter Field ---------------------\n"
 base_dir="short_variants"
-scripts_dir="${base_dir}/s02_retain_pass_filter_vars"
-"${scripts_dir}"/s01_retain_pass_filter_vars.sh "${in_vcf}" \
+scripts_dir="${base_dir}/s02_filter_short_vars"
+"${scripts_dir}"/s01_filter_short_vars.sh "${in_vcf}" \
    "${out_dir}" \
    "${GQ}" \
    "${DP}" \
+   "${MAF}" \
    "${threads}" \
    |& tee -a "${pipeline_log}"
 

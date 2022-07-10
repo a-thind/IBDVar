@@ -1,5 +1,5 @@
 #!/bin/bash
-# s01_retain_pass_filter_vars.sh - filter variants so only those that pass all filters and
+# s01_filter_short_vars.sh - filter variants so only those that pass all filters and
 #   meet DP and GQ thresholds are retained.
 # which pass all filters (PASS)
 # Anisha Thind, 16May2022
@@ -16,7 +16,7 @@
 # Stop at runtime errors, if any variable value is unset or a non-zero pipe status
 set -euo pipefail
 
-printf "Script: s01_retain_pass_filter_vars.sh\n"
+printf "Script: s01_filter_short_vars.sh\n"
 date
 echo ""
 
@@ -25,14 +25,16 @@ in_vcf="${1}"
 out_dir="${2}"
 GQ="${3}"
 DP="${4}"
-threads="${5}"
+MAF="${5}"
+threads="${6}"
 
 # create directory for output
 basename=$( basename "${in_vcf}" .vcf.gz ) 
-out_dir="${out_dir}/s02_retain_pass_filter_vars"
+out_dir="${out_dir}/s02_filter_short_vars"
 mkdir -p "${out_dir}"
 # name for filtered VCF
 pass_vcf="${out_dir}/${basename}.pass_filtered.vcf.gz"
+gq_dp_vcf="${pass_vcf%.pass_filtered*}.gq_dp.vcf.gz"
 filtered_vcf="${out_dir}/${basename}.filtered.vcf.gz"
 
 # check VCF file exists
@@ -67,9 +69,9 @@ printf "Filtering variants with GQ>= %s and DP >= %s in all samples...\n" "${GQ}
 bcftools view -i "GQ>=20 && FORMAT/DP>=10" "${pass_vcf}" \
   --threads "${threads}" \
   -Oz \
-  -o "${filtered_vcf}" 
+  -o "${filtered}" 
 
-zgrep -v "^#" "${filtered_vcf}" \
+zgrep -v "^#" "${filtered}" \
   | awk 'END{printf("Number of variants after filtering: %s\n\n", NR)}' 
 
 # Index VCF file
