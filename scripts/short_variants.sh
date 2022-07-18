@@ -26,7 +26,6 @@ usage()
 [ $# -eq 0 ] && usage
 
 echo -e "----------------------------------- Settings ----------------------------------\n"
-echo getopts
 # check parameter arguments
 while getopts "C:m:h" arg; do
    case "${arg}" in
@@ -119,7 +118,7 @@ short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     |& tee -a "${pipeline_log}"
 
 #-------------------------------- IBD Detection --------------------------------
-short_variants/s07_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
+short_variants/s06_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
    "${plink}" \
    "${threads}" \
    "${ibis}" \

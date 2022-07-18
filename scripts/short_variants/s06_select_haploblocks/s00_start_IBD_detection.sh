@@ -57,47 +57,47 @@ elif [ ! -d "${log_dir}" ]; then
 fi
 
 echo -e "--------------------------- Generating PLINK Dataset --------------------------\n"
-scripts_dir="short_variants/s07_select_haploblocks"
-# "${scripts_dir}"/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
-#     |& tee -a "${pipeline_log}"
+scripts_dir="short_variants/s06_select_haploblocks"
+"${scripts_dir}"/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
-# "${scripts_dir}"/s02_add_recomb_dists.sh "${out_dir}" "${ibis}" "${genetic_map}" \
-#     |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s02_add_recomb_dists.sh "${out_dir}" "${ibis}" "${genetic_map}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
-# "${scripts_dir}"/s03_retain_snps_with_recomb_dists.sh "${out_dir}" \
-#     "${plink}" \
-#     "${threads}" \
-#     |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s03_retain_snps_with_recomb_dists.sh "${out_dir}" \
+    "${plink}" \
+    "${threads}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
-# "${scripts_dir}"/s04_add_recomb_dists.sh "${out_dir}" \
-#     "${ibis}" \
-#     "${genetic_map}" \
-#     |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s04_add_recomb_dists.sh "${out_dir}" \
+    "${ibis}" \
+    "${genetic_map}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
-# "${scripts_dir}"/s05_select_haploblocks_ibis.sh "${out_dir}" \
-#     "${ibis}" \
-#     "${ibis_mt}" \
-#     "${threads}" \
-#     |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s05_select_haploblocks_ibis.sh "${out_dir}" \
+    "${ibis}" \
+    "${ibis_mt}" \
+    "${threads}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
-# "${scripts_dir}"/s06_select_haploblocks_truffle.sh "${out_dir}" \
-#     "${truffle}" \
-#     "${ibs1m}" \
-#     "${ibs2m}" \
-#     "${threads}" \
-#     |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s06_select_haploblocks_truffle.sh "${out_dir}" \
+    "${truffle}" \
+    "${ibs1m}" \
+    "${ibs2m}" \
+    "${threads}" \
+    |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n"
 
 "${scripts_dir}"/s07_draw_ideogram.sh "${out_dir}" "${scripts_dir}" \
     |& tee -a "${pipeline_log}"
