@@ -83,14 +83,6 @@ if [[ "${ibis_mt}" =~ !^[0-9]+ ]]; then
   exit 1
 fi
 
-if [ -z "${phenogram}" ]; then
-    echo "Error: Missing phenogram path."
-    exit 1
-elif [ ! -e "${phenogram}" ]; then
-    echo "Error: Phenogram path does not exist."
-    exit 1
-fi
-
 if [ -z "${genome}" ]; then
     echo "Error: Missing phenogram human genome text file."
     exit 1
