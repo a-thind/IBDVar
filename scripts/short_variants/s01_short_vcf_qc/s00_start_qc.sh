@@ -39,8 +39,8 @@ data_dir="${out_dir}/s01_short_vcf_qc"
 mkdir -p "${data_dir}"
 
 
-echo -e "============================== Short Variants QC ==============================\n"
-
+echo -e "============================== Short Variants QC ==============================\n" |& tee "${pipeline_log}"
+echo -e "Data folder: ${data_dir}\n" |& tee -a "${pipeline_log}"
 scripts_dir="short_variants/s01_short_vcf_qc"
 # md5sum check if file is present
 if [ -e "${md5sum}" ]; then

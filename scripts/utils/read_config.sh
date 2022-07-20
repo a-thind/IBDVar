@@ -90,3 +90,11 @@ elif [ ! -e "${genome}" ]; then
     echo "Error: Phenogram human genome text file not found."
     exit 1
 fi
+
+if [ -z "${cadd}" ]; then
+   echo "Error: Missing CADD path."
+   exit 1
+elif [ ! -d "${cadd}" ]; then 
+    echo "Error: CADD path is not a directory."
+    exit 1
+fi

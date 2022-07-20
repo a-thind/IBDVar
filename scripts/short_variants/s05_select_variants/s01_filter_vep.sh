@@ -17,6 +17,7 @@ in_vcf="${data_dir}/IHCAPX8_dragen_joint.clinvar.reheaded.split-vep.vcf.gz"
 out_dir="${data_dir%/s04*}/s05_filter_vep_vars"
 mkdir -p "${out_dir}"
 out_vcf="${out_dir}/IHCAPX8_dragen_joint.clinvar.reheaded.VEP.AF.vcf.gz"
+MAF=0.01
 
 # progress report
 bcftools --version
@@ -30,7 +31,7 @@ echo -e "Output filtered VCF file: ${out_vcf}\n\n"
 # select variants AF < 0.01 (rare)
 echo -e "Selecting rare variants...\n"
 bcftools view "${in_vcf}" \
-    -i 'vep_MAX_AF<0.01' \
+    -i "vep_MAX_AF<${MAF} || vep_MAX_AF="."" \
     -Oz \
     -o "${out_vcf}"
 

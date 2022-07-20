@@ -28,15 +28,17 @@ ibis_mt="${6}"
 truffle="${7}"
 ibs1m="${8}"
 ibs2m="${9}"
-phenogram="${10}"
-genome="${11}"
-log_dir="${12}"
+genome="${10}"
+log_dir="${11}"
 pipeline_log="${log_dir}/s00_start_IBD_detection.log"
 
-echo -e "================================ IBD DETECTION ================================\n"
-echo -e "Script: s00_start_IBD_detection.sh\n"
-date
-echo ""
+echo -e "================================ IBD DETECTION ================================\n" \
+    |& tee "${pipeline_log}"
+
+echo -e "Data folder: ${out_dir}\n" |& tee -a "${pipeline_log}"
+
+echo -e "Script: s00_start_IBD_detection.sh\n" |& tee -a "${pipeline_log}"
+date |& tee -a "${pipeline_log}"
 
 # check output dir
 if [ -z "${out_dir}" ]; then
@@ -56,7 +58,7 @@ elif [ ! -d "${log_dir}" ]; then
    exit 1
 fi
 
-echo -e "--------------------------- Generating PLINK Dataset --------------------------\n"
+echo -e "\n--------------------------- Generating PLINK Dataset --------------------------\n"
 scripts_dir="short_variants/s06_select_haploblocks"
 "${scripts_dir}"/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
     |& tee -a "${pipeline_log}"

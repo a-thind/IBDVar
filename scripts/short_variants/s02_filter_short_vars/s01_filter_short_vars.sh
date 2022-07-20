@@ -25,8 +25,7 @@ in_vcf="${1}"
 out_dir="${2}"
 GQ="${3}"
 DP="${4}"
-MAF="${5}"
-threads="${6}"
+threads="${5}"
 
 # create directory for output
 basename=$( basename "${in_vcf}" .vcf.gz ) 
@@ -66,12 +65,12 @@ bcftools view -H "${pass_vcf}" \
 
 printf "Filtering variants with GQ>= %s and DP >= %s in all samples...\n" "${GQ}" "${DP}"
 
-bcftools view -i "GQ>=20 && FORMAT/DP>=10" "${pass_vcf}" \
+bcftools view -i "GQ>=${GQ} && FORMAT/DP>=${DP}" "${pass_vcf}" \
   --threads "${threads}" \
   -Oz \
-  -o "${filtered}" 
+  -o "${filtered_vcf}" 
 
-zgrep -v "^#" "${filtered}" \
+zgrep -v "^#" "${filtered_vcf}" \
   | awk 'END{printf("Number of variants after filtering: %s\n\n", NR)}' 
 
 # Index VCF file

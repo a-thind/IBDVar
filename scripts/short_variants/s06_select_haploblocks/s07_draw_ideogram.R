@@ -17,6 +17,7 @@ library(optparse)
 library(scales)
 library(ideogram)
 library(DescTools)
+library(RColorBrewer)
 
 # clear workspace
 rm(list=ls())

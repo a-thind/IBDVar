@@ -18,8 +18,7 @@ in_vcf="${1}"
 out_dir="${2}"
 GQ="${3}"
 DP="${4}"
-MAF="${5}"
-threads="${6}"
+threads="${5}"
 
 # check input vcf
 if [ -z "${in_vcf}" ]; then
@@ -44,15 +43,17 @@ data_dir="${out_dir}/s02_filter_short_vars"
 mkdir -p "${data_dir}"
 echo ""
 
-echo -e "=========================== Variant Pre-processing ============================\n"
-echo -e "---------------------- Filter Variants using Filter Field ---------------------\n"
+echo -e "=========================== Variant Pre-processing ============================\n" \
+   |& tee "${pipeline_log}"
+echo -e "---------------------- Technical Variant Filtering ---------------------\n" \
+   |& tee - a"${pipeline_log}"
 base_dir="short_variants"
+echo -e "Data folder:${data_dir}\n" |& tee -a "${pipeline_log}"
 scripts_dir="${base_dir}/s02_filter_short_vars"
 "${scripts_dir}"/s01_filter_short_vars.sh "${in_vcf}" \
    "${out_dir}" \
    "${GQ}" \
    "${DP}" \
-   "${MAF}" \
    "${threads}" \
    |& tee -a "${pipeline_log}"
 
