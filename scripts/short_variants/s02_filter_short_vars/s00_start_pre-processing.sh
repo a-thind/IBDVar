@@ -5,6 +5,7 @@
 #  out_dir: output folder
 #  GQ: geotype quality
 #  DP: depth
+#  QUAL: quality
 #  MAF: minor allele frequency
 #  threads: number of threads
 
@@ -46,9 +47,9 @@ echo ""
 echo -e "=========================== Variant Pre-processing ============================\n" \
    |& tee "${pipeline_log}"
 echo -e "---------------------- Technical Variant Filtering ---------------------\n" \
-   |& tee - a"${pipeline_log}"
+   |& tee -a "${pipeline_log}"
 base_dir="short_variants"
-echo -e "Data folder:${data_dir}\n" |& tee -a "${pipeline_log}"
+echo -e "Data folder: ${data_dir}\n" |& tee -a "${pipeline_log}"
 scripts_dir="${base_dir}/s02_filter_short_vars"
 "${scripts_dir}"/s01_filter_short_vars.sh "${in_vcf}" \
    "${out_dir}" \
@@ -61,24 +62,32 @@ scripts_dir="${base_dir}/s02_filter_short_vars"
     |& tee -a "${pipeline_log}"
 
 # completion message
-echo "Filtering using the Filter field completed."
-date
-echo ""
+echo "Filtering using the Filter field completed." |& tee -a "${pipeline_log}"
+date |& tee -a "${pipeline_log}"
 
-echo -e "------------------------- Multi-allelic Site Parsing --------------------------\n"
+echo -e "\n------------------------- Multi-allelic Site Parsing --------------------------\n" \
+   |& tee -a "${pipeline_log}"
+
 # set dirs
 in_dir="${data_dir}"
-out_dir="${out_dir}/s03_split_MA_sites"
+out_dir="${out_dir}/s03_pre-process_vcf"
 mkdir -p "${out_dir}"
-scripts_dir="${base_dir}/s03_split_MA_sites"
+scripts_dir="${base_dir}/s03_pre-process_vcf"
 
 "${scripts_dir}"/s01_split_MA_sites.sh "${in_dir}" "${out_dir}" \
     |& tee -a "${pipeline_log}"
 
-echo "Multi-allelic site parsing completed."
-date
-echo -e "\n-------------------------------------------------------------------------------\n"
+echo -e "\n--------------------- Retaining Standard Chromosomes Only ---------------------\n" \
+   |& tee -a "${pipeline_log}"
 
-echo "Variant pre-processing completed."
-date
-echo ""
+"${scripts_dir}"/s02_retain_std_chrs.sh "${out_dir}" "${threads}" \
+   |& tee -a "${pipeline_log}"
+
+echo -e "\n------------------------------- Add Variant IDs -------------------------------\n" \
+   |& tee -a "${pipeline_log}"
+
+"${scripts_dir}"/s03_add_variant_ids.sh "${out_dir}" "${threads}" \
+   |& tee -a "${pipeline_log}"
+
+echo "Variant pre-processing completed." |& tee -a "${pipeline_log}"
+date |& tee -a "${pipeline_log}"

@@ -21,10 +21,10 @@ date
 echo ""
 
 # files and folders
-data_dir="${1}/s04_annotate_vars"
-vcf=$( find "${data_dir}" -name *.clinvar.reheaded.vcf.gz ) 
+data_dir="${1}"
+vcf=$( find "${data_dir}" -name *.reheaded.vcf.gz ) 
 # create folder for truffle data
-out_dir="${1}/s07_select_haploblocks/truffle"
+out_dir="${1}/truffle"
 mkdir -p "${out_dir}"
 out_vcf="${out_dir}/truffle"
 truffle="${2}/truffle"

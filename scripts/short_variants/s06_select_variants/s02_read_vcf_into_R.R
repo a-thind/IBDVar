@@ -76,10 +76,13 @@ vep_consequnce <- filtered_vars %>% distinct(vep_Consequence)
 test_vars <- filtered_vars %>% 
   filter(!grepl("benign|Benign", CLNSIG)) %>%
   filter(vep_CADD_PHRED >= 20) %>%
-  filter(!grepl("tolerated", vep_SIFT)) %>%
-  filter(!grepl("benign", vep_PolyPhen)) %>%
-  filter(!grepl("LOW", vep_IMPACT)) %>%
-  filter(!grepl("synonymous", vep_Consequence))
+  filter(!grepl("deleterious", vep_SIFT)) %>%
+  filter(!grepl("damagining", vep_PolyPhen)) %>%
+  filter(!grepl("HIGH", vep_IMPACT)) %>%
+  filter(!grepl("missense", vep_Consequence))
+
+# save filtered variants
+
 
 # Counts per feature function
 # Example: variants_df %>% counts(feature)
@@ -103,4 +106,19 @@ plot_counts <- function(data) {
 filtered_vars %>% counts(CLNSIG) 
 filtered_vars %>% counts(CLNSIG) %>% plot_counts()
 filtered_vars %>% counts(vep_SIFT)
+filtered_vars %>% select(vep_SIFT)
 filtered_vars %>% filter(grepl("[a-z]+", vep_SIFT))
+
+changed <- filtered_vars %>% 
+  mutate(SIFT_call=sub("\\(.*\\)","",vep_SIFT)) %>% 
+  mutate(SIFT_score=as.numeric(
+    sub(".*\\(","", sub("\\)","",vep_SIFT)))) %>% 
+  select(-vep_SIFT)
+filtered_vars %>% select(match("[0-9]+\.[0-9]+|[0-9]+"))
+changed %>% counts(SIFT_call)
+
+filtered_vars <- filtered_vars %>% 
+  mutate(vep_SIFT=gsub(",\\.|\\.,", "", vep_SIFT)) %>% 
+  mutate(vep_SIFT_score=gsub("[a-z]+\\(|\\)","", vep_SIFT)) %>% 
+  mutate(vep_SIFT_call=gsub("[^a-z]+\\)", "", vep_SIFT)) %>% 
+  select(-vep_SIFT)

@@ -30,7 +30,10 @@ threads="${5}"
 # create directory for output
 basename=$( basename "${in_vcf}" .vcf.gz ) 
 out_dir="${out_dir}/s02_filter_short_vars"
+stats_dir="${out_dir}/bcfstats"
 mkdir -p "${out_dir}"
+mkdir -p "${stats_dir}"
+
 # name for filtered VCF
 pass_vcf="${out_dir}/${basename}.pass_filtered.vcf.gz"
 gq_dp_vcf="${pass_vcf%.pass_filtered*}.gq_dp.vcf.gz"
@@ -63,7 +66,8 @@ bcftools view -H "${in_vcf}" \
 bcftools view -H "${pass_vcf}" \
   | awk 'END{printf("Number of variants after filtering (PASS): %s\n\n", NR)}'
 
-printf "Filtering variants with GQ>= %s and DP >= %s in all samples...\n" "${GQ}" "${DP}"
+printf "Filtering variants with GQ>= %s and DP >= %s in all samples...\n" \
+  "${GQ}" "${DP}"
 
 bcftools view -i "GQ>=${GQ} && FORMAT/DP>=${DP}" "${pass_vcf}" \
   --threads "${threads}" \

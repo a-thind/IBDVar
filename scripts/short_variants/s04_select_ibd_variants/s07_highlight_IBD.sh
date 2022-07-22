@@ -22,7 +22,7 @@ for tool in ibis truffle
 do
 printf "Drawing IBD segments in ideogram detected using ${tool}\n\n"
 # files and folders
-out_dir="${1}/s07_select_haploblocks/${tool}"
+out_dir="${1}/${tool}"
 phenogram="${2}/pheno_gram.rb"
 genome="${3}"
 # output files

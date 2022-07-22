@@ -21,7 +21,7 @@ echo ""
 
 # files and folder
 out_dir="${1}"
-in_vcf=$( find "${out_dir}" -name *.reheaded.vcf.gz )
+in_vcf="/home/share/data/output/IHCAPX8/s06_select_haploblocks/ibis/filtered_ibd.sorted.vcf.gz"
 vep="${2}"
 cadd_dir="${3}"
 threads="${4}"
@@ -51,11 +51,11 @@ basename=$( basename "${in_vcf}" .vcf.gz )
 output_vcf="${out_dir}/${basename}.vep.vcf.gz"
 vep_report="${out_dir}/${basename}.vep.html"
 vep_cache_info="${out_dir}/${basename}.vep.vep_cache_info.txt"
+cache_dir="/home/share/tools/ensembl-vep/cache"
 # VEP cache
 cache_version="106"
 cache_assembly="GRCh38"
 # CADD 
-
 cadd_snv="${cadd_dir}/whole_genome_SNVs.tsv.gz"
 cadd_indels="${cadd_dir}/gnomad.genomes.r3.0.indel.tsv.gz"
 
@@ -72,35 +72,37 @@ echo "${cadd_indels}"
 echo ""
 
 echo "Annotating with VEP..."
-echo "${vep}" \
--i "${in_vcf}" \
---format vcf \
---output_file "${output_vcf}" \
---stats_file "${vep_report}" \
---vcf \
---force_overwrite \
---compress_output bgzip \
---fork 4 \
---offline \
---cache \
---species homo_sapiens \
---cache_version "${cache_version}" \
---assembly "${cache_assembly}" \
---per_gene \
---gencode_basic \
---sift b \
---polyphen b \
---symbol \
---max_af \
---hgvs \
---pubmed \
---check_existing \
---total_length \
---nearest symbol \
---regulatory \
---check_ref \
---exclude_null_alleles \
---plugin CADD,"${cadd_snv}","${cadd_indels}" 
+"${vep}" \
+  -i "${in_vcf}" \
+  --format vcf \
+  --output_file "${output_vcf}" \
+  --stats_file "${vep_report}" \
+  --vcf \
+  --force_overwrite \
+  --compress_output bgzip \
+  --fork "${threads}" \
+  --offline \
+  --cache \
+  --dir "${cache_dir}" \
+  --species homo_sapiens \
+  --cache_version "${cache_version}" \
+  --assembly "${cache_assembly}" \
+  --buffer_size 50 \
+  --pick \
+  --gencode_basic \
+  --sift b \
+  --polyphen b \
+  --symbol \
+  --max_af \
+  --hgvs \
+  --pubmed \
+  --check_existing \
+  --total_length \
+  --nearest symbol \
+  --regulatory \
+  --check_ref \
+  --exclude_null_alleles \
+  --plugin CADD,"${cadd_snv}","${cadd_indels}" 
 
 #--fasta "${fasta}" 
 #--hgvs, --numbers, --domains, --canonical, , --af, --af_1kg, --af_esp, --af_gnomad, --pubmed, --uniprot, --mane, --tsl, --appris, --gene_phenotype, 

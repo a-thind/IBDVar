@@ -14,7 +14,7 @@ date
 echo ""
 
 # files and folders
-out_dir="${1}/s07_select_haploblocks"
+out_dir="${1}"
 ibd_seg="${out_dir}/ibis/ibis.seg"
 ideogram_dir="${out_dir}/ideogram"
 ideogram="${ideogram_dir}/ideogram.html"

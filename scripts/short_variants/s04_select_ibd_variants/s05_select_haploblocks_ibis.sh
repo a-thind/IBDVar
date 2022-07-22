@@ -7,8 +7,9 @@
 # Parameters:
 #   $1: (out_dir) output folder
 #   $2: (ibis) IBIS folder path
-#   $3: (ibis_mt) min markers required for IBIS to call an IBD segment 
-#   $4: (threads) number of threads
+#   $3: (ibis_mt1) min markers required for IBIS to call an IBD segment IBD1
+#   $4: (ibis_mt2) min markers required for IBIS to call an IBD segment IBD2
+#   $5: (threads) number of threads
 
 # stop script if non-zero exit status 
 set -euo pipefail
@@ -19,10 +20,11 @@ date
 echo ""
 
 # parameters
-out_dir="${1}/s07_select_haploblocks/ibis"
+out_dir="${1}/ibis"
 ibis="${2}/ibis"
-ibis_mt="${3}"
-threads="${4}"
+ibis_mt1="${3}"
+ibis_mt2="${4}"
+threads="${5}"
 # output files
 plink_dataset="${out_dir}/ibis"
 ibd_segs="${plink_dataset}.seg"
@@ -39,8 +41,14 @@ if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
 fi
 
 # check ibis min threshold parameter
-if [[ "${ibis_mt}" =~ !^[0-9]+ ]]; then
-  echo "Error: 'ibis_mt' argument provided is non-numerical."
+if [[ "${ibis_mt1}" =~ !^[0-9]+ ]]; then
+  echo "Error: 'ibis_mt1' argument provided is non-numerical."
+  exit 1
+fi
+
+# check ibis min threshold parameter
+if [[ "${ibis_mt2}" =~ !^[0-9]+ ]]; then
+  echo "Error: 'ibis_mt2' argument provided is non-numerical."
   exit 1
 fi
 
@@ -52,7 +60,8 @@ echo ""
 echo "Detecting IBD segments using IBIS..."
 "${ibis}" -bfile "${plink_dataset}" \
     -ibd2 \
-    -mt "${ibis_mt}" \
+    -mt "${ibis_mt1}" \
+    -mt2 "${ibis_mt2}" \
     -hbd \
     -t "${threads}" \
     -noFamID \

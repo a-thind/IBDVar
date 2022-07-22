@@ -1,9 +1,9 @@
 #!/bin/bash
-# s03_rename_clinvar_chrs.sh - Renames ClinVar chromosomes so that they match input VCF file
+# s02_rename_clinvar_chrs.sh - Renames ClinVar chromosomes so that they match input VCF file
 # Anisha Thind, 4June2022
 
 # Intended use:
-# ./s03_rename_clinvar_chrs.sh out_dir clinvar &> s03_rename_clinvar_chrs.log
+# ./s02_rename_clinvar_chrs.sh out_dir clinvar &> s02_rename_clinvar_chrs.log
 #   $1: (out_dir): output directory
 #   $2: (clinvar): path for ClinVar VCF
 #   $3: (threads) number of threads
@@ -12,15 +12,16 @@
 set -euo pipefail
 
 # start message
-echo "Rename ClinVar Chromosomes"
+echo "Script: s02_rename_clinvar_chrs.sh"
 date
 echo ""
 
 # files and folders
-out_dir="${1}/s04_annotate_vars"
+out_dir="${1}"
 clinvar="${2}"
 threads="${3}"
-vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
+vcf_dir="${out_dir%%/s05_annotate_vars}/s04_select_ibd_variants"
+vcf=$( find "${vcf_dir}" -name *.sorted.vcf.gz ) 
 chr_map="${out_dir}/clinvar_chr_map.txt"
 updated_clinvar="${clinvar%%.*}.updated.vcf.gz"
 
@@ -30,7 +31,7 @@ date
 echo ""
 
 if [ -z "${vcf}" ]; then
-  echo "VCF file not found."
+  echo "Error: IBD filtered VCF file not found."
   exit 1
 fi
 
@@ -70,7 +71,8 @@ echo ""
 
 echo "--- Contigs in input VCF ---"
 echo ""
-bcftools view -h "${vcf}" | awk -F"\n" '$0 ~ /^##contig*/ { count++; if (count < 25) print $0}' 
+bcftools view -h "${vcf}" \
+  | awk -F"\n" '$0 ~ /^##contig*/ { count++; if (count < 25) print $0}' 
 printf "...\n\n"
 
 echo "--- Chromosome Map File ---"

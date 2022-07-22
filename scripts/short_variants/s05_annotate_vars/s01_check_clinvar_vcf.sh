@@ -11,20 +11,21 @@
 set -euo pipefail
 
 # Starting message
-echo "Script: s02_check_clinvar_vcf.sh"
+echo "Script: s01_check_clinvar_vcf.sh"
 date
 echo ""
 
 # files and folders
-out_dir="${1}/s04_annotate_vars"
+out_dir="${1}"
 clinvar="${2}"
-vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
+data_dir="${out_dir%%/s05_annotate_vars}/s04_select_ibd_variants"
+vcf=$( find "${data_dir}" -name *.sorted.vcf.gz ) 
 clinvar_chr="${out_dir}/clinvar_chr.txt"
 vcf_chr="${out_dir}/vcf_chr.txt"
 chr_map="${out_dir}/clinvar_chr_map.txt"
 
 if [ -z "${vcf}" ]; then
-  echo "VCF file not found."
+  echo "Error: IBD filtered VCF file not found."
   exit 1
 fi
 

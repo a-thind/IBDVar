@@ -5,8 +5,6 @@
 # stop at runtime errors and if pipe contains a non-zero status
 set -eo pipefail
 
-
-# Check input
 # function to generate usage message
 usage()
 {
@@ -109,28 +107,29 @@ echo -e "=================================== Pipeline ==========================
 #     "${log_dir}" \
 #     |& tee -a "${pipeline_log}"
 
-#------------------------------ Variant Annotation -----------------------------
-# short_variants/s04_annotate_vars/s00_start_annotation.sh "${out_dir}" \
-#     "${clinvar}" \
-#     "${vep}" \
-#     "${cadd}" \
-#     "${threads}" \
-#     "${log_dir}" \
-#     |& tee -a "${pipeline_log}"
-
 #-------------------------------- IBD Detection --------------------------------
-short_variants/s06_select_haploblocks/s00_start_IBD_detection.sh "${out_dir}" \
-   "${plink}" \
-   "${threads}" \
-   "${ibis}" \
-   "${genetic_map}" \
-   "${ibis_mt}" \
-   "${truffle}" \
-   "${ibs1m}" \
-   "${ibs2m}" \
-   "${genome}" \
-   "${log_dir}" \
-   |& tee -a "${pipeline_log}" 
+# short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
+#    "${plink}" \
+#    "${threads}" \
+#    "${ibis}" \
+#    "${genetic_map}" \
+#    "${ibis_mt1}" \
+#    "${ibis_mt2}" \
+#    "${truffle}" \
+#    "${ibs1m}" \
+#    "${ibs2m}" \
+#    "${genome}" \
+#    "${log_dir}" \
+#    |& tee -a "${pipeline_log}" 
+
+#------------------------------ Variant Annotation -----------------------------
+short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
+    "${clinvar}" \
+    "${vep}" \
+    "${cadd}" \
+    "${threads}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
 
 # completion messages

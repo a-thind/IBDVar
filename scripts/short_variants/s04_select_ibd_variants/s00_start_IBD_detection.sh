@@ -24,12 +24,13 @@ plink="${2}"
 threads="${3}"
 ibis="${4}"
 genetic_map="${5}"
-ibis_mt="${6}"
-truffle="${7}"
-ibs1m="${8}"
-ibs2m="${9}"
-genome="${10}"
-log_dir="${11}"
+ibis_mt1="${6}"
+ibis_mt2="${7}"
+truffle="${8}"
+ibs1m="${9}"
+ibs2m="${10}"
+genome="${11}"
+log_dir="${12}"
 pipeline_log="${log_dir}/s00_start_IBD_detection.log"
 
 echo -e "================================ IBD DETECTION ================================\n" \
@@ -58,53 +59,69 @@ elif [ ! -d "${log_dir}" ]; then
    exit 1
 fi
 
-echo -e "\n--------------------------- Generating PLINK Dataset --------------------------\n"
-scripts_dir="short_variants/s06_select_haploblocks"
+out_dir="${out_dir}/s04_select_ibd_variants"
+mkdir -p "${out_dir}"
+
+echo -e "\n--------------------------- Generating PLINK Dataset --------------------------\n" \
+    |& tee "${pipeline_log}"
+scripts_dir="short_variants/s04_select_ibd_variants"
+
+echo -e "Data folder: ${out_dir}\n" |& tee -a "${pipeline_log}"
+
 "${scripts_dir}"/s01_make_plink_dataset.sh "${out_dir}" "${plink}" "${threads}" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n" \
+    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s02_add_recomb_dists.sh "${out_dir}" "${ibis}" "${genetic_map}" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n" \
+    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s03_retain_snps_with_recomb_dists.sh "${out_dir}" \
     "${plink}" \
     "${threads}" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n" \
+    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s04_add_recomb_dists.sh "${out_dir}" \
     "${ibis}" \
     "${genetic_map}" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
+echo -e "-------------------------------------------------------------------------------\n" \
+    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s05_select_haploblocks_ibis.sh "${out_dir}" \
     "${ibis}" \
-    "${ibis_mt}" \
+    "${ibis_mt1}" \
+    "${ibis_mt2}" \
     "${threads}" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
-
-"${scripts_dir}"/s06_select_haploblocks_truffle.sh "${out_dir}" \
-    "${truffle}" \
-    "${ibs1m}" \
-    "${ibs2m}" \
-    "${threads}" \
+echo -e "-------------------------------------------------------------------------------\n" \
     |& tee -a "${pipeline_log}"
 
-echo -e "-------------------------------------------------------------------------------\n"
+# "${scripts_dir}"/s06_select_haploblocks_truffle.sh "${out_dir}" \
+#     "${truffle}" \
+#     "${ibs1m}" \
+#     "${ibs2m}" \
+#     "${threads}" \
+#     |& tee -a "${pipeline_log}"
+
+echo -e "-------------------------------------------------------------------------------\n" \
+    |& tee -a "${pipeline_log}"
 
 "${scripts_dir}"/s07_draw_ideogram.sh "${out_dir}" "${scripts_dir}" \
+    |& tee -a "${pipeline_log}"
+
+"${scripts_dir}"/s08_select_IBD_variants.sh "${out_dir}" \
     |& tee -a "${pipeline_log}"
 
 echo "IBD regions detected."
 date
 echo ""
-echo -e "-------------------------------------------------------------------------------\n"

@@ -20,6 +20,10 @@ echo ""
 # files and folders
 out_dir="${1}"
 plink="${2}"
+threads="${3}"
+mind=1
+maf=0.05
+geno=0.01
 
 # check plink path exists
 if [ -z "${plink}" ]; then
@@ -37,9 +41,10 @@ if [ ! -e "${plink}" ]; then
    exit 1
 fi
 
-threads="${3}"
-vcf=$( find "${out_dir}" -name *.clinvar.reheaded.vcf.gz ) 
-out_dir="${out_dir}/s07_select_haploblocks/plink"
+parent_dir=$( dirname "${out_dir}" )
+data_dir="${parent_dir}/s03_pre-process_vcf"
+vcf=$( find "${data_dir}/" -name *.ID.vcf.gz ) 
+out_dir="${out_dir}/plink"
 mkdir -p "${out_dir}"
 plink_dataset="${out_dir}/autosomal_snps"
 pos_pattern="${out_dir}/pos_patterns.txt"
@@ -58,7 +63,7 @@ fi
 
 
 if [ -z "${vcf}" ]; then
-   echo "ClinVar annotated VCF file not found."
+   echo "Pre-processed VCF file not found."
 fi
 
 # If no threads specified or non-numeric then default is 4
@@ -79,14 +84,13 @@ echo "Creating plink dataset..."
    --vcf-half-call "missing" \
    --autosome \
    --snps-only \
-   --mind 1 \
-   --geno 0.01 \
-   --maf 0.05 \
+   --mind "${mind}" \
+   --geno "${geno}" \
+   --maf "${maf}" \
    --make-bed \
    --silent \
    --threads "${threads}" \
    --out "${plink_dataset}"
-
 echo ""
 
 # remove SNPs with identical physical positions

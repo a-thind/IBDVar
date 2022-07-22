@@ -15,14 +15,13 @@
 set -euo pipefail
 
 # starting message
-echo "Variant Annotation using ClinVar"
-printf "Script:\ts04_annotate_clinvar.sh\n"
+echo -e "Script: s04_annotate_clinvar.sh\n"
 date
 echo ""
 
 # set files and folders
 out_dir="${1}"
-vcf=$( find "${out_dir}" -name *.ID.vcf.gz ) 
+vcf=$( find "${out_dir}" -name *.sorted.vcf.gz ) 
 clinvar="${2}"
 clinvar="${clinvar%.vcf.gz}.updated.vcf.gz"
 threads="${3}"
@@ -108,7 +107,12 @@ echo ""
 echo "--- Variant counts by clinical significance ---"
 bcftools query "${annot_vcf}" \
    -i 'ALLELEID != "."' \
-   -f '%CLNSIG\n' | sort | uniq -c | sort -r | awk '{ printf("%s\t%-5s\n", $1, $2) }'
+   -f '%CLNSIG\n' \
+   | sort \
+   | uniq -c \
+   | sort -r \
+   | awk '{ printf("%s\t%-5s\n", $1, $2) }'
+
 echo ""
 
 # completion message

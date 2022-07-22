@@ -18,7 +18,7 @@ date
 echo ""
 
 # files and folders
-out_dir="${1}/s07_select_haploblocks"
+out_dir="${1}"
 plink="${2}/plink2"
 threads="${3}"
 plink_dataset="${out_dir}/plink/autosomal_snps_uniq_pos"

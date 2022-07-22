@@ -18,7 +18,7 @@ date
 echo ""
 
 # files and folders
-out_dir="${1}/s07_select_haploblocks/plink"
+out_dir="${1}/plink"
 ibis="${2}"
 genetic_map="${3}"
 add_map_plink="${ibis}/add-map-plink.pl"

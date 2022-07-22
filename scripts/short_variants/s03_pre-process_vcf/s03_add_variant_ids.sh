@@ -25,10 +25,7 @@ echo ""
 # set files and folders
 out_dir="${1}"
 threads="${2}"
-data_dir="${out_dir}/s03_split_MA_sites"
-out_dir="${out_dir}/s04_annotate_vars"
-mkdir -p "${out_dir}"
-vcf=$( find "${data_dir}" -name *.split_MA.vcf.gz ) 
+vcf=$( find "${out_dir}" -name *.reheaded.vcf.gz ) 
 filepath=$( basename "${vcf}" .vcf.gz ) 
 basename="${filepath%%.*}"
 out_vcf="${out_dir}/${basename}.ID.vcf.gz"

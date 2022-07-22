@@ -11,7 +11,7 @@ echo ""
 
 # files and folders
 out_dir="${1}"
-in_vcf=$( find "${out_dir}" -name *.reheaded.vep.vcf.gz ) 
+in_vcf=$( find "${out_dir}" -name *.vep.vcf.gz ) 
 tmp_vcf="${in_vcf%.vcf.gz}.tmp.vcf.gz"
 out_vcf="${in_vcf%.vep.vcf.gz}.split-vep.vcf.gz"
 
@@ -40,10 +40,11 @@ echo -e "Output split VCF file: ${out_vcf} \n"
 
 echo -e "Parsing VEP annotation fields...\n"
 bcftools +split-vep "${in_vcf}" \
-    -c "-" \
     -p vep_ \
     -Oz \
-    -o "${tmp_vcf}"
+    -o "${tmp_vcf}" \
+    -c "-"
+
 
 # index vcf
 bcftools index "${tmp_vcf}"
@@ -55,11 +56,11 @@ bcftools annotate "${tmp_vcf}" \
     -Oz \
     -o "${out_vcf}"
 
-echo -e "Indexing split-VEP VCF...\n"
-bcftools index "${out_vcf}"
+# echo -e "Indexing split-VEP VCF...\n"
+# bcftools index "${out_vcf}"
 
-# clean up temp files
-rm "${tmp_vcf}"
+# # clean up temp files
+# rm "${tmp_vcf}"
 
 
 echo ""
