@@ -63,16 +63,16 @@ bcftools index -f "${clinvar}"
 
 echo "Checking ClinVar VCF..."
 # for each vcf get contig names
-bcftools index "${clinvar}" -s | awk 'NR<25{ print $1 }' > "${clinvar_chr}"
-bcftools index "${vcf}" -s | awk 'NR<25{ print $1 }' > "${vcf_chr}"
+clinvar_chr=$( zgrep -v "^#" $clinvar \
+   | awk '{printf("%s\t%s\n", $1, $1)}' \
+   | sort \
+   | uniq )
+
 
 echo "Creating translation table for chromosomes..."
 # combine chromosome names for translation table text file
-paste -d"\t" "${clinvar_chr}" "${vcf_chr}" > "${chr_map}"
-echo "Chromosome translation table created."
-# clean up contig names files
-rm "${clinvar_chr}" "${vcf_chr}"
-echo ""
+printf "${clinvar_chr}" | sed "s/\t/\tchr/" > "${chr_map}"
+echo -e "Chromosome translation table created.\n"
 
 echo "Reference in VCF data:"
 echo ""

@@ -79,7 +79,7 @@ echo "--- Chromosome Map File ---"
 cat "${chr_map}"
 echo ""
 
-printf "Updating ClinVar VCF...\n\n"
+echo -e "Updating ClinVar VCF...\n"
 # rename clinvar chromosomes
 bcftools annotate "${clinvar}" \
    --rename-chrs "${chr_map}" \

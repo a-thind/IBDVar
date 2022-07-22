@@ -54,10 +54,10 @@ echo -e "------------------------------ ClinVar Annotation ---------------------
     "${threads}" \
    |& tee -a "${pipeline_log}"
 
-# # annotate variants using clinvar
-# "${scripts_dir}"/s03_annotate_clinvar.sh "${out_dir}" "${clinvar}" \
-#     "${threads}" \
-#     |& tee -a "${pipeline_log}"
+# annotate variants using clinvar
+"${scripts_dir}"/s03_annotate_clinvar.sh "${out_dir}" "${clinvar}" \
+    "${threads}" \
+    |& tee -a "${pipeline_log}"
 
 # echo -e "-------------------------------- VEP Annotation -------------------------------\n" \
 #    |& tee -a "${pipeline_log}"
