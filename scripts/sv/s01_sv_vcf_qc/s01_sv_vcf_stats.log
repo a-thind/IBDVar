@@ -1,6 +1,6 @@
 Script: s01_sv_vcf_stats.sh
 
-Wed Jul  6 17:46:58 UTC 2022
+Thu Jul 21 16:30:25 UTC 2022
 
 bcftools 
 Using htslib 1.15.1
@@ -8,7 +8,7 @@ Copyright (C) 2022 Genome Research Ltd.
 License Expat: The MIT/Expat license
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
-Wed Jul  6 17:46:58 UTC 2022
+Thu Jul 21 16:30:25 UTC 2022
 
 Input VCF: /home/share/data/s00_source_data/IHCAPX8/s02_structural_variants/IHCAPX8_SV_dragen_joint.sv.vcf.gz
 Output folder: /home/share/data/sv/s01_sv_vcf_qc/bcfstats
@@ -524,5 +524,5 @@ Number of imprecise SVs: 1012
 
 
 Done.
-Wed Jul  6 17:46:59 UTC 2022
+Thu Jul 21 16:30:26 UTC 2022
 
