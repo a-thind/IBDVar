@@ -15,13 +15,14 @@
 set -euo pipefail
 
 # start message
-echo -e "Script: s06_annotate_vep.sh\n"
+echo -e "Script: s04_annotate_vep.sh\n"
 date
 echo ""
 
 # files and folder
 out_dir="${1}"
-in_vcf="/home/share/data/output/IHCAPX8/s06_select_haploblocks/ibis/filtered_ibd.sorted.vcf.gz"
+vcf_dir="${out_dir%/s05_annotate_vars}/s04_select_ibd_variants/ibs"
+in_vcf=$( find "${vcf_dir}" -name *.filtered_ibd.sorted.vcf.gz )
 vep="${2}"
 cadd_dir="${3}"
 threads="${4}"
