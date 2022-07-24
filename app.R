@@ -8,9 +8,16 @@
 #
 
 library(shiny)
+library(biomaRt)
 
 csqs <- c("missense", "frame shift", "stop gain", "stop loss")
 vep_impact <- c("high", "moderate", "low")
+
+make_link <- function(gene_id) {
+  sprintf(
+    "<a href=https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=%s>%s</a>", 
+    gene_id, gene_id)
+} 
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -66,12 +73,20 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  # reading short csv data
   short_data <- reactive({
     req(input$short_csv)
-    read.table(input$short_csv$datapath)
+    if (tools::file_ext(input$short_csv$name)=="csv") {
+      vroom::vroom(input$short_csv$datapath, delim=",")
+    } else {
+      vroom::vroom(input$short_csv$datapath, delim="\t")
+    }
+    
   })
+  
+  # render short variant table
   output$short_vars <- renderDataTable(
-    {short_data()}, options=list(pageLength=5))
+    {short_data()}, options=list(pageLength=10), escape = FALSE)
 }
 
 # Run the application 
