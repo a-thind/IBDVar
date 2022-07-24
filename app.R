@@ -9,6 +9,7 @@
 
 library(shiny)
 library(biomaRt)
+library(ideogram)
 
 csqs <- c("missense", "frame shift", "stop gain", "stop loss")
 vep_impact <- c("high", "moderate", "low")
@@ -32,6 +33,7 @@ ui <- fluidPage(
                fileInput("short_md5sum", "Md5Sum file", buttonLabel="Upload"),
                tabPanel("Configuration")
       ),
+      # short variants tab panel
       tabPanel( "Short Variants",
                 sidebarLayout(
                   sidebarPanel(
@@ -51,7 +53,8 @@ ui <- fluidPage(
                   ),
                   
                   mainPanel(
-                    dataTableOutput("short_vars")
+                    fluidRow(ideogramOutput("ideogram"), 
+                                    dataTableOutput("short_vars"))
                   )
                 )
                 
@@ -76,13 +79,31 @@ server <- function(input, output, session) {
   # reading short csv data
   short_data <- reactive({
     req(input$short_csv)
-    if (tools::file_ext(input$short_csv$name)=="csv") {
-      vroom::vroom(input$short_csv$datapath, delim=",")
-    } else {
-      vroom::vroom(input$short_csv$datapath, delim="\t")
-    }
+    # check file exts
+    ext=tools::file_ext(input$short_csv$name)
+    switch(
+      ext,
+      csv=vroom::vroom(input$short_csv$datapath, delim=","),
+      tsv=vroom::vroom(input$short_csv$datapath, delim="\t"),
+      txt=vroom::vroom(input$short_csv$datapath, delim="\t"),
+      validate("Invalid short variants file, please upload a csv or tsv")
+    )
     
   })
+  
+  ibd_data <- reactive({
+    req(input$ibd_seg)
+    ext=tools::file_ext(input$ibd_seg$name)
+    switch(
+      ext,
+      seg=input$ibd_seg$datapath,
+      validate("Invalid IBD segment file, please upload IBIS IBD segment file")
+    )
+  })
+  
+  output$ideogram <- renderIdeogram({
+    ideogram(ibd_data())
+    })
   
   # render short variant table
   output$short_vars <- renderDataTable(
