@@ -1,17 +1,17 @@
 #!/bin/bash
 # Anisha Thind, 10Jul2022
-# s07_split_vep_fields.sh - splits VEP annotation fields into individual columns
+# s05_split_vep_fields.sh - splits VEP annotation fields into individual columns
 # Parameters:
 #   $1: (out_dir) output directory
 
 # start message
-echo "Script: s07_split_vep_fields.sh"
+echo "Script: s05_split_vep_fields.sh"
 date
 echo ""
 
 # files and folders
 out_dir="${1}"
-in_vcf=$( find "${out_dir}" -name *.vep.vcf.gz ) 
+in_vcf=$( find "${out_dir}" -name *filtered_ibd.sorted.clinvar.vep.vcf.gz )
 tmp_vcf="${in_vcf%.vcf.gz}.tmp.vcf.gz"
 out_vcf="${in_vcf%.vep.vcf.gz}.split-vep.vcf.gz"
 
@@ -56,11 +56,11 @@ bcftools annotate "${tmp_vcf}" \
     -Oz \
     -o "${out_vcf}"
 
-# echo -e "Indexing split-VEP VCF...\n"
-# bcftools index "${out_vcf}"
+echo -e "Indexing split-VEP VCF...\n"
+bcftools index "${out_vcf}"
 
-# # clean up temp files
-# rm "${tmp_vcf}"
+# clean up temp files
+rm "${tmp_vcf}"
 
 
 echo ""

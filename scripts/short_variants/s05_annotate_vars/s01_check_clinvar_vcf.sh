@@ -18,7 +18,7 @@ echo ""
 # files and folders
 out_dir="${1}"
 clinvar="${2}"
-data_dir="${out_dir%%/s05_annotate_vars}/s04_select_ibd_variants"
+data_dir="${out_dir%/s05_annotate_vars}/s04_select_ibd_variants"
 vcf=$( find "${data_dir}" -name *.sorted.vcf.gz ) 
 clinvar_chr="${out_dir}/clinvar_chr.txt"
 vcf_chr="${out_dir}/vcf_chr.txt"

@@ -75,7 +75,7 @@ filtered_cds <- merge(cdsRanges, cdsMax, by=c("gene", "width"))
 filtered_cds <- filtered_cds[, c('seqnames', 'start', 'end', 'nc_accession', 
     'gene', 'gene_id', 'cds_id', 'ccds_status', 'strand','cds_locations', 
     'match_type')]
-
+filtered_cds <- filtered_cds[!duplicated(filtered_cds$gene),]
 cat(sprintf("Total number of coding sequences in filtered CCDS file: %s\n", 
     nrow(filtered_cds)))
 

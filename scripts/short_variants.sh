@@ -92,35 +92,35 @@ echo -e "Log files are created in ${log_dir}\n\n" \
    |& tee -a "${pipeline_log}"
 
 echo -e "=================================== Pipeline ===================================\n"
-# short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
-#     "${out_dir}" \
-#     "${md5sum}" \
-#     "${log_dir}" \
-#     |& tee -a "${pipeline_log}"
+short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
+    "${out_dir}" \
+    "${md5sum}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
 #--------------------------- Variant Pre-processing ----------------------------
-# short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
-#     "${out_dir}" \
-#     "${GQ}" \
-#     "${DP}" \
-#     "${threads}" \
-#     "${log_dir}" \
-#     |& tee -a "${pipeline_log}"
+short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
+    "${out_dir}" \
+    "${GQ}" \
+    "${DP}" \
+    "${threads}" \
+    "${log_dir}" \
+    |& tee -a "${pipeline_log}"
 
 #-------------------------------- IBD Detection --------------------------------
-# short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
-#    "${plink}" \
-#    "${threads}" \
-#    "${ibis}" \
-#    "${genetic_map}" \
-#    "${ibis_mt1}" \
-#    "${ibis_mt2}" \
-#    "${truffle}" \
-#    "${ibs1m}" \
-#    "${ibs2m}" \
-#    "${genome}" \
-#    "${log_dir}" \
-#    |& tee -a "${pipeline_log}" 
+short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
+   "${plink}" \
+   "${threads}" \
+   "${ibis}" \
+   "${genetic_map}" \
+   "${ibis_mt1}" \
+   "${ibis_mt2}" \
+   "${truffle}" \
+   "${ibs1m}" \
+   "${ibs2m}" \
+   "${genome}" \
+   "${log_dir}" \
+   |& tee -a "${pipeline_log}" 
 
 #------------------------------ Variant Annotation -----------------------------
 short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
@@ -131,6 +131,11 @@ short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     "${log_dir}" \
     |& tee -a "${pipeline_log}"
 
+#------------------------------ Variant selection ------------------------------
+short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
+   "${MAF}" \
+   "${log_dir}" \
+   |& tee -a "${pipeline_log}"
 
 # completion messages
 echo "Pipeline completed."

@@ -23,7 +23,8 @@ threads="${3}"
 vcf_dir="${out_dir%%/s05_annotate_vars}/s04_select_ibd_variants"
 vcf=$( find "${vcf_dir}" -name *.sorted.vcf.gz ) 
 chr_map="${out_dir}/clinvar_chr_map.txt"
-updated_clinvar="${clinvar%%.*}.updated.vcf.gz"
+clinvar_basename=$( basename "${clinvar}" .vcf.gz )
+updated_clinvar="${out_dir}/${clinvar_basename}.updated.vcf.gz"
 
 # progress report
 bcftools --version
@@ -39,7 +40,7 @@ fi
 if [ -z "${clinvar}" ]; then
    echo "Error: Missing ClinVar VCF file path."
    exit 1
-elif [ ! -e "${clinvar}"]; then
+elif [ ! -e "${clinvar}" ]; then
    echo "Error: ClinVar VCF file not found."
    exit 1
 fi

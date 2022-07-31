@@ -55,19 +55,19 @@ echo -e "------------------------------ ClinVar Annotation ---------------------
    |& tee -a "${pipeline_log}"
 
 # annotate variants using clinvar
-"${scripts_dir}"/s03_annotate_clinvar.sh "${out_dir}" "${clinvar}" \
+"${scripts_dir}"/s03_annotate_clinvar.sh "${out_dir}" \
     "${threads}" \
     |& tee -a "${pipeline_log}"
 
-# echo -e "-------------------------------- VEP Annotation -------------------------------\n" \
-#    |& tee -a "${pipeline_log}"
-# "${scripts_dir}"/s04_annotate_vep.sh "${out_dir}" "${vep}" \
-#    "${cadd}" \
-#    "${threads}" \
-#    |& tee -a "${pipeline_log}"
+echo -e "-------------------------------- VEP Annotation -------------------------------\n" \
+   |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s04_annotate_vep.sh "${out_dir}" "${vep}" \
+   "${cadd}" \
+   "${threads}" \
+   |& tee -a "${pipeline_log}"
 
-# "${scripts_dir}"/s05_split_vep_fields.sh "${out_dir}" \
-#    |& tee -a "${pipeline_log}"
+"${scripts_dir}"/s05_split_vep_fields.sh "${out_dir}" \
+   |& tee -a "${pipeline_log}"
 
 # completion message
 echo -e "\nVariants annotated."

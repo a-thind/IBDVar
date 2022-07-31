@@ -22,11 +22,20 @@ echo ""
 # set files and folders
 out_dir="${1}"
 vcf_dir="${out_dir%/s05_annotate_vars}/s04_select_ibd_variants"
-vcf=$( find "${vcf_dir}" -name *.sorted.vcf.gz ) 
-clinvar="${2}"
-clinvar="${clinvar%.vcf.gz}.updated.vcf.gz"
-threads="${3}"
-annot_vcf="${vcf%%.*}.clinvar.vcf.gz"
+in_vcf=$( find "${vcf_dir}" -name *.sorted.vcf.gz )
+
+if [ -z "${in_vcf}" ]; then
+  echo "Error: ${in_vcf} does not exist."
+  exit 1
+fi
+
+basename=$(basename "${in_vcf}" .vcf.gz)
+
+
+clinvar=$( find "${out_dir}" -name *.updated.vcf.gz )
+threads="${2}"
+annot_vcf="${out_dir}/${basename}.clinvar.vcf.gz"
+
 
 # check output
 if [ -z "${out_dir}" ]; then
@@ -47,7 +56,7 @@ elif [ ! -e "${clinvar}" ]; then
 fi
 
 # check update VCF exists
-if [ -z "${vcf}" ]; then
+if [ -z "${in_vcf}" ]; then
   echo "Updated VCF file with IDs not found."
   exit 1
 fi
@@ -62,7 +71,7 @@ bcftools --version
 date
 echo ""
 
-echo "Input VCF: ${vcf}"
+echo "Input VCF: ${in_vcf}"
 echo "ClinVar VCF: ${clinvar}"
 echo "Output VCF: ${annot_vcf}"
 echo ""
@@ -71,7 +80,7 @@ echo ""
 
 # annotate variants using bcftools
 echo "Annotating variants with ClinVar..."
-bcftools annotate "${vcf}" \
+bcftools annotate "${in_vcf}" \
    -a "${clinvar}" \
    -c "INFO" \
    --threads "${threads}" \
@@ -83,7 +92,7 @@ bcftools index "${annot_vcf}"
 
 
 echo "Number of INFO fields in input VCF:"
-bcftools view -h "${vcf}" | grep "^##INFO" | wc -l
+bcftools view -h "${in_vcf}" | grep "^##INFO" | wc -l
 echo ""
 
 echo "Number of INFO files in annotated VCF:"

@@ -1,4 +1,0 @@
-Script: s01_retain_pass_filter_vars.sh
-Mon Jul  4 21:15:11 UTC 2022
-
-./s01_retain_pass_filter_vars.sh: line 24: 1: unbound variable

@@ -1,4 +1,0 @@
-Script: s02_check_vcf_stats.sh
-Mon Jul  4 20:59:52 UTC 2022
-
-./s02_check_vcf_stats.sh: line 23: 1: unbound variable

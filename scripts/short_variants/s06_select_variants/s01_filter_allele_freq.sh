@@ -12,11 +12,17 @@ echo ""
 
 # files and folders
 out_dir="${1}"
-in_vcf=$( find "${out_dir}" -name *.sorted.split-vep.vcf.gz)
-out_dir="${out_dir}/s06_select_variants"
-mkdir -p "${out_dir}"
-out_vcf="${out_dir}/IHCAPX8_dragen_joint.clinvar.reheaded.VEP.AF.vcf.gz"
+data_dir="${out_dir%/s06_select_variants}/s05_annotate_vars"
+in_vcf=$( find "${data_dir}" -name *.sorted.clinvar.split-vep.vcf.gz )
+basename=$( basename "${in_vcf}" .vcf.gz )
+out_vcf="${out_dir}/${basename}.AF.vcf.gz"
 MAF="${2}"
+
+# check vcf exists
+if [ -z "${in_vcf}" ]; then
+  echo "Error: Splitted VEP annotated VCF not found."
+  exit 1
+fi
 
 # progress report
 bcftools --version

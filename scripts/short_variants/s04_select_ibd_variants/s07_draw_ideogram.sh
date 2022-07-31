@@ -30,14 +30,14 @@ elif [ ! -d "${out_dir}" ]; then
 fi
 # check input IBD segment file
 if [ ! -e "${ibd_seg}" ]; then
-    echo "IBD (IBIS) segment file: '${}' not found."
+    echo "IBD (IBIS) segment file: '${ibd_seg}' not found."
     exit 1
 fi
 
 mkdir -p "${ideogram_dir}"
 
 echo "Input IBD segment files: ${ibd_seg}"
-echo "Output Ideogram: "${ideogram}""
+echo "Output Ideogram: ${ideogram}"
 echo "Output folder: ${ideogram_dir}"
 echo ""
 
