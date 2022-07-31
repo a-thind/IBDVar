@@ -1,2 +1,2 @@
 # IBDVar
-Front-end for IBD variants prioritisation pipeline
+Shiny dashboard for starting and visualising output from the IBD variants prioritisation pipeline
