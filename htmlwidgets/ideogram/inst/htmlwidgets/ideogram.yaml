@@ -1,0 +1,7 @@
+ #(uncomment to add a dependency)
+ dependencies:
+  - name: ideogram
+    version: 1.37.0
+    src: htmlwidgets/lib
+    script: ./ideogram.min.js
+#    stylesheet:
