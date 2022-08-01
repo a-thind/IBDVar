@@ -19,6 +19,11 @@ server <- function(input, output, session) {
 
   # Short Variants tab
   #-----------------------
+  
+  output$cadd_test <- renderText({
+    input$cadd_score
+  })
+  
   # read short variants csv
   col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', ALLELE='f',
                     CONSEQUENCE='c', IMPACT='f', SYMBOL='c', GENE='c',
@@ -48,7 +53,6 @@ server <- function(input, output, session) {
                             col_names=TRUE),
            validate("Invalid file: Please upload a tsv/text file")
     )
-
   })
 
   ibd_data <- reactive({
@@ -78,25 +82,20 @@ server <- function(input, output, session) {
       }
     })
 
-  output$chosenRegion <- renderText({
-    req(input$chosenRegion)
-    paste(input$chosenRegion$start, input$chosenRegion$stop, input$chosenRegion$chr)
-    #typeof(input$chosenRegion$start)
-    #class(input$chosenRegion$start)
-  })
-
   # render short variants table
   output$short_tab <- renderDT({ 
     DT::datatable(
       ibd_filter() %>%
        # create link for gene symbols to NCBI gene db
        mutate(
-         SYMBOL=ifelse(!is.na(SYMBOL),
-                       paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
-                              SYMBOL, '[Gene Name]">', SYMBOL,'</a>'),
-                       SYMBOL)) %>%
+         SYMBOL=ifelse(
+           !is.na(SYMBOL),
+              paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
+                    SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
     mutate(
-      RS=ifelse(!is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', RS, '">', RS, '</a>'), RS)
+      RS=ifelse(
+        !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
+                           RS, '">', RS, '</a>'), RS)
     ) %>%
      select(ID, RS, HGVSC, HGVSP,
           SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
@@ -114,5 +113,6 @@ server <- function(input, output, session) {
     content=function(file){
       write.table({ibd_filter()}, file)
   })
+  
 }
 
