@@ -95,7 +95,7 @@ body <- dashboardBody(
           width=12,
           height="100%",
           actionButton("reset_short_tab", "Reset"),
-          downloadButton("Download"),
+          downloadButton("download", "Download"),
           DTOutput("short_tab"),
           status = "primary"
         )

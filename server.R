@@ -1,5 +1,5 @@
 library(jsonlite)
-# https://www.ncbi.nlm.nih.gov/gene?term=(human%5BOrganism%5D)%20AND%20BRCA1%5BGene%20Name%5D
+library(dplyr)
 # Define server logic
 server <- function(input, output, session) {
   options(shiny.maxRequestSize=1000*1024^2)
@@ -44,11 +44,11 @@ server <- function(input, output, session) {
     switch(ext,
            tsv=vroom::vroom(input$short_tsv$datapath, delim="\t",
                             col_names=TRUE),
-           txt=vroom::vroom(input$short_tsv$datapath, delim="\t", 
+           txt=vroom::vroom(input$short_tsv$datapath, delim="\t",
                             col_names=TRUE),
            validate("Invalid file: Please upload a tsv/text file")
     )
-    
+
   })
 
   ibd_data <- reactive({
@@ -65,14 +65,17 @@ server <- function(input, output, session) {
   output$ideogram_plot <- renderIdeogram({
     ideogram({ibd_data()})
   })
-  
+
   # reactive expression for ibd region filtering
-    ibd_filter <- reactive({
-        req(input$chosenRegion)
-        short_data() %>% 
+   ibd_filter <- reactive({
+      if (!is.null(input$chosenRegion$chr)) {
+        short_data() %>%
           filter(CHROM==paste0('chr', input$chosenRegion$chr) &
                    (POS >= input$chosenRegion$start) &
-                    (POS <= input$chosenRegion$stop))
+                   (POS <= input$chosenRegion$stop))
+      } else {
+        short_data()
+      }
     })
 
   output$chosenRegion <- renderText({
@@ -81,21 +84,35 @@ server <- function(input, output, session) {
     #typeof(input$chosenRegion$start)
     #class(input$chosenRegion$start)
   })
-  
+
   # render short variants table
-  output$short_tab <- renderDT({ DT::datatable(ibd_filter() %>%
-                       # create link for gene symbols to NCBI gene db
-                           mutate(
-                             SYMBOL=ifelse(!is.na(SYMBOL), paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ', SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
-                        mutate(
-                          RS=ifelse(!is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', RS, '">', RS, '</a>'), RS)
-                        ) %>%
-                         select(ID, RS, HGVSC, HGVSP,
-                              SYMBOL, CONSEQUENCE, MAX_AF, IMPACT, 
-                              CADD_PHRED, POLYPHEN_CALL, 
-                              SIFT_CALL, CLNSIG), escape=FALSE, 
-                      rownames=FALSE)
+  output$short_tab <- renderDT({ 
+    DT::datatable(
+      ibd_filter() %>%
+       # create link for gene symbols to NCBI gene db
+       mutate(
+         SYMBOL=ifelse(!is.na(SYMBOL),
+                       paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
+                              SYMBOL, '[Gene Name]">', SYMBOL,'</a>'),
+                       SYMBOL)) %>%
+    mutate(
+      RS=ifelse(!is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', RS, '">', RS, '</a>'), RS)
+    ) %>%
+     select(ID, RS, HGVSC, HGVSP,
+          SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
+          CADD_PHRED, POLYPHEN_CALL,
+          SIFT_CALL, CLNSIG), escape=FALSE,
+  rownames=FALSE)
   })
-  
+
+  # download variants results handler
+  output$download <- downloadHandler(
+    filename=function(){
+    paste0(
+      tools::file_path_sans_ext(input$short_tsv$name), ".tsv")
+      },
+    content=function(file){
+      write.table({ibd_filter()}, file)
+  })
 }
 
