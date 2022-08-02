@@ -1,6 +1,6 @@
 #!/bin/env Rscript
 # s07_draw_ideogram.R - draws an ideogram from IBIS output segment file
-# Anisha Thind, 30Jun2022 
+# Anisha Thind, 30Jun2022
 
 # install packages
 
@@ -26,10 +26,10 @@ graphics.off()
 # declare options for script
 option.list <- list(
     make_option(
-        c('-f', '--file', type='character', metavar='character', 
+        c('-f', '--file', type='character', metavar='character',
         default=NULL, help='Input IBIS IBD segments file')),
     make_option(
-        c('-o', '--outdir', type='character', metavar='character', 
+        c('-o', '--outdir', type='character', metavar='character',
             default=NULL, help='Output directory'))
 )
 
@@ -55,31 +55,8 @@ if (!file.exists(opt$outdir)) {
     stop(sprintf("Output folder '%s' does not exist.", opt$outdir))
 }
 
-ibd <- read.table(opt$file, header=TRUE)
-
-# concatenate two sample names together
-ibd$name <- paste0(ibd$sample1, '-', ibd$sample2)
-# remove first two sample columns
-ibd <- ibd[, -c(1,2)]
-
-ibd$name <- as.factor(ibd$name)
-# create colours
-color <- hue_pal()(length(levels(ibd$name)))
-# add alpha
-color <- SetAlpha(color, alpha=0.65)
-# map the colours to the samples
-ibd$color <- factor(ibd$name, labels=color)
-
-# create GRanges object
-
-
-# subset required annotation columns
-annots <- ibd[,c("name", "chrom", "phys_start_pos", "phys_end_pos", "color")]
-colnames(annots)[2:4] <- c("chr","start", "stop")
-annots$chr <- as.character(annots$chr)
-
-# draw ideogram
-p <- ideogram(annots)
+# create an ideogram
+p <- ideogram(opt$file)
 
 # save plot
 saveWidget(p, sprintf("%s/ideogram.html", opt$outdir), selfcontained=FALSE)

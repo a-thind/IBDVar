@@ -53,9 +53,7 @@ bcftools index -f "${sort_vcf}"
 echo "Number of variants in IBD regions:"
 zgrep -v "^#" "${sort_vcf}" | wc -l
 
-echo "Done."
-
 # completion message
-echo "Done."
+echo -e "\nDone."
 date
 echo ""

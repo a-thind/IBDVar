@@ -8,11 +8,7 @@
 #   out_dir: output directory
 
 # stop at runtime errors
-set -e
-# stop if any variable value is not set
-set -u
-# stop pipeline if non-zero status
-set -o pipefail
+set -euo pipefail
 
 # start message
 echo -e "Script: s02_check_vcf_stats.sh"

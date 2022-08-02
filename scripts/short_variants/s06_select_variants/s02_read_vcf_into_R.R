@@ -40,8 +40,6 @@ if (!dir.exists(args[2])) {
   out_dir=args[2]
 }
 
-in_vcf="/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/home/share/data/output/IHCAPX8/s06_select_variants/IHCAPX8_dragen_joint.filtered_ibd.sorted.clinvar.split-vep.AF.vcf.gz"
-out_dir="/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/home/share/data/output/IHCAPX8/s06_select_variants/"
 #-------------------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------------------
@@ -171,7 +169,7 @@ ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "clinvar"=clinvar))
 chr16 <- filtered_vars[filtered_vars$CHROM=="chr16",
               c("vep_IMPACT", "vep_CADD_PHRED", "vep_SIFT_call")]
 
-
+chr16 %>% filter(POS >380000000)
 
 
 all_filters_vars <- filtered_vars[combined_filter,]
@@ -199,4 +197,5 @@ write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
 # for testing
 out_file='/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/home/anisha/ShinyApps/IBDVar/data/filtered_short_vars.txt'
 write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
+
 
