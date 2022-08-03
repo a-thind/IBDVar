@@ -20,18 +20,19 @@ ui_filters <- function(var) {
 #' Filter dataframe by a given variable
 #'
 #' @param var variable to be filtered
-#' @param val input value from widget in the UI
+#' @param in_val input value from widget in the UI
 #'
 #' @return
 #' @export
 #'
 #' @examples
-filter_variables <- function(var, val){
+filter_variables <- function(var, in_val){
   if (is.factor(var)) {
-    var %in% val
+    var %in% in_val
   } else if (is.numeric(var)) {
+    cat("I am numeric!")
     # filter variable between slider limits
-    var >= val[1] & var <= val[2] & !is.na(var)
+    var >= in_val[1] & var <= in_val[2] & !is.na(var)
   } else {
     # in case neither return null
     return(NULL)
@@ -57,10 +58,6 @@ server <- function(input, output, session) {
   
   # Short Variants tab
   #-----------------------
-  
-  output$cadd_test <- renderText({
-    input$cadd_score
-  })
   
   # read short variants csv
   col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', ALLELE='f',
@@ -124,7 +121,7 @@ server <- function(input, output, session) {
   # make filters
   # get vector of filter variables
   filters <- reactive({
-    #filter_variables(short_data()$CADD_PHRED, input$cadd_filter) &
+    filter_variables(short_data()$CADD_PHRED, input$cadd_filter) &
     filter_variables(short_data()$IMPACT, input$impact_filter) &
       filter_variables(short_data()$SIFT_CALL, input$sift_filter) &
       filter_variables(short_data()$POLYPHEN_CALL, input$polyphen_filter)
@@ -133,7 +130,7 @@ server <- function(input, output, session) {
   output$filters  <- renderUI(
     tagList(
       tags$h3("Filters"),
-      sliderInput("cadd_filter", "CADD Score", value=20, min=1, max=100),
+      sliderInput("cadd_filter", "CADD Score", value=c(20, 100), min=1, max=100),
       checkboxGroupInput("impact_filter", "VEP Impact",
                          selected=levels(short_data()$IMPACT),
                          choices=levels(short_data()$IMPACT)),
