@@ -35,20 +35,7 @@ sidebar <- dashboardSidebar(
 #-------------------------------------------------------------------------------
     conditionalPanel(
       'input.sidebar_id == "short_vars"',
-      tags$h3("Filters"),
-      uiOutput("Filters"),
-      sliderInput("cadd_filter", "CADD Score", value=20, min=1, max=100),
-      checkboxGroupInput("impact_filter", "VEP Impact",
-                         choices=c("high", "noderate", "low")),
-      checkboxGroupInput("sift_filter", "SIFT",
-                         choices=c("deleterious", 
-                                   "deleterious low confidence",
-                                   "tolerated",
-                                   "tolerated low confidence")),
-      checkboxGroupInput("polyphen_filter", "PolyPhen", 
-                         choices=c("probably damaging",
-                                   "possibly damaging",
-                                   "benign"))
+      uiOutput("filters")
       )
   )
 )
@@ -118,7 +105,6 @@ body <- dashboardBody(
         box(
           width=12,
           height="100%",
-          actionButton("reset_short_tab", "Reset"),
           downloadButton("download", "Download"),
           tags$br(),
           DTOutput("short_tab"),
