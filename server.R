@@ -1,8 +1,7 @@
 library(jsonlite)
 library(dplyr)
 
-# function to parse consequences and get unique values (levels)
-#' Title
+#' function to parse consequences and get unique values (levels)
 #'
 #' @param var subsetted dataframe by a variable e.g. df$var
 #'
@@ -20,6 +19,33 @@ parse_levels <- function(var) {
 }
 
 
+#' Create bins for CADD Phred values
+#'
+#' @param cadd CADD column of a dataframe
+#'
+#' @return
+#' @export
+#'
+#' @examples
+cadd_factors <- function(cadd) {
+  cadd_factors <- as.factor(
+    ifelse(is.na(cadd), 'NA',
+    ifelse(cadd < 10, "< 10", 
+           ifelse(cadd < 20, "< 20",
+              ifelse(cadd < 30, '< 30', 
+                     ifelse(cadd < 40, '< 40',
+                                ifelse(cadd < 50, '<50',
+                                       ifelse(cadd < 60, '< 60',
+                                              ifelse(cadd < 70, '< 70',
+                                                     ifelse(cadd < 80, '< 80', 
+                                                            ifelse(cadd < 90, '< 90',
+                                                                   ifelse(cadd < 100, '< 100'
+                                                                          ))))))))))
+           )
+    )
+  return(cadd_factors)
+}
+
 #' Filter dataframe by a given variable
 #'
 #' @param var variable to be filtered
@@ -32,9 +58,6 @@ parse_levels <- function(var) {
 filter_variables <- function(var, in_val){
   if (is.factor(var)) {
       var %in% in_val
-  } else if (is.numeric(var)) {
-    # filter variable between slider limits
-    var >= in_val[1] & var <= in_val[2] & !is.na(var)
   } else if (is.character(var)) {
     # this clause is for variables with 2 or more levels
     var %in% in_val
@@ -126,7 +149,7 @@ server <- function(input, output, session) {
   # make filters
   # get vector of filter variables
   filters <- reactive({
-    #filter_variables(short_data()$CADD_PHRED, input$cadd_filter) &
+    filter_variables(cadd_bins(), input$cadd_filter) &
     filter_variables(short_data()$IMPACT, input$impact_filter) &
       filter_variables(short_data()$SIFT_CALL, input$sift_filter) &
       filter_variables(short_data()$POLYPHEN_CALL, input$polyphen_filter) &
@@ -134,10 +157,16 @@ server <- function(input, output, session) {
       filter_variables(short_data()$CLNSIG, input$clnsig_filter)
   })
   
+  cadd_bins <- reactive({
+    cadd_factors(short_data()$CADD_PHRED)
+  })
+  
   # filters panel triggered upon variant data loading
   output$filters  <- renderUI(
     tagList(
-      #sliderInput("cadd_filter", "CADD Score", value=c(1, 100), min=1, max=100),
+      checkboxGroupInput("cadd_filter", "CADD Score", 
+                         selected=levels(cadd_bins()), 
+                         choices=levels(cadd_bins())),
       checkboxGroupInput("csq_filter", "Consequence", 
                          selected=parse_levels(short_data()$CONSEQUENCE),
                          choices=parse_levels(short_data()$CONSEQUENCE)),
