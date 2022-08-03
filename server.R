@@ -31,15 +31,15 @@ cadd_factors <- function(cadd) {
   cadd_factors <- as.factor(
     ifelse(is.na(cadd), 'NA',
     ifelse(cadd < 10, "< 10", 
-           ifelse(cadd < 20, "< 20",
-              ifelse(cadd < 30, '< 30', 
-                     ifelse(cadd < 40, '< 40',
-                                ifelse(cadd < 50, '<50',
-                                       ifelse(cadd < 60, '< 60',
-                                              ifelse(cadd < 70, '< 70',
-                                                     ifelse(cadd < 80, '< 80', 
-                                                            ifelse(cadd < 90, '< 90',
-                                                                   ifelse(cadd < 100, '< 100'
+           ifelse(cadd < 20, "10 <= score < 20",
+              ifelse(cadd < 30, '20 <= score < 30', 
+                     ifelse(cadd < 40, '30 <= score < 40',
+                                ifelse(cadd < 50, '40 <= score <50',
+                                       ifelse(cadd < 60, '50 <= score< 60',
+                                              ifelse(cadd < 70, '60 <= score < 70',
+                                                     ifelse(cadd < 80, '70 <= score < 80', 
+                                                            ifelse(cadd < 90, '80 <= score < 90',
+                                                                   ifelse(cadd < 100, '90 <= score < 100'
                                                                           ))))))))))
            )
     )
@@ -164,9 +164,6 @@ server <- function(input, output, session) {
   # filters panel triggered upon variant data loading
   output$filters  <- renderUI(
     tagList(
-      checkboxGroupInput("cadd_filter", "CADD Score", 
-                         selected=levels(cadd_bins()), 
-                         choices=levels(cadd_bins())),
       checkboxGroupInput("csq_filter", "Consequence", 
                          selected=parse_levels(short_data()$CONSEQUENCE),
                          choices=parse_levels(short_data()$CONSEQUENCE)),
@@ -181,7 +178,10 @@ server <- function(input, output, session) {
                          choices=levels(short_data()$SIFT_CALL)),
       checkboxGroupInput("polyphen_filter", "PolyPhen", 
                          choices=levels(short_data()$POLYPHEN_CALL),
-                         selected=levels(short_data()$POLYPHEN_CALL))
+                         selected=levels(short_data()$POLYPHEN_CALL)),
+      checkboxGroupInput("cadd_filter", "CADD Score", 
+                         selected=levels(cadd_bins()), 
+                         choices=levels(cadd_bins()))
       
   ))
   

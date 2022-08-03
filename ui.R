@@ -14,12 +14,6 @@ filters_ui <- function(var) {
   selectInput(var, var, choices=levels, selected = NULL, multiple = TRUE)
 }
 
-# make_link <- function(gene_id) {
-#   sprintf(
-#     "<a href=https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=%s>%s</a>",
-#     gene_id, gene_id)
-# }
-
 # source, output folder and config
 #
 
