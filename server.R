@@ -2,20 +2,23 @@ library(jsonlite)
 library(dplyr)
 
 # function to parse consequences and get unique values (levels)
-parse_levels <- function(df, var) {
+#' Title
+#'
+#' @param var subsetted dataframe by a variable e.g. df$var
+#'
+#' @return
+#' @export
+#'
+#' @examples
+parse_levels <- function(var) {
   # paste the strings together
-  concat_levels <- paste0(unique(df$var), collapse=", ")
+  concat_levels <- paste0(unique(var), collapse=", ")
   # split the strings
   parsed_levels <- unlist(strsplit(concat_levels, ', '))
   uniq_levels <- unique(parsed_levels)
   return(uniq_levels)
 }
 
-# function to create select inputs for factor variables
-ui_filters <- function(var) {
-  levels <- levels(var)
-  selectInput(var, var, choices=levels, selected = levels, multiple = TRUE)
-}
 
 #' Filter dataframe by a given variable
 #'
@@ -28,11 +31,13 @@ ui_filters <- function(var) {
 #' @examples
 filter_variables <- function(var, in_val){
   if (is.factor(var)) {
-    var %in% in_val
+      var %in% in_val
   } else if (is.numeric(var)) {
-    cat("I am numeric!")
     # filter variable between slider limits
     var >= in_val[1] & var <= in_val[2] & !is.na(var)
+  } else if (is.character(var)) {
+    # this clause is for variables with 2 or more levels
+    var %in% in_val
   } else {
     # in case neither return null
     return(NULL)
@@ -75,7 +80,7 @@ server <- function(input, output, session) {
                     CODONS='c', STRAND='f', SIFT_SCORE='d', POLYPHEN_SCORE='d',
                     MAX_AF='d', EXISTING_VARIATION='c', HGNC_ID='c',
                     CLIN_SIG='f', SYMBOL_SOURCE='f', PHENO='f', AMINO_ACIDS='c',
-                    NEAREST='c', HGVS_OFFSET='d'
+                    NEAREST='c', HGVS_OFFSET='d', CLNSIG="f"
   )
   
   short_data <- reactive({
@@ -121,16 +126,24 @@ server <- function(input, output, session) {
   # make filters
   # get vector of filter variables
   filters <- reactive({
-    filter_variables(short_data()$CADD_PHRED, input$cadd_filter) &
+    #filter_variables(short_data()$CADD_PHRED, input$cadd_filter) &
     filter_variables(short_data()$IMPACT, input$impact_filter) &
       filter_variables(short_data()$SIFT_CALL, input$sift_filter) &
-      filter_variables(short_data()$POLYPHEN_CALL, input$polyphen_filter)
+      filter_variables(short_data()$POLYPHEN_CALL, input$polyphen_filter) &
+      filter_variables(short_data()$CONSEQUENCE, input$csq_filter) &
+      filter_variables(short_data()$CLNSIG, input$clnsig_filter)
   })
   
+  # filters panel triggered upon variant data loading
   output$filters  <- renderUI(
     tagList(
-      tags$h3("Filters"),
-      sliderInput("cadd_filter", "CADD Score", value=c(20, 100), min=1, max=100),
+      #sliderInput("cadd_filter", "CADD Score", value=c(1, 100), min=1, max=100),
+      checkboxGroupInput("csq_filter", "Consequence", 
+                         selected=parse_levels(short_data()$CONSEQUENCE),
+                         choices=parse_levels(short_data()$CONSEQUENCE)),
+      checkboxGroupInput("clnsig_filter", "Clinical Signicance (ClinVar)", 
+                         choices=levels(short_data()$CLNSIG),
+                         selected=levels(short_data()$CLNSIG)),
       checkboxGroupInput("impact_filter", "VEP Impact",
                          selected=levels(short_data()$IMPACT),
                          choices=levels(short_data()$IMPACT)),
@@ -140,13 +153,8 @@ server <- function(input, output, session) {
       checkboxGroupInput("polyphen_filter", "PolyPhen", 
                          choices=levels(short_data()$POLYPHEN_CALL),
                          selected=levels(short_data()$POLYPHEN_CALL))
-    )
-  )
-  
-  output$txt <- renderText({
-    impact <- paste(input$impact_filter, collapse = ", ")
-    paste("You chose", impact)
-  })
+      
+  ))
   
   # render short variants table
   output$short_tab <- renderDT({ 
@@ -166,7 +174,7 @@ server <- function(input, output, session) {
         select(ID, RS, HGVSC, HGVSP,
                SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
                CADD_PHRED, POLYPHEN_CALL,
-               SIFT_CALL, CLNSIG, everything()), 
+               SIFT_CALL, CLNSIG), 
       escape=FALSE,
       rownames=FALSE) 
   })
