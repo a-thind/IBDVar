@@ -8,14 +8,11 @@ library(biomaRt)
 library(ideogram)
 library(DT)
 
-# csqs <- c("missense", "frame shift", "stop gain", "stop loss")
-# vep_impact <- c("high", "moderate", "low")
-
-# make_link <- function(gene_id) {
-#   sprintf(
-#     "<a href=https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=%s>%s</a>",
-#     gene_id, gene_id)
-# }
+# function to create select inputs for factor variables
+filters_ui <- function(var) {
+  levels = levels(var)
+  selectInput(var, var, choices=levels, selected = NULL, multiple = TRUE)
+}
 
 # source, output folder and config
 #
@@ -24,15 +21,23 @@ library(DT)
 # sidebar
 sidebar <- dashboardSidebar(
   sidebarMenu(
+    id="sidebar_id",
     menuItem("Start Pipeline", tabName = "pipeline"),
-    menuItem("Short Variants", tabName="short_vars")
+    menuItem("Short Variants", tabName="short_vars"),
+    menuItem("Structural Variants", tabName="sv_tab"),
+# Filters side panel    
+#-------------------------------------------------------------------------------
+    conditionalPanel(
+      'input.sidebar_id == "short_vars"',
+      uiOutput("filters")
+      )
   )
 )
 # dashboard body
 body <- dashboardBody(
   tabItems(
-    # Starting pipeline
-    #----------------------
+# Starting pipeline
+#-------------------------------------------------------------------------------
     tabItem(
       tabName="pipeline",
       fluidRow(
@@ -54,16 +59,17 @@ body <- dashboardBody(
 
       ),
       fluidRow(
-        box(title="Structural Variants",
-            status = "primary",
-            fileInput("sv_vcf", "Upload input structural variants VCF file (compressed).",
-                      accept=c("vcf.gz"), width="50%")
+        box(
+          title="Structural Variants",
+          status = "primary",
+          fileInput("sv_vcf", "Upload input structural variants VCF file (compressed).",
+                    accept=c("vcf.gz"), width="50%")
         )
       )
 
     ),
-    # Short variants tab
-    #-----------------------
+# Short variants tab
+#-------------------------------------------------------------------------------
     tabItem(
       tabName="short_vars",
       fluidRow(
@@ -86,22 +92,48 @@ body <- dashboardBody(
                     accept=c(".tsv", ".txt")),
           fileInput("ibd_seg", "Upload IBIS IBD segment file (.seg)",
                     accept=c(".seg")),
-          status = "primary",
-          verbatimTextOutput("chosenRegion")
+          status = "primary"
         )
       ),
       fluidRow(
         box(
           width=12,
           height="100%",
-          actionButton("reset_short_tab", "Reset"),
-          downloadButton("Download"),
+          downloadButton("download", "Download"),
+          tags$br(),
           DTOutput("short_tab"),
           status = "primary"
         )
       )
-    )
+    ), 
+    # SV tab
+    #-----------------
+    tabItem(
+      tabName="sv_tab", 
+      fluidRow(
+        box(
+          title = "IBD regions Ideogram",
+          status="primary",
+          width = 8,
+          height="600px",
+          box(
+            width = 12,
+            height="535px",
+            ideogramOutput("sv_ideogram_plot")
+          )
+          
+        ),
+        box(
+          title="Files",
+          width=4,
+          fileInput("sv_tsv", "Upload SV pipeline output file (.tsv/.txt)",
+                    accept=c(".tsv", ".txt")),
+          fileInput("sv_ibd_seg", "Upload IBIS IBD segment file (.seg)",
+                    accept=c(".seg")),
+          status = "primary",
+      ))
   )
+)
 )
 
 # define user interface
