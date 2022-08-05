@@ -83,18 +83,18 @@ if [[ "${ibis_mt}" =~ !^[0-9]+ ]]; then
   exit 1
 fi
 
-if [ -z "${phenogram}" ]; then
-    echo "Error: Missing phenogram path."
-    exit 1
-elif [ ! -e "${phenogram}" ]; then
-    echo "Error: Phenogram path does not exist."
-    exit 1
-fi
-
 if [ -z "${genome}" ]; then
     echo "Error: Missing phenogram human genome text file."
     exit 1
 elif [ ! -e "${genome}" ]; then
     echo "Error: Phenogram human genome text file not found."
+    exit 1
+fi
+
+if [ -z "${cadd}" ]; then
+   echo "Error: Missing CADD path."
+   exit 1
+elif [ ! -d "${cadd}" ]; then 
+    echo "Error: CADD path is not a directory."
     exit 1
 fi

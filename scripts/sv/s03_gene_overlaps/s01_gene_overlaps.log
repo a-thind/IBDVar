@@ -1,0 +1,6 @@
+Script: s01_gene_overlaps.sh
+Mon Jul 25 15:16:19 UTC 2022
+
+find: ‘/s02_filter_sv’: No such file or directory
+mkdir: cannot create directory ‘/s03_gene_overlaps’: Permission denied
+./s01_gene_overlaps.sh: line 39: Error: missing read supported filtered vcf file.: command not found
