@@ -47,7 +47,7 @@ bcftools +counts "${filtered_vcf}"
 echo ""
 
 bcftools view -H "${filtered_vcf}" \
-  | awk 'END{ printf("Number of variants retained (PASS): %d\n\n", NR) }'
+  | awk 'END{ printf("Number of variants retained: %d\n\n", NR) }'
 
 # generate BCFstats
 echo "Calculating BCF stats..."

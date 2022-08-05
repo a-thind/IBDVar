@@ -31,7 +31,7 @@ if (length(args) < 2) {
 if (!file.exists(args[1])) {
   stop("Error: input VCF file path does not exist.")
 } else {
-  in_vcf=args[1]
+  in_vcf <- args[1]
 }
 
 if (!dir.exists(args[2])) {
@@ -64,7 +64,7 @@ plot_counts <- function(data) {
 
 
 # read data into R
-cat("Reading VCF into R...")
+cat("\nReading VCF into R...")
 in_vcf <- file.path(in_vcf)
 vcf <- read.vcfR(in_vcf, verbose=F)
 vcf
@@ -83,6 +83,7 @@ variants <- variants %>%
   mutate(vep_SIFT=gsub(",\\.|\\.,", "", vep_SIFT)) %>%
   mutate(vep_SIFT_score=gsub("[a-z]+\\(|\\)","", vep_SIFT)) %>%
   mutate(vep_SIFT_call=gsub("[^a-z]+\\)", "", vep_SIFT)) %>%
+  mutate(vep_SIFT_score=gsub("[a-z_]+", "", vep_SIFT_score)) %>%
   select(-vep_SIFT)
 
 colnames(variants)
@@ -91,6 +92,7 @@ variants <- variants %>%
   mutate(vep_PolyPhen=gsub(",\\.|\\.,", "", vep_PolyPhen)) %>%
   mutate(vep_PolyPhen_score=gsub("[a-z]+\\(|\\)","", vep_PolyPhen)) %>%
   mutate(vep_PolyPhen_call=gsub("[^a-z]+\\)", "", vep_PolyPhen)) %>%
+  mutate(vep_PolyPhen_score=gsub("[a-z_]+", "", vep_PolyPhen_score)) %>%
   select(-vep_PolyPhen)
 
 # verify splitting plyphen and sift columns
@@ -104,7 +106,8 @@ variants %>% counts(vep_Consequence)
 variants %>% counts(vep_SIFT_call)
 variants %>% counts(vep_PolyPhen_call)
 variants %>% counts(CLNSIG)
-variants %>% filter(vep_CADD_PHRED >= 20) %>% summarise(count=n())
+variants %>% filter(vep_CADD_PHRED >= 20) %>% 
+  summarise(count=n())
 variants %>% counts(vep_IMPACT)
 
 # plot histogram of QUAL
@@ -166,11 +169,6 @@ ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "IMPACT"=impact))
 # venn diagram between SIFT, PolyPhen and CADD and VEP impact
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "clinvar"=clinvar))
 
-chr16 <- filtered_vars[filtered_vars$CHROM=="chr16",
-              c("vep_IMPACT", "vep_CADD_PHRED", "vep_SIFT_call")]
-
-chr16 %>% filter(POS >380000000)
-
 
 all_filters_vars <- filtered_vars[combined_filter,]
 
@@ -192,10 +190,6 @@ vars_table <- all_filters_vars %>%
   rename_with(~ toupper(gsub("vep_", "", .x, fixed = TRUE)))
 
 out_file <- file.path(out_dir, "filtered_short_vars.txt")
-
 write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
-# for testing
-out_file='/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/home/anisha/ShinyApps/IBDVar/data/filtered_short_vars.txt'
-write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
-
+cat("Variants selected.")
 
