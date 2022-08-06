@@ -5,4 +5,7 @@
 data/
 .RDataTmp
 .giosaveeP9czf
-.R*
+data/
+resources/
+tools/
+test.sh

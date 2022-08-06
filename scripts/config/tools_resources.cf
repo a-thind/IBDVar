@@ -1,0 +1,31 @@
+#==============================================================================
+# Tools
+#==============================================================================
+# Base directory for tools
+tools_dir="/home/share/tools"
+
+# Plink folder path
+plink="${tools_dir}/plink2"
+
+vep="${tools_dir}/ensembl-vep/vep"
+
+# IBIS folder path
+ibis="${tools_dir}/ibis"
+
+truffle="${tools_dir}/truffle"
+
+#==============================================================================
+# Resources
+#==============================================================================
+# Base folder for resources
+resources="/home/share/resources"
+
+# ClinVar VCF file path
+clinvar="${resources}/clinvar/clinvar_20220507.vcf.gz"
+
+# File path containing recombination genetic map for human genome
+genetic_map="${resources}/recomb-hg38/genetic_map_hg38_withX.txt"
+
+genome="${resources}/phenogram/human_genome.txt"
+
+cadd="${resources}/cadd"
