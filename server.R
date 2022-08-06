@@ -6,20 +6,21 @@ make_short_config <- function(in_vcf, out_dir, GQ, DP,
                               MAF, ibis_mt1, ibis_mt2) {
   # read in file paths
   # create a dataframe with parameters
-  config_dir="/home/share/scripts/config"
-  config_path="/home/share/scripts/config/pipeline_config.config"
+  config_dir="scripts/config"
+  config_path=file.path(config_dir, "pipeline_config.config")
   params_df <- data.frame(
     params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2"),
     vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2)
   )
   tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
-                      comment.char = "#", sep="=")
-
+                       comment.char = "#", sep="=", header = F)
+  colnames(tools) <- c("params", "vals")
   # Concatenate parameter and tools together
   config <- rbind(params_df, tools)
   print(config)
   # write a text file with "=" separator = config file
-  write.table(config, config_path, col.names = F, row.names = F)
+  write.table(config, config_path, col.names = F, row.names = F, sep="=", 
+              quote = F)
 }
 
 #' function to parse consequences and get unique values (levels)

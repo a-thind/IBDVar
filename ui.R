@@ -72,7 +72,7 @@ body <- dashboardBody(
                      }
                      ")))
             ),
-
+            # TODO: remove this box
             box(title="Advanced Configuration", collapsible = TRUE,
                 collapsed = TRUE,
                 status = "warning")
