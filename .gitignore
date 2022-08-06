@@ -1,8 +1,11 @@
 .Rproj.user
 .Rhistory
-.RData
+.RData*
 .Ruserdata
 data/
 .RDataTmp
 .giosaveeP9czf
-.R*
+data/
+resources/
+tools/
+test.sh

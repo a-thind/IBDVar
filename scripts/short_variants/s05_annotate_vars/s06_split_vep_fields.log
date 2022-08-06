@@ -1,0 +1,25 @@
+Script: s02_split_vep_fields.sh
+Sun Jul 10 22:12:19 UTC 2022
+
+bcftools 
+Using htslib 1.15.1
+Copyright (C) 2022 Genome Research Ltd.
+License Expat: The MIT/Expat license
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Sun Jul 10 22:12:19 UTC 2022
+
+Input VCF file: /home/share/data/output/IHCAPX8/s04_annotate_vars/IHCAPX8_dragen_joint.clinvar.reheaded.VEP.vcf.gz
+Output split VCF file: /home/share/data/output/IHCAPX8/s04_annotate_vars/IHCAPX8_dragen_joint.clinvar.reheaded.split-vep.vcf.gz 
+
+Parsing VEP annotation fields...
+
+Removing unsplit CSQ field from VCF...
+
+Indexing split-VEP VCF...
+
+./s07_split_vep_fields.sh: line 46: ${tmp_vcf*}: bad substitution
+
+Done.
+Sun Jul 10 22:18:53 UTC 2022
+

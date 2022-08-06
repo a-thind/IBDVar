@@ -1,9 +1,10 @@
 # Shiny App
-#
+# form-group shiny-input-container
 
 library(shiny)
 library(shinydashboard)
 library(shinyFiles)
+library(shinyFeedback)
 library(biomaRt)
 library(ideogram)
 library(DT)
@@ -13,9 +14,6 @@ filters_ui <- function(var) {
   levels = levels(var)
   selectInput(var, var, choices=levels, selected = NULL, multiple = TRUE)
 }
-
-# source, output folder and config
-#
 
 # Define UI for application
 # sidebar
@@ -48,9 +46,31 @@ body <- dashboardBody(
                              accept=c("vcf.gz"), width="75%"),
               shinyDirButton("sh_outdir", "Select output folder",
                                     title="Output folder", multiple=F),
+              textOutput("sh_outdir_txt"),
+              numericInput("GQ", "Genotype Quality (GQ) threshold", value=20,
+                           min=1, max=99),
+              numericInput("DP", "Read Depth (DP) threshold", value=10, min=1,
+                           max=100),
+              numericInput("MAF", "Minor Allele Frequency", value=0.01, max=1, 
+                           min=0.01, step=0.01),
+              numericInput("ibis_mt1", 
+                           "Min number of markers to call a region IBD1",
+                           value=50, min=10, max=1000),
+              numericInput("ibis_mt2",
+                           "Min number of markers to call region IBD2",
+                           value=10, min=1, max=400),
               textInput("email", "Enter an email address:", width="75%"),
               actionButton("sh_start", "Start")
-              )
+              ),
+            tags$head(
+              tags$style(
+                HTML(".form-control.shiny-bound-input{
+                     width: 75px;
+                     }
+                     #email{
+                     width: 300px;
+                     }
+                     ")))
             ),
 
             box(title="Advanced Configuration", collapsible = TRUE,
@@ -68,6 +88,7 @@ body <- dashboardBody(
       )
 
     ),
+#-------------------------------------------------------------------------------
 # Short variants tab
 #-------------------------------------------------------------------------------
     tabItem(

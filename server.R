@@ -1,6 +1,27 @@
 library(jsonlite)
 library(dplyr)
 
+# function to create a config file for the short variants pipeline
+make_short_config <- function(in_vcf, out_dir, GQ, DP, 
+                              MAF, ibis_mt1, ibis_mt2) {
+  # read in file paths
+  # create a dataframe with parameters
+  config_dir="/home/share/scripts/config"
+  config_path="/home/share/scripts/config/pipeline_config.config"
+  params_df <- data.frame(
+    params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2"),
+    vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2)
+  )
+  tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
+                      comment.char = "#", sep="=")
+
+  # Concatenate parameter and tools together
+  config <- rbind(params_df, tools)
+  print(config)
+  # write a text file with "=" separator = config file
+  write.table(config, config_path, col.names = F, row.names = F)
+}
+
 #' function to parse consequences and get unique values (levels)
 #'
 #' @param var subsetted dataframe by a variable e.g. df$var
@@ -30,19 +51,19 @@ parse_levels <- function(var) {
 cadd_factors <- function(cadd) {
   cadd_factors <- as.factor(
     ifelse(is.na(cadd), 'NA',
-    ifelse(cadd < 10, "< 10", 
-           ifelse(cadd < 20, "10 <= score < 20",
-              ifelse(cadd < 30, '20 <= score < 30', 
-                     ifelse(cadd < 40, '30 <= score < 40',
-                                ifelse(cadd < 50, '40 <= score <50',
-                                       ifelse(cadd < 60, '50 <= score< 60',
-                                              ifelse(cadd < 70, '60 <= score < 70',
-                                                     ifelse(cadd < 80, '70 <= score < 80', 
-                                                            ifelse(cadd < 90, '80 <= score < 90',
-                                                                   ifelse(cadd < 100, '90 <= score < 100'
+           ifelse(cadd < 10, "< 10", 
+                  ifelse(cadd < 20, "10 <= score < 20",
+                         ifelse(cadd < 30, '20 <= score < 30', 
+                                ifelse(cadd < 40, '30 <= score < 40',
+                                       ifelse(cadd < 50, '40 <= score <50',
+                                              ifelse(cadd < 60, '50 <= score< 60',
+                                                     ifelse(cadd < 70, '60 <= score < 70',
+                                                            ifelse(cadd < 80, '70 <= score < 80', 
+                                                                   ifelse(cadd < 90, '80 <= score < 90',
+                                                                          ifelse(cadd < 100, '90 <= score < 100'
                                                                           ))))))))))
-           )
     )
+  )
   return(cadd_factors)
 }
 
@@ -57,7 +78,7 @@ cadd_factors <- function(cadd) {
 #' @examples
 filter_variables <- function(var, in_val){
   if (is.factor(var)) {
-      var %in% in_val
+    var %in% in_val
   } else if (is.character(var)) {
     # this clause is for variables with 2 or more levels
     var %in% in_val
@@ -69,12 +90,90 @@ filter_variables <- function(var, in_val){
 
 # Define server logic
 server <- function(input, output, session) {
+  #-------------------------------------------------------------------------------
+  # Start pipeline tab
+  #-------------------------------------------------------------------------------
   options(shiny.maxRequestSize=1000*1024^2)
   
-  shinyDirChoose(input, "sh_outdir", roots=c(wd='.'))
+  sh_vcf <- reactive({
+    req(input$sh_vcf)
+    filename <- input$sh_vcf$name
+    # check vcf has right extension (.vcf.gz)
+    if (substr(filename, nchar(filename)-6, 
+               nchar(filename))==".vcf.gz") {
+      in_vcf=input$sh_vcf$name
+    } else {
+      validate("Input file is not a compressed VCF file (.vcf.gz).")
+    }
+  })
+  
+  # volumes set home directory
+  volumes <- c(home="/home")
+  shinyDirChoose(input, "sh_outdir", roots=volumes)
+  
+  
+  sh_out_dir <- reactive({
+    req(input$sh_outdir)
+    out_dir <- parseDirPath(roots = volumes, input$sh_outdir)
+  })
+  
+  output$sh_outdir_txt <- renderText({
+    req(input$sh_outdir)
+    paste0("Selected output folder: ", sh_out_dir())
+  })
+  
+  # Genotype Quality
+  GQ <- reactive({
+    req(input$GQ)
+    validate("Field required*")
+    GQ <- input$GQ
+    
+  })
+  # Depth
+  DP <- reactive({
+    req(input$DP)
+    validate("Field required*")
+    DP <- input$DP
+  })
+  # Minor Allele Frequency
+  MAF <- reactive({
+    req(input$MAF)
+    validate("Field required*")
+    MAF <- input$MAF
+  })
+  
+  # IBD1 for IBIS
+  ibis_mt1 <- reactive({
+    validate("Field required*")
+    ibis_mt1 <- input$ibis_mt1
+  })
+  # IBD2 for IBIS
+  ibis_mt2 <- reactive({
+    req(input$ibis_mt2)
+    validate("Field required*")
+    ibis_mt2 <- input$ibis_mt2
+  })
+  
+  email <- reactive({
+    req(input$email)
+    validate("Please provide a valid email address for pipeline notifications.")
+  })
+  
+  
+  
+  observeEvent(input$sh_start,{
+    # make config file
+    make_short_config(in_vcf=sh_vcf(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
+                      DP=DP(), 
+                      ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
+    showNotification("Short variants prioritisation pipeline started.",
+                     type="message"
+    )
+    Sys.sleep(3)
+  })
   
   # start pipeline
-  svvcf <- reactive({
+  sv_vcf <- reactive({
     req(input$vcf)
     ext=tools::file_ext(input$vcf$name)
     switch(
@@ -84,8 +183,9 @@ server <- function(input, output, session) {
     )
   })
   
+  #-------------------------------------------------------------------------------  
   # Short Variants tab
-  #-----------------------
+  #-------------------------------------------------------------------------------
   
   # read short variants csv
   col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', ALLELE='f',
@@ -150,7 +250,7 @@ server <- function(input, output, session) {
   # get vector of filter variables
   filters <- reactive({
     filter_variables(cadd_bins(), input$cadd_filter) &
-    filter_variables(short_data()$IMPACT, input$impact_filter) &
+      filter_variables(short_data()$IMPACT, input$impact_filter) &
       filter_variables(short_data()$SIFT_CALL, input$sift_filter) &
       filter_variables(short_data()$POLYPHEN_CALL, input$polyphen_filter) &
       filter_variables(short_data()$CONSEQUENCE, input$csq_filter) &
@@ -183,7 +283,7 @@ server <- function(input, output, session) {
                          selected=levels(cadd_bins()), 
                          choices=levels(cadd_bins()))
       
-  ))
+    ))
   
   # render short variants table
   output$short_tab <- renderDT({ 
