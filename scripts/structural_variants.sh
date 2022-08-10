@@ -5,27 +5,79 @@
 # stop at runtime errors
 set -eo pipefail
 
-# Options
-sv_vcf="${1}"
-out_dir="${2}"
-PR=8
-SR=0.15
-ccds="/home/share/resources/ccds"
-threads=4
-genes="/home/share/resources/li_2022_gene_list.txt"
-# create log file
-pipeline_log="${out_dir}/logs/sv_pipeline.log"
+# function to generate usage message
+usage()
+{
+   echo -e "Usage: ./structural_variants.sh -c short_variants.config [-m md5sum_file.md5sum]\n" 
+   echo -e "Options:\n"
+   echo -e "  -C, configuration file\n"
+   echo -e "  -m, md5sum file for input VCF file\n"
+   echo -e "  -h, display this help message\n"
+   exit 0;
+}
+# display usage message if no args given
+[ $# -eq 0 ] && usage
 
-# check parameters
-# check output dir
-if [ -z "${out_dir}" ]; then
-   echo "Error: Missing output directory argument."
-   exit 1
-elif [ ! -d "${out_dir}" ]; then
-   echo "Error: output directory argument: ${out_dir} is not a directory."
-   exit 1
+# check parameter arguments
+while getopts "C:m:h" arg; do
+   case "${arg}" in
+      h)
+         usage
+         exit 0
+      ;;
+      C)
+         if [ -e "${OPTARG}" ]; then
+            filename=$( basename ${OPTARG} ) 
+            if [ "${filename##*.}" == "config" ]; then
+               config="${OPTARG}"
+               utils/read_sv_config.sh "${config}"
+               . "${config}"
+               # make log directory
+               log_dir="${out_dir}/logs"
+               mkdir -p "${log_dir}"
+               pipeline_log="${log_dir}/sv_pipeline.log"
+            else
+                echo "File ${OPTARG} is not a config file."
+                exit 1
+            fi
+         else
+            echo "File ${OPTARG} is not found."
+            exit 1   
+         fi
+      ;;
+      m)
+         if [ -e "${OPTARG}" ]; then
+            filename=$( basename "${OPTARG}" ) 
+            if [ "${filename##*.}" == "md5sum" ]; then
+               md5sum="${OPTARG}"
+            else
+               echo "File ${OPTARG} is not a md5sum file." 
+               exit 1
+            fi
+         else
+            echo "File ${OPTARG} is not found."
+            exit 1
+         fi
+      ;;
+      \?)
+         echo "Invalid option: ${OPTARG}"
+         usage
+         exit 1
+      ;;
+   esac
+done
+
+# shift processed params so next param is $1
+shift $((OPTIND-1))
+
+# if there is a remaining param display usage
+if [ ! -z "${1}" ]; then
+   usage
 fi
 
+
+# create log file
+pipeline_log="${out_dir}/logs/sv_pipeline.log"
 
 echo "Structural Variants Pipeline" |& tee "${pipeline_log}"
 date |& tee -a "${pipeline_log}"
@@ -54,10 +106,10 @@ sv/s02_filter_sv/s02_filter_read_support.sh "${out_dir}" "${PR}" "${SR}" \
 echo -e "\n============================== Detect SV Overlaps =============================\n" \
     |& tee -a "${pipeline_log}"
 
-sv/s03_gene_overlaps/s01_gene_overlaps.sh "${out_dir}" \
+sv/s03_gene_overlaps/s01_ibd_overlaps.sh "${out_dir}" \
     "${ccds}" \
     "${threads}" \
-    "${genes}" \
+    "${ibd_seg}" \
     |& tee -a "${pipeline_log}"
 
 # completion message

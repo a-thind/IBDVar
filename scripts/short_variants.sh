@@ -30,7 +30,8 @@ while getopts "C:m:h" arg; do
             filename=$( basename ${OPTARG} ) 
             if [ "${filename##*.}" == "config" ]; then
                config="${OPTARG}"
-               utils/read_config.sh "${config}"
+               # reads config file
+               utils/read_sh_config.sh "${config}"
                . "${config}"
                # make log directory
                log_dir="${out_dir}/logs"

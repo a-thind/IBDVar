@@ -13,11 +13,11 @@ make_short_config <- function(in_vcf, out_dir, GQ, DP,
     vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2)
   )
   tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
-                       comment.char = "#", sep="=", header = F)
+                      comment.char = "#", sep="=", header = F)
   colnames(tools) <- c("params", "vals")
   # Concatenate parameter and tools together
   config <- rbind(params_df, tools)
-  print(config)
+  #print(config)
   # write a text file with "=" separator = config file
   write.table(config, config_path, col.names = F, row.names = F, sep="=", 
               quote = F)
@@ -91,18 +91,19 @@ filter_variables <- function(var, in_val){
 
 # Define server logic
 server <- function(input, output, session) {
-  #-------------------------------------------------------------------------------
-  # Start pipeline tab
-  #-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# Start pipeline tab
+#-------------------------------------------------------------------------------
   options(shiny.maxRequestSize=1000*1024^2)
-  
+  # input vcf field
   sh_vcf <- reactive({
     req(input$sh_vcf)
     filename <- input$sh_vcf$name
     # check vcf has right extension (.vcf.gz)
     if (substr(filename, nchar(filename)-6, 
                nchar(filename))==".vcf.gz") {
-      in_vcf=input$sh_vcf$name
+      in_vcf=tools::file_path_as_absolute(input$sh_vcf$datapath)
+      print(in_vcf)
     } else {
       validate("Input file is not a compressed VCF file (.vcf.gz).")
     }
@@ -171,6 +172,9 @@ server <- function(input, output, session) {
                      type="message"
     )
     Sys.sleep(3)
+    system("cd scripts; ./short_variants.sh -C config/pipeline_config.config", 
+           wait=FALSE)
+    
   })
   
   # start pipeline
@@ -184,9 +188,9 @@ server <- function(input, output, session) {
     )
   })
   
-  #-------------------------------------------------------------------------------  
-  # Short Variants tab
-  #-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------  
+# Short Variants tab
+#-------------------------------------------------------------------------------
   
   # read short variants csv
   col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', ALLELE='f',
@@ -319,5 +323,20 @@ server <- function(input, output, session) {
       write.table({ibd_filter()}, file)
     })
   
+  sv_data <- reactive({
+    req(input$sv_tsv)
+    ext=tools::file_ext(input$sv_tsv$name)
+    switch(ext,
+           tsv=vroom::vroom(input$sv_tsv$datapath, delim="\t", col_names = TRUE),
+           txt=vroom::vroom(input$sv_tsv$datapath, delim="\t", col_names = TRUE),
+           validate("Invalid file: Please upload a tsv/text file")
+    )
+  })
+  
+  output$sv_table <- renderDT({
+    DT::datatable(
+      sv_data() %>% 
+        select(CHROM, START, END, ID, SV_TYPE, SV_LENGTH, GENE, OVERLAP))
+  })
 }
 

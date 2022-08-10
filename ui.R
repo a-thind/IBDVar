@@ -9,6 +9,10 @@ library(biomaRt)
 library(ideogram)
 library(DT)
 
+# TODO:
+# show all button (original table)
+# threads set 
+
 # function to create select inputs for factor variables
 filters_ui <- function(var) {
   levels = levels(var)
@@ -23,45 +27,45 @@ sidebar <- dashboardSidebar(
     menuItem("Start Pipeline", tabName = "pipeline"),
     menuItem("Short Variants", tabName="short_vars"),
     menuItem("Structural Variants", tabName="sv_tab"),
-# Filters side panel    
-#-------------------------------------------------------------------------------
+    # Filters side panel    
+    #-------------------------------------------------------------------------------
     conditionalPanel(
       'input.sidebar_id == "short_vars"',
       uiOutput("filters")
-      )
+    )
   )
 )
 # dashboard body
 body <- dashboardBody(
   tabItems(
-# Starting pipeline
-#-------------------------------------------------------------------------------
+    # Starting pipeline
+    #-------------------------------------------------------------------------------
     tabItem(
       tabName="pipeline",
       fluidRow(
         box(title="Short Variants",
             status="primary",
             column(8,
-              fileInput("sh_vcf", "Upload input short variants VCF file (compressed)",
+                   fileInput("sh_vcf", "Upload input short variants VCF file (compressed)",
                              accept=c("vcf.gz"), width="75%"),
-              shinyDirButton("sh_outdir", "Select output folder",
-                                    title="Output folder", multiple=F),
-              textOutput("sh_outdir_txt"),
-              numericInput("GQ", "Genotype Quality (GQ) threshold", value=20,
-                           min=1, max=99),
-              numericInput("DP", "Read Depth (DP) threshold", value=10, min=1,
-                           max=100),
-              numericInput("MAF", "Minor Allele Frequency", value=0.01, max=1, 
-                           min=0.01, step=0.01),
-              numericInput("ibis_mt1", 
-                           "Min number of markers to call a region IBD1",
-                           value=50, min=10, max=1000),
-              numericInput("ibis_mt2",
-                           "Min number of markers to call region IBD2",
-                           value=10, min=1, max=400),
-              textInput("email", "Enter an email address:", width="75%"),
-              actionButton("sh_start", "Start")
-              ),
+                   shinyDirButton("sh_outdir", "Select output folder",
+                                  title="Output folder", multiple=F),
+                   textOutput("sh_outdir_txt"),
+                   numericInput("GQ", "Minimum Genotype Quality (GQ) per sample threshold", value=20,
+                                min=1, max=99),
+                   numericInput("DP", "Minimum Read Depth (DP) per sample threshold", value=10, min=1,
+                                max=100),
+                   numericInput("MAF", "Minor Allele Frequency (MAF) in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.01, max=1, 
+                                min=0.01, step=0.01),
+                   numericInput("ibis_mt1", 
+                                "Minimum number of (SNP) markers to call a region IBD1",
+                                value=50, min=10, max=1000),
+                   numericInput("ibis_mt2",
+                                "Minimum number of (SNP) markers to call region IBD2",
+                                value=10, min=1, max=400),
+                   textInput("email", "Enter an email address:", width="75%"),
+                   actionButton("sh_start", "Start")
+            ),
             tags$head(
               tags$style(
                 HTML(".form-control.shiny-bound-input{
@@ -71,14 +75,7 @@ body <- dashboardBody(
                      width: 300px;
                      }
                      ")))
-            ),
-            # TODO: remove this box
-            box(title="Advanced Configuration", collapsible = TRUE,
-                collapsed = TRUE,
-                status = "warning")
-
-      ),
-      fluidRow(
+        ),
         box(
           title="Structural Variants",
           status = "primary",
@@ -86,11 +83,10 @@ body <- dashboardBody(
                     accept=c("vcf.gz"), width="50%")
         )
       )
-
     ),
-#-------------------------------------------------------------------------------
-# Short variants tab
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Short variants tab
+    #-------------------------------------------------------------------------------
     tabItem(
       tabName="short_vars",
       fluidRow(
@@ -104,7 +100,7 @@ body <- dashboardBody(
             height="535px",
             ideogramOutput("ideogram_plot")
           )
-
+          
         ),
         box(
           title="Files",
@@ -151,10 +147,20 @@ body <- dashboardBody(
                     accept=c(".tsv", ".txt")),
           fileInput("sv_ibd_seg", "Upload IBIS IBD segment file (.seg)",
                     accept=c(".seg")),
+          fileInput("sv_gene_list", "Upload a list of genes of interest (.tsv/.txt"),
           status = "primary",
-      ))
+        )),
+      fluidRow(
+        box(
+          width=12,
+          height="100%",
+          downloadButton("sv_download", "Download"),
+          tags$br(),
+          DTOutput("sv_table"),
+          status = "primary"
+        ))
+    )
   )
-)
 )
 
 # define user interface
