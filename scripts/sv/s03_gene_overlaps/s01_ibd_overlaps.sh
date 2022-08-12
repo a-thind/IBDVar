@@ -97,7 +97,6 @@ zgrep -v "^#" "${ibd_overlaps}" \
 # parse variant IDs
 awk 'BEGIN{FS="\t"} {printf("%s\n", $3)}' "${ibd_overlaps}" > "${ibd_var_ids}"
 
-
 echo "Done."
 date
 echo ""

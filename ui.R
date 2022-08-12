@@ -45,6 +45,19 @@ body <- dashboardBody(
       fluidRow(
         box(title="Short Variants",
             status="primary",
+            height = "100%",
+            tags$head(
+              tags$style(
+                HTML(".form-control.shiny-bound-input{
+                     width: 75px;
+                }
+                #sh_email{
+                  width: 75%
+                }
+                #sv_email{
+                  width: 75%
+                }
+                     "))),
             column(8,
                    fileInput("sh_vcf", "Upload input short variants VCF file (compressed)",
                              accept=c("vcf.gz"), width="75%"),
@@ -63,24 +76,30 @@ body <- dashboardBody(
                    numericInput("ibis_mt2",
                                 "Minimum number of (SNP) markers to call region IBD2",
                                 value=10, min=1, max=400),
-                   textInput("email", "Enter an email address:", width="75%"),
+                   numericInput("sh_threads", "Number of threads", value=4,
+                                min=1, max=99),
+                   textInput("sh_email", "Enter an email address:"),
                    actionButton("sh_start", "Start")
-            ),
-            tags$head(
-              tags$style(
-                HTML(".form-control.shiny-bound-input{
-                     width: 75px;
-                     }
-                     #email{
-                     width: 300px;
-                     }
-                     ")))
+            )
         ),
         box(
           title="Structural Variants",
           status = "primary",
-          fileInput("sv_vcf", "Upload input structural variants VCF file (compressed).",
-                    accept=c("vcf.gz"), width="50%")
+          height="100%",
+          column(8,
+                 fileInput("sv_vcf", "Upload input structural variants VCF file (compressed)",
+                           accept=c("vcf.gz"), width="75%"),
+                 shinyDirButton("sv_outdir", "Select output folder",
+                                title="Output folder", multiple=F),
+                 fileInput("ibis_seg", 
+                           "IBIS IBD segment file (.seg)",
+                           accept=c(".seg"), width="75%"),
+                 textOutput("sv_outdir_txt"),
+                 numericInput("sv_threads", "Number of threads", value=4,
+                              min=1, max=99),
+                 textInput("sv_email", "Enter an email address:"),
+                 actionButton("sv_start", "Start")
+          )
         )
       )
     ),
@@ -93,22 +112,23 @@ body <- dashboardBody(
         box(
           title = "IBD regions Ideogram",
           status="primary",
-          width = 8,
+          width = 9,
           height="600px",
           box(
             width = 12,
             height="535px",
             ideogramOutput("ideogram_plot")
           )
-          
         ),
         box(
           title="Files",
-          width=4,
+          width=3,
           fileInput("short_tsv", "Upload pipeline output file (.tsv/.txt)",
                     accept=c(".tsv", ".txt")),
           fileInput("ibd_seg", "Upload IBIS IBD segment file (.seg)",
                     accept=c(".seg")),
+          fileInput("sh_gene_list", 
+                    "Upload a list of genes of interest (.xlsx, .txt)"),
           status = "primary"
         )
       ),
@@ -131,7 +151,7 @@ body <- dashboardBody(
         box(
           title = "IBD regions Ideogram",
           status="primary",
-          width = 8,
+          width = 9,
           height="600px",
           box(
             width = 12,
@@ -142,12 +162,14 @@ body <- dashboardBody(
         ),
         box(
           title="Files",
-          width=4,
+          width=3,
           fileInput("sv_tsv", "Upload SV pipeline output file (.tsv/.txt)",
-                    accept=c(".tsv", ".txt")),
+                    accept=c(".tsv", ".txt"), width="100%"),
           fileInput("sv_ibd_seg", "Upload IBIS IBD segment file (.seg)",
-                    accept=c(".seg")),
-          fileInput("sv_gene_list", "Upload a list of genes of interest (.tsv/.txt"),
+                    accept=c(".seg"), width="100%"),
+          fileInput("sv_gene_list", 
+                    "Upload a list of genes of interest (.tsv/.txt)", 
+                    width="75%"),
           status = "primary",
         )),
       fluidRow(

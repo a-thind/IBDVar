@@ -6,10 +6,11 @@ library(tidyr)
 rm(list=ls())
 
 # files
-in_vcf='/home/share/data/output/IHCAPX8/sv/s02_filter_sv/IHCAPX8_SV_dragen_joint.sv.pass.read_support.vcf'
-annot_vars='//home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/sv_ccds.bed'
-ibd_regions='/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/ibd_overlaps.bed'
-out_dir='/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/'
+base_dir="/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/"
+in_vcf=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s02_filter_sv/IHCAPX8_SV_dragen_joint.sv.pass.read_support.vcf')
+annot_vars=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/sv_ccds.bed')
+ibd_regions=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/ibd_overlaps.bed')
+out_dir=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/')
 vcf <- read.vcfR(in_vcf)
 tidy_vcf <- vcfR2tidy(vcf)
 variants <- tidy_vcf$fix
@@ -51,10 +52,14 @@ filtered_vars <- ibd_filtered_vars %>%
   mutate(SV_LENGTH=gsub(".*=.*", "", SV_LENGTH)) %>%
   mutate(END=gsub("(.*)(^END=)|(;.*)", "",INFO)) %>%
   mutate(END=gsub(".*=.*", "",END)) %>%
-  mutate()
-
-test
+  mutate(CIGAR=gsub("(.*CIGAR=)|(;.*)", "", INFO)) %>%
+  mutate(CIGAR=gsub(".*=.*", "", CIGAR)) %>%
+  mutate(CI_POS=gsub("(.*CIPOS=)|(;.*)", "", INFO)) %>%
+  mutate(CI_POS=gsub(".*=.*", "", CI_POS)) %>%
+  mutate(CI_END=gsub("(.*CIEND=)|(;.*)", "", INFO)) %>%
+  mutate(CI_END=gsub(".*=.*", "", CI_END))
 
 # write filtered variants to a tab-delimited text file
 write.table(filtered_vars, file=file.path(out_dir,"ibd_annotated_sv.txt"), 
             sep="\t", row.names = F, quote=F)
+

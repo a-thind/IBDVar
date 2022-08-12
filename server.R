@@ -1,6 +1,9 @@
 library(jsonlite)
 library(dplyr)
 
+# TODO:
+# PR and SR table
+
 # function to create a config file for the short variants pipeline
 make_short_config <- function(in_vcf, out_dir, GQ, DP, 
                               MAF, ibis_mt1, ibis_mt2) {
@@ -336,7 +339,8 @@ server <- function(input, output, session) {
   output$sv_table <- renderDT({
     DT::datatable(
       sv_data() %>% 
-        select(CHROM, START, END, ID, SV_TYPE, SV_LENGTH, GENE, OVERLAP))
+        select(CHROM, START, END, ID, SV_TYPE, SV_LENGTH, CI_POS, CI_END, CIGAR, 
+               GENE, OVERLAP))
   })
 }
 
