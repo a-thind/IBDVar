@@ -1,5 +1,5 @@
 #!/bin/bash
-# short_variants.sh - Script for starting short variants prioritisation pipeline
+# short_variants.sh - Main script for starting short variants prioritisation pipeline
 # Anisha Thind, 15June2022
 
 # stop at runtime errors and if pipe contains a non-zero status
@@ -77,27 +77,27 @@ if [ ! -z "${1}" ]; then
 fi
 
 # starting message
-echo -e "Short Variants Pipeline\n" | tee "${pipeline_log}"
-date | tee -a "${pipeline_log}"
+echo -e "Short Variants Pipeline\n" &> "${pipeline_log}"
+date &>> "${pipeline_log}"
 echo -e "\n----------------------------------- Settings ----------------------------------\n" \
    | tee -a "${pipeline_log}"
 echo -e "Configuration file: ${config}\n" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 printf 'Input VCF file:\t%s\n\n' "${in_vcf}" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 printf 'Output folder:\t%s\n\n' "${out_dir}" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 printf 'Number of threads: %s\n\n' "${threads}" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 echo -e "Log files are created in ${log_dir}\n\n" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 
-echo -e "=================================== Pipeline ===================================\n"
+echo -e "=================================== Pipeline ===================================\n" &>> "${pipeline_log}"
 short_variants/s01_short_vcf_qc/s00_start_qc.sh "${in_vcf}" \
     "${out_dir}" \
     "${md5sum}" \
     "${log_dir}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 #--------------------------- Variant Pre-processing ----------------------------
 short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
@@ -106,7 +106,7 @@ short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
     "${DP}" \
     "${threads}" \
     "${log_dir}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 #-------------------------------- IBD Detection --------------------------------
 short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
@@ -121,7 +121,7 @@ short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
    "${ibs2m}" \
    "${genome}" \
    "${log_dir}" \
-   |& tee -a "${pipeline_log}" 
+   &>> "${pipeline_log}" 
 
 #------------------------------ Variant Annotation -----------------------------
 short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
@@ -130,15 +130,15 @@ short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     "${cadd}" \
     "${threads}" \
     "${log_dir}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 #------------------------------ Variant selection ------------------------------
 short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
    "${MAF}" \
    "${log_dir}" \
-   |& tee -a "${pipeline_log}"
+   &>> "${pipeline_log}"
 
 # completion messages
-echo "Pipeline completed."
-date
-echo ""
+echo "Pipeline completed." &>> "${pipeline_log}"
+date &>> "${pipeline_log}"
+echo "" &>> "${pipeline_log}"
