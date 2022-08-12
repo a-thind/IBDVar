@@ -21,19 +21,19 @@ library(ggvenn)
 # clear workspace
 rm(list=ls())
 graphics.off()
-
+cat("Top of R script...")
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) < 2) {
-  stop("Error: both input VCF file and output folder arguments are required.")
+  stop("both input VCF file and output folder arguments are required.")
 }
 
 if (!file.exists(args[1])) {
-  stop("Error: input VCF file path does not exist.")
+  stop("input VCF file path does not exist.")
 } else {
   in_vcf <- args[1]
 }
-
+cat(in_vcf)
 if (!dir.exists(args[2])) {
   stop("Error: output folder path does not exist.")
 } else {
@@ -198,5 +198,5 @@ vars_table <- all_filters_vars %>%
 
 out_file <- file.path(out_dir, "filtered_short_vars.txt")
 write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
-cat("Variants selected.")
+cat("Variants selected.\n")
 
