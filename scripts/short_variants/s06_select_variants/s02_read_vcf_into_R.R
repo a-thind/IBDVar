@@ -21,19 +21,19 @@ library(ggvenn)
 # clear workspace
 rm(list=ls())
 graphics.off()
-
+cat("Top of R script...")
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) < 2) {
-  stop("Error: both input VCF file and output folder arguments are required.")
+  stop("both input VCF file and output folder arguments are required.")
 }
 
 if (!file.exists(args[1])) {
-  stop("Error: input VCF file path does not exist.")
+  stop("input VCF file path does not exist.")
 } else {
   in_vcf <- args[1]
 }
-
+cat(in_vcf)
 if (!dir.exists(args[2])) {
   stop("Error: output folder path does not exist.")
 } else {
@@ -111,11 +111,11 @@ variants %>% filter(vep_CADD_PHRED >= 20) %>%
 variants %>% counts(vep_IMPACT)
 
 # plot histogram of QUAL
-variants %>% filter(QUAL < 100) %>% ggplot(aes(x=QUAL)) +
+g <- variants %>% filter(QUAL < 100) %>% ggplot(aes(x=QUAL)) +
     geom_histogram(bins=40, fill=rgb(0,0,1,0.5)) +
     scale_x_continuous(limits=c(0, 100), expand=c(0, 5)) +
     ggtitle("QUAL Score distribution < 100")
-
+ggsave(file.path(out_dir, "quality_dist.png"), g)
 # replace all dots with NAs
 filtered_vars <- as.data.frame(variants)
 filtered_vars[filtered_vars=="."] <- NA
@@ -142,13 +142,13 @@ impact <- filtered_vars$vep_IMPACT == "HIGH"
 
 combined_filter <- clinvar |
                     (sift & cadd | cadd & polyphen | polyphen & sift) | impact
-sum(combined_filter)
+cat("Number of variants passing combined filter:", sum(combined_filter))
 
-sum(impact)
+cat("Number of variants with VEP HIGH impact:", sum(impact))
 
-sum(clinvar)
+cat("Number of variants with ClinVar clinical significance 'Pathogenic/likely pathogenic':", sum(clinvar))
 
-sum(sift & polyphen & cadd)
+cat("Number of variants with severe consequences predicted using SIFT, PolyPhen and CADD:", sum(sift & polyphen & cadd))
 sum(cadd & sift)
 summary(sift)
 summary(polyphen)
@@ -158,17 +158,24 @@ filtered_vars %>% counts(vep_IMPACT)
 
 summary(filtered_vars)
 
-hist(table(filtered_vars$vep_CADD_PHRED),
+png(file.path(out_dir, "cadd_phred_score_dist.png"), width = 800, height=600)
+cadd_plot <- hist(table(filtered_vars$vep_CADD_PHRED),
      main="CADD Phred Score Distribution",
      xlab = "CADD Phred Score", col=rgb(0,0,1,0.5))
+dev.off()
 
 # venn diagram between SIFT, PolyPhen and CADD
+png(file.path(out_dir, "cadd_polyphen_sift_venn.png"))
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift))
+dev.off()
 # venn diagram between SIFT, PolyPhen and CADD and VEP impact
+png(file.path(out_dir, "impact_cadd_polyphen_sift_venn.png"))
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "IMPACT"=impact))
+dev.off()
 # venn diagram between SIFT, PolyPhen and CADD and VEP impact
+png(file.path(out_dir, "clinvar_cadd_polyphen_sift_venn.png"))
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "clinvar"=clinvar))
-
+dev.off()
 
 all_filters_vars <- filtered_vars[combined_filter,]
 
@@ -191,5 +198,5 @@ vars_table <- all_filters_vars %>%
 
 out_file <- file.path(out_dir, "filtered_short_vars.txt")
 write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
-cat("Variants selected.")
+cat("Variants selected.\n")
 
