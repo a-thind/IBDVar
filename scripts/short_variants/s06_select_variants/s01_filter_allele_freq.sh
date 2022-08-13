@@ -36,10 +36,10 @@ zgrep -v "^#" "${in_vcf}" \
     | awk 'END{printf("Number of VEP annotated variants: %s\n\n", NR)}'
 
 # filter variants
-# select variants AF < 0.01 (rare)
-echo -e "Selecting rare variants (AF < ${MAF})...\n"
+# select variants AF <= 0.05 (default)
+echo -e "Selecting rare variants (AF <= ${MAF})...\n"
 bcftools view "${in_vcf}" \
-    -i "vep_MAX_AF< ${MAF} || vep_MAX_AF='.'" \
+    -i "vep_MAX_AF<= ${MAF} || vep_MAX_AF='.'" \
     -Oz \
     -o "${out_vcf}"
 
