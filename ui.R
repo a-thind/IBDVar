@@ -28,7 +28,7 @@ sidebar <- dashboardSidebar(
     menuItem("Short Variants", tabName="short_vars"),
     menuItem("Structural Variants", tabName="sv_tab"),
     # Filters side panel    
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     conditionalPanel(
       'input.sidebar_id == "short_vars"',
       uiOutput("filters")
@@ -68,7 +68,7 @@ body <- dashboardBody(
                                 min=1, max=99),
                    numericInput("DP", "Minimum Read Depth (DP) per sample threshold", value=10, min=1,
                                 max=100),
-                   numericInput("MAF", "Minor Allele Frequency (MAF) in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.01, max=1, 
+                   numericInput("MAF", "Minor Allele Frequency (MAF) in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
                                 min=0.01, step=0.01),
                    numericInput("ibis_mt1", 
                                 "Minimum number of (SNP) markers to call a region IBD1",
