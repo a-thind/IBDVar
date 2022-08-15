@@ -29,13 +29,15 @@ if (length(args) < 2) {
 }
 
 if (!file.exists(args[1])) {
-  stop("Error: input VCF file path does not exist.")
+  stop("input VCF file path does not exist.")
+} else if (substr(args[1], nchar(args[1]) - 6, nchar(args[1]))!=".vcf.gz") {
+  stop("input file is not a VCF file")
 } else {
   in_vcf <- args[1]
 }
 
 if (!dir.exists(args[2])) {
-  stop("Error: output folder path does not exist.")
+  stop("output folder path does not exist.")
 } else {
   out_dir=args[2]
 }
@@ -60,7 +62,6 @@ counts <- function(data, feature) {
   data %>%
     group_by({{ feature }}) %>%
     summarise(count = n()) %>% arrange(desc(count))
-  cat("\n")
 }
 
 # produce barplot showing counts for each type of group variable
