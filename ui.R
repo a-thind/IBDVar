@@ -13,12 +13,6 @@ library(DT)
 # show all button (original table)
 # threads set 
 
-# function to create select inputs for factor variables
-filters_ui <- function(var) {
-  levels = levels(var)
-  selectInput(var, var, choices=levels, selected = NULL, multiple = TRUE)
-}
-
 # Define UI for application
 # sidebar
 sidebar <- dashboardSidebar(
@@ -76,6 +70,10 @@ body <- dashboardBody(
                    numericInput("ibis_mt2",
                                 "Minimum number of (SNP) markers to call region IBD2",
                                 value=10, min=1, max=400),
+                   numericInput("mind", "Exclude samples with more than the provided value percentage of missing genotype data e.g. 0.1 excludes samples with > 10% missing genotype data", value=0.05, max=1, 
+                                min=0.1, step=0.01),
+                   numericInput("geno", "Selects variants with missing call rates lower than the provided value to be removed", value=0.01, max=1, 
+                                min=0.1, step=0.01),
                    numericInput("sh_threads", "Number of threads", value=4,
                                 min=1, max=99),
                    textInput("sh_email", "Enter an email address:"),

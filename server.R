@@ -6,14 +6,15 @@ library(dplyr)
 
 # function to create a config file for the short variants pipeline
 make_short_config <- function(in_vcf, out_dir, GQ, DP, 
-                              MAF, ibis_mt1, ibis_mt2) {
+                              MAF, ibis_mt1, ibis_mt2, mind, geno, threads) {
   # read in file paths
   # create a dataframe with parameters
   config_dir="scripts/config"
   config_path=file.path(config_dir, "pipeline_config.config")
   params_df <- data.frame(
-    params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2"),
-    vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2)
+    params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2", 
+             "mind", "geno"),
+    vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2, mind, geno)
   )
   tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
                       comment.char = "#", sep="=", header = F)
@@ -85,10 +86,11 @@ filter_variables <- function(var, in_val){
     var %in% in_val
   } else if (is.character(var)) {
     # this clause is for variables with 2 or more levels
-    var %in% in_val
+    var_logical <- sapply(in_val, function(x){grepl(paste0(x, ".*"), var)})       
+    any(var_logical)
   } else {
-    # in case neither return null
-    return(NULL)
+    # in case neither return TRUE
+    TRUE
   }
 }
 
@@ -112,14 +114,12 @@ server <- function(input, output, session) {
     }
   })
   
-  # volumes set home directory
-  volumes <- c(home="/home")
-  shinyDirChoose(input, "sh_outdir", roots=volumes)
+  shinyDirChoose(input, "sh_outdir", roots=c(home="/home"))
   
   
   sh_out_dir <- reactive({
     req(input$sh_outdir)
-    out_dir <- parseDirPath(roots = volumes, input$sh_outdir)
+    out_dir <- parseDirPath(roots = c(home="/home"), input$sh_outdir)
   })
   
   output$sh_outdir_txt <- renderText({
@@ -164,6 +164,20 @@ server <- function(input, output, session) {
     validate("Please provide a valid email address for pipeline notifications.")
   })
   
+  sh_threads <- reactive({
+    req(input$sh_threads)
+    validate("Please provide the number of threads to be used when running the pipeline.")
+  })
+  
+  mind <- reactive({
+    req(input$mind)
+    validate("Please provide the minimum individual to be used when running the pipeline.")
+  })
+  
+  geno <- reactive({
+    req(input$geno)
+    validate("Please provide the minimum individual to be used when running the pipeline.")
+  })
   
   
   observeEvent(input$sh_start,{
@@ -218,10 +232,10 @@ server <- function(input, output, session) {
     req(input$short_tsv)
     ext=tools::file_ext(input$short_tsv$name)
     switch(ext,
-           tsv=vroom::vroom(input$short_tsv$datapath, delim="\t",
-                            col_names=TRUE, col_types = col_types),
+           tsv=vroom::vroom(input$short_tsv$datapath, delim="\t", 
+                                 col_names=TRUE, col_types = col_types),
            txt=vroom::vroom(input$short_tsv$datapath, delim="\t",
-                            col_names=TRUE, col_types = col_types),
+                         col_names=TRUE, col_types = col_types),
            validate("Invalid file: Please upload a tsv/text file")
     )
   })
@@ -240,6 +254,8 @@ server <- function(input, output, session) {
   output$ideogram_plot <- renderIdeogram({
     ideogram({ibd_data()})
   })
+  
+  sh_original_vars <- reactiveValues()
   
   # reactive expression for ibd region filtering
   ibd_filter <- reactive({
