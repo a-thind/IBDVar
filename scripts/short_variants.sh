@@ -108,7 +108,7 @@ short_variants/s02_filter_short_vars/s00_start_pre-processing.sh "${in_vcf}" \
     "${log_dir}" \
     &>> "${pipeline_log}"
 
--------------------------------- IBD Detection --------------------------------
+#-------------------------------- IBD Detection --------------------------------
 short_variants/s04_select_ibd_variants/s00_start_IBD_detection.sh "${out_dir}" \
    "${plink}" \
    "${mind}" \
@@ -136,6 +136,19 @@ short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
    "${MAF}" \
    "${log_dir}" \
    &>> "${pipeline_log}"
+
+echo -e "--------------------------- Final Output ----------------------------\n" \
+   &>> "${pipeline_log}"
+final_dir="${out_dir}/final_output"
+mkdir -p "${final_dir}"
+
+ibd_seg="${out_dir}/s04_select_ibd_variants/ibis/ibis.seg"
+variants="${out_dir}/s06_select_variants/filtered_short_vars.tsv"
+
+cp "${variants}" "${final_dir}/"
+cp "${ibd_seg}" "${final_dir}/"
+
+echo "Final output is in ${final_dir}." &>> "${pipeline_log}"
 
 # completion messages
 echo "Pipeline completed." &>> "${pipeline_log}"
