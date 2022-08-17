@@ -82,6 +82,7 @@ bcftools query -f "%IMPRECISE\n" -i "IMPRECISE=1" "${in_vcf}" | awk 'END{ printf
 echo ""
 
 # Add Rscript
+Rscript sv/s01_sv_vcf_qc/s02_sv_qc_stats.R "${in_vcf}" "${out_dir}"
 
 # Completion message
 echo "Done."
