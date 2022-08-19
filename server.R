@@ -183,7 +183,7 @@ server <- function(input, output, session) {
   
   # read short variants csv
   col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', ALLELE='f',
-                    CONSEQUENCE='c', IMPACT='f', SYMBOL='c', GENE='c',
+                    CONSEQUENCE='c', IMPACT='f', SYMBOL='f', GENE='c',
                     FEATURE_TYPE='f', FEATURE='c', BIOTYPE='f', EXON='c',
                     INTRON='c', POS='d', QUAL='d', AC='d', AF='d', AN='d',
                     DP='d', FS='d', MQ='d', MQRANKSUM='d', QD='d',
@@ -227,6 +227,27 @@ server <- function(input, output, session) {
     ideogram({ibd_data()})
   })
   
+  # read genes list
+  sh_genes <- reactive({
+    req(input$sh_gene_list)
+    ext=tools::file_ext(input$sh_gene_list$name)
+    switch(ext,
+           xlsx=read_excel(input$sh_gene_list$datapath, col_names=c("gene")),
+           txt=vroom::vroom(input$sh_gene_list$datapath, delim="\n",
+                            col_names=c("gene")),
+           validate("Invalid gene list file: Please upload a valid genes list file.")
+    )
+  })
+  
+  sh_gene_filter <- reactive({
+    req(!is.null(input$sh_gene_check))
+    if (input$sh_gene_check) {
+      ibd_filter() %>% filter(filter_variables(ibd_filter()$SYMBOL, 
+                                                pull(sh_genes(), gene)))
+    } else {
+      ibd_filter()
+    }
+  })
   
   # reactive expression for ibd region filtering
   ibd_filter <- reactive({
@@ -276,14 +297,14 @@ server <- function(input, output, session) {
                          selected=levels(short_data()$POLYPHEN_CALL)),
       checkboxGroupInput("cadd_filter", "CADD Score", 
                          selected=levels(cadd_bins()), 
-                         choices=levels(cadd_bins()))
-      
+                         choices=levels(cadd_bins())),
+      checkboxInput("sh_gene_check", "Genes of interest", value=FALSE)
     ))
   
   # render short variants table
   output$short_tab <- renderDT({ 
     DT::datatable(
-      ibd_filter() %>%
+      sh_gene_filter() %>%
         # create link for gene symbols to NCBI gene db
         mutate(
           SYMBOL=ifelse(
