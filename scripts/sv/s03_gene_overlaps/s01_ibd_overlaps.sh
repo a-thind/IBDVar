@@ -10,7 +10,7 @@ echo ""
 # set files and folders
 out_dir="${1}"
 data_dir="${out_dir}/s02_filter_sv"
-in_vcf=$( find "${data_dir}" -name *.pass.read_support.vcf.gz )
+in_vcf=$( find "${data_dir}" -name *.pass.vcf.gz )
 
 # ccds 
 ccds_dir="${2}"
@@ -36,7 +36,7 @@ ibd_overlaps="${out_dir}/ibd_overlaps.bed"
 annot_ccds="${out_dir}/sv_ccds.bed"
 
 if [ -z "${in_vcf}" ]; then
-    "Error: missing read supported filtered vcf file."
+    "Error: missing pass filtered vcf file."
     exit 1
 fi
 
@@ -96,6 +96,10 @@ zgrep -v "^#" "${ibd_overlaps}" \
     | awk 'END{printf("Number of SV overlaps with IBD regions: %s\n\n", NR)}'
 # parse variant IDs
 awk 'BEGIN{FS="\t"} {printf("%s\n", $3)}' "${ibd_overlaps}" > "${ibd_var_ids}"
+echo ""
+# Annotate IBD variants with CCDS
+echo "${in_vcf}"
+Rscript sv/s03_gene_overlaps/s03_annotate_ibd_sv.R "${in_vcf}" "${out_dir}" "${annot_ccds}" "${ibd_overlaps}"
 
 echo "Done."
 date

@@ -1,16 +1,54 @@
 # S03_ibd_filter.R - filter by ibd regions
 # load library
 library(vcfR)
-library(tidyr)
+library(dplyr)
 
-rm(list=ls())
+cat("\nScript: S03_annotate_IBD_sv.R\n")
+cat(date(), "\n")
 
 # files
-base_dir="/run/user/1000/gvfs/sftp:host=138.250.31.2,user=anisha/"
-in_vcf=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s02_filter_sv/IHCAPX8_SV_dragen_joint.sv.pass.read_support.vcf')
-annot_vars=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/sv_ccds.bed')
-ibd_regions=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/ibd_overlaps.bed')
-out_dir=file.path(base_dir, '/home/share/data/output/IHCAPX8/sv/s03_gene_overlaps/')
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) < 4) {
+  stop("Usage: Rscript s03_ibd_filter.R in_vcf.vcf out_dir annot_vars ibd_regions")
+}
+
+if (!file.exists(args[1])) {
+  stop("input VCF file path does not exist.")
+} else if (substr(args[1], nchar(args[1]) - 3, nchar(args[1]))!=".vcf") {
+  stop("input file is not a VCF file")
+} else {
+  in_vcf <- args[1]
+}
+
+if (!dir.exists(args[2])) {
+  stop("output folder path does not exist.")
+} else {
+  out_dir <- args[2]
+}
+
+if (!file.exists(args[3])) {
+  stop("input SV overlaps with CCDS BED file (sv_ccds.bed) does not exist.")
+} else if (substr(args[3], nchar(args[3]) - 3, nchar(args[3]))!=".bed") {
+  stop("input file is not a BED file")
+} else {
+  annot_vars <- args[3]
+}
+
+if (!file.exists(args[4])) {
+  stop("input SV overlaps with IBD regions BED file (ibd_overlaps.bed) does not exist.")
+} else if (substr(args[4], nchar(args[4]) - 3, nchar(args[4]))!=".bed") {
+  stop("input file is not a BED file")
+} else {
+  ibd_regions <- args[4]
+}
+
+cat("\nInput VCF: ", in_vcf)
+cat("\nOutput folder: ", out_dir)
+cat("\nSV-CCDS overlaps BED file: ", annot_vars)
+cat("\nSV-IBD region overlaps BED file: ", ibd_regions)
+
+# read vcf file
 vcf <- read.vcfR(in_vcf)
 tidy_vcf <- vcfR2tidy(vcf)
 variants <- tidy_vcf$fix
@@ -60,6 +98,7 @@ filtered_vars <- ibd_filtered_vars %>%
   mutate(CI_END=gsub(".*=.*", "", CI_END))
 
 # write filtered variants to a tab-delimited text file
-write.table(filtered_vars, file=file.path(out_dir,"ibd_annotated_sv.txt"), 
+write.table(filtered_vars, file=file.path(out_dir,"ibd_annotated_sv.tsv"), 
             sep="\t", row.names = F, quote=F)
 
+cat("\nDone.\n")

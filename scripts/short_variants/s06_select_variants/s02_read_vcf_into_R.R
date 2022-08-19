@@ -21,24 +21,35 @@ library(ggvenn)
 # clear workspace
 rm(list=ls())
 graphics.off()
-cat("Top of R script...")
+
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) < 2) {
-  stop("both input VCF file and output folder arguments are required.")
+  stop("Error: both input VCF file and output folder arguments are required.")
 }
 
 if (!file.exists(args[1])) {
   stop("input VCF file path does not exist.")
+} else if (substr(args[1], nchar(args[1]) - 6, nchar(args[1]))!=".vcf.gz") {
+  stop("input file is not a VCF file")
 } else {
   in_vcf <- args[1]
 }
-cat(in_vcf)
+
 if (!dir.exists(args[2])) {
-  stop("Error: output folder path does not exist.")
+  stop("output folder path does not exist.")
 } else {
   out_dir=args[2]
 }
+
+# output file name
+out_file <- file.path(out_dir, "filtered_short_vars.tsv")
+
+# starting message:
+cat("\nSelecting protein-affecting variants\n")
+cat(sprintf("Input VCF: %s\n", in_vcf))
+cat(sprintf("Selected variants output file: %s\n\n", out_file))
+
 
 #-------------------------------------------------------------------------------
 # Functions
@@ -64,12 +75,12 @@ plot_counts <- function(data) {
 
 
 # read data into R
-cat("\nReading VCF into R...")
+cat("\nReading VCF into R...\n")
 in_vcf <- file.path(in_vcf)
 vcf <- read.vcfR(in_vcf, verbose=F)
 vcf
 
-cat("Converting to tidy format...")
+cat("\nConverting to tidy format...\n")
 vcf_tidy <- vcfR2tidy(vcf, info_only=TRUE, dot_is_NA=TRUE, format_types=TRUE)
 variants <- vcf_tidy$fix
 variants
@@ -97,9 +108,9 @@ variants <- variants %>%
 
 # verify splitting plyphen and sift columns
 variants %>% select(vep_SIFT_score, vep_SIFT_call, vep_PolyPhen_score,
-                         vep_PolyPhen_call) %>%
-                        filter(vep_SIFT_score!=".") %>%
-                        head()
+                    vep_PolyPhen_call) %>%
+  filter(vep_SIFT_score!=".") %>%
+  head()
 
 # summarise counts
 variants %>% counts(vep_Consequence)
@@ -111,11 +122,11 @@ variants %>% filter(vep_CADD_PHRED >= 20) %>%
 variants %>% counts(vep_IMPACT)
 
 # plot histogram of QUAL
-g <- variants %>% filter(QUAL < 100) %>% ggplot(aes(x=QUAL)) +
-    geom_histogram(bins=40, fill=rgb(0,0,1,0.5)) +
-    scale_x_continuous(limits=c(0, 100), expand=c(0, 5)) +
-    ggtitle("QUAL Score distribution < 100")
-ggsave(file.path(out_dir, "quality_dist.png"), g)
+variants %>% filter(QUAL < 100) %>% ggplot(aes(x=QUAL)) +
+  geom_histogram(bins=40, fill=rgb(0,0,1,0.5)) +
+  scale_x_continuous(limits=c(0, 100), expand=c(0, 5)) +
+  ggtitle("QUAL Score distribution < 100")
+
 # replace all dots with NAs
 filtered_vars <- as.data.frame(variants)
 filtered_vars[filtered_vars=="."] <- NA
@@ -134,48 +145,54 @@ polyphen <- filtered_vars$vep_PolyPhen_call %in% c("probably_damaging")
 
 # CADD > 20
 cadd <- filtered_vars$vep_CADD_PHRED >= 20 &
-            !is.na(filtered_vars$vep_CADD_PHRED)
+  !is.na(filtered_vars$vep_CADD_PHRED)
 
 summary(cadd)
 
 impact <- filtered_vars$vep_IMPACT == "HIGH"
 
 combined_filter <- clinvar |
-                    (sift & cadd | cadd & polyphen | polyphen & sift) | impact
-cat("Number of variants passing combined filter:", sum(combined_filter))
+  (sift & cadd | cadd & polyphen) | impact
+cat(sprintf("Number of variants passing combined filter: %s\n\n", 
+            sum(combined_filter)))
 
-cat("Number of variants with VEP HIGH impact:", sum(impact))
+cat(sprintf("Number of LOF variants: %s\n", sum(impact)))
 
-cat("Number of variants with ClinVar clinical significance 'Pathogenic/likely pathogenic':", sum(clinvar))
+cat(
+  sprintf("Number of variants identified as probably damaging (PolyPhen): %s\n\n", 
+          sum(polyphen)))
 
-cat("Number of variants with severe consequences predicted using SIFT, PolyPhen and CADD:", sum(sift & polyphen & cadd))
-sum(cadd & sift)
-summary(sift)
-summary(polyphen)
-sum(polyphen)
+cat(
+  sprintf("Number of variants identified as deleterious (SIFT): %s\n\n", 
+          sum(sift)))
 
-filtered_vars %>% counts(vep_IMPACT)
+cat(
+  sprintf("Number of variants identified as pathogenic / likely pathogenic (ClinVar): %s\n\n", 
+          sum(clinvar)))
 
-summary(filtered_vars)
+cat(
+  sprintf("Number of variants identified as protein-affecting (SIFT, PolyPhen, CADD): %s\n\n", 
+          sum(sift & polyphen & cadd)))
+cat(
+  sprintf("Number of variants identified as deleterious (SIFT) & CADD Phred >= 20: %s\n\n", 
+          sum(cadd & sift)))
+cat(
+  sprintf("Number of variants identified as probably damaging (PolyPhen) & CADD Phred >= 20: %s\n\n", 
+          sum(cadd & polyphen)))
 
-png(file.path(out_dir, "cadd_phred_score_dist.png"), width = 800, height=600)
-cadd_plot <- hist(table(filtered_vars$vep_CADD_PHRED),
+cat("\n")
+
+hist(table(filtered_vars$vep_CADD_PHRED),
      main="CADD Phred Score Distribution",
      xlab = "CADD Phred Score", col=rgb(0,0,1,0.5))
-dev.off()
 
 # venn diagram between SIFT, PolyPhen and CADD
-png(file.path(out_dir, "cadd_polyphen_sift_venn.png"))
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift))
-dev.off()
 # venn diagram between SIFT, PolyPhen and CADD and VEP impact
-png(file.path(out_dir, "impact_cadd_polyphen_sift_venn.png"))
-ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "IMPACT"=impact))
-dev.off()
+ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "LOF"=impact))
 # venn diagram between SIFT, PolyPhen and CADD and VEP impact
-png(file.path(out_dir, "clinvar_cadd_polyphen_sift_venn.png"))
 ggvenn(tibble("CADD"=cadd, "PolyPhen"=polyphen, "SIFT"=sift, "clinvar"=clinvar))
-dev.off()
+
 
 all_filters_vars <- filtered_vars[combined_filter,]
 
@@ -196,7 +213,7 @@ vars_table <- all_filters_vars %>%
   # clean column names
   rename_with(~ toupper(gsub("vep_", "", .x, fixed = TRUE)))
 
-out_file <- file.path(out_dir, "filtered_short_vars.txt")
 write.table(vars_table, file=out_file, quote = F, row.names=F, sep="\t")
-cat("Variants selected.\n")
+cat(sprintf("Number of protein-coding variants selected: %s\n\n", 
+            nrow(vars_table)))
 

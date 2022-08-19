@@ -21,9 +21,9 @@ echo ""
 out_dir="${1}"
 plink="${2}"
 threads="${3}"
-mind=1
-maf=0.05
-geno=0.01
+mind="${4}"
+geno="${5}"
+MAF="${6}"
 
 # check plink path exists
 if [ -z "${plink}" ]; then
@@ -86,7 +86,7 @@ echo "Creating plink dataset..."
    --snps-only \
    --mind "${mind}" \
    --geno "${geno}" \
-   --maf "${maf}" \
+   --maf "${MAF}" \
    --make-bed \
    --silent \
    --threads "${threads}" \
