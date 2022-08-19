@@ -1,17 +1,4 @@
-# Shiny App
-# form-group shiny-input-container
-
-library(shiny)
-library(shinydashboard)
-library(shinyFiles)
-library(shinyFeedback)
-library(biomaRt)
-library(ideogram)
-library(DT)
-
-# TODO:
-# show all button (original table)
-# threads set 
+# Shiny App GUI code
 
 # Define UI for application
 # sidebar
@@ -26,6 +13,10 @@ sidebar <- dashboardSidebar(
     conditionalPanel(
       'input.sidebar_id == "short_vars"',
       uiOutput("filters")
+    ),
+    conditionalPanel(
+      'input.sidebar_id == "sv_tab"',
+      uiOutput("sv_filters_ui")
     )
   )
 )
@@ -76,7 +67,6 @@ body <- dashboardBody(
                                 min=0.1, step=0.01),
                    numericInput("sh_threads", "Number of threads", value=4,
                                 min=1, max=99),
-                   textInput("sh_email", "Enter an email address:"),
                    actionButton("sh_start", "Start")
             )
         ),
@@ -86,24 +76,23 @@ body <- dashboardBody(
           height="100%",
           column(8,
                  fileInput("sv_vcf", "Upload input structural variants VCF file (compressed)",
-                           accept=c("vcf.gz"), width="75%"),
+                           accept=c(".gz"), width="75%"),
                  shinyDirButton("sv_outdir", "Select output folder",
                                 title="Output folder", multiple=F),
-                 fileInput("ibis_seg", 
+                 fileInput("sv_start_ibis_seg", 
                            "IBIS IBD segment file (.seg)",
                            accept=c(".seg"), width="75%"),
                  textOutput("sv_outdir_txt"),
                  numericInput("sv_threads", "Number of threads", value=4,
                               min=1, max=99),
-                 textInput("sv_email", "Enter an email address:"),
                  actionButton("sv_start", "Start")
           )
         )
       )
     ),
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # Short variants tab
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     tabItem(
       tabName="short_vars",
       fluidRow(
@@ -141,20 +130,23 @@ body <- dashboardBody(
         )
       )
     ), 
+    #---------------------------------------------------------------------------
     # SV tab
-    #-----------------
+    #---------------------------------------------------------------------------
     tabItem(
       tabName="sv_tab", 
       fluidRow(
         box(
-          title = "IBD regions Ideogram",
+          title = "SV Table",
           status="primary",
           width = 9,
-          height="600px",
+          height="100%",
           box(
-            width = 12,
-            height="535px",
-            ideogramOutput("sv_ideogram_plot")
+            width = 9,
+            height="90%",
+            downloadButton("sv_download", "Download"),
+            tags$br(),
+            DTOutput("sv_table")
           )
           
         ),
@@ -163,21 +155,11 @@ body <- dashboardBody(
           width=3,
           fileInput("sv_tsv", "Upload SV pipeline output file (.tsv/.txt)",
                     accept=c(".tsv", ".txt"), width="100%"),
-          fileInput("sv_ibd_seg", "Upload IBIS IBD segment file (.seg)",
-                    accept=c(".seg"), width="100%"),
           fileInput("sv_gene_list", 
-                    "Upload a list of genes of interest (.tsv/.txt)", 
-                    width="75%"),
+                    "Upload a list of genes of interest (.xlsx/.txt)", 
+                    width="75%", accept=c(".xlsx", ".txt")),
           status = "primary",
-        )),
-      fluidRow(
-        box(
-          width=12,
-          height="100%",
-          downloadButton("sv_download", "Download"),
-          tags$br(),
-          DTOutput("sv_table"),
-          status = "primary"
+          textOutput("text")
         ))
     )
   )
