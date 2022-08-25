@@ -124,6 +124,7 @@ body <- dashboardBody(
           width=12,
           height="100%",
           downloadButton("download", "Download"),
+          actionButton("show_all", "Show All"),
           tags$br(),
           DTOutput("short_tab"),
           status = "primary"

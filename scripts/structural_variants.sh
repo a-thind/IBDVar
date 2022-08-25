@@ -79,41 +79,43 @@ fi
 # create log file
 pipeline_log="${out_dir}/logs/sv_pipeline.log"
 
-echo "Structural Variants Pipeline" |& tee "${pipeline_log}"
-date |& tee -a "${pipeline_log}"
+echo "Structural Variants Pipeline" &> "${pipeline_log}"
+date &>>"${pipeline_log}"
 
 echo -e "\n================================== Settings ===================================\n" \
-    |& tee -a "${pipeline_log}"
-echo "Input VCF: ${sv_vcf}" |& tee -a "${pipeline_log}"
-echo "Output folder: ${out_dir}" |& tee -a "${pipeline_log}"
-echo "Logs folder: ${out_dir}/logs" |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
+echo "Input VCF: ${sv_vcf}" &>> "${pipeline_log}"
+echo "Output folder: ${out_dir}" &>>"${pipeline_log}"
+echo "Logs folder: ${out_dir}/logs" &>> "${pipeline_log}"
 
 echo -e "\n================================== Quality Control ===================================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s01_sv_vcf_qc/s01_sv_vcf_stats.sh "${sv_vcf}" "${out_dir}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 echo -e "\n============================== Filtering variants =============================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s02_filter_sv/s01_retain_pass_filter_vars.sh "${sv_vcf}" "${out_dir}" \
-    |& tee -a "${pipeline_log}"
-
-sv/s02_filter_sv/s02_filter_read_support.sh "${out_dir}" "${PR}" "${SR}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 echo -e "\n============================== Detect SV Overlaps =============================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s03_gene_overlaps/s01_ibd_overlaps.sh "${out_dir}" \
     "${ccds}" \
     "${threads}" \
     "${ibd_seg}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
+
+if [ ! -z "${genes}" ]; then
+   sv/s03_gene_overlaps/s02_gene_overlaps.sh "${out_dir}" "${genes}" &>> "${pipeline_log}"
+   echo ""
+fi
 
 # completion message
-echo "Pipeline completed."
-date
-echo ""
+echo "Pipeline completed." &>> "${pipeline_log}"
+date &>> "${pipeline_log}"
+echo "" &>> "${pipeline_log}"
 

@@ -1,5 +1,3 @@
-library(dplyr)
-library(purrr)
 # TODO:
 # PR and SR table
 
@@ -40,21 +38,22 @@ server <- function(input, output, session) {
 # Start pipeline tab
 #-------------------------------------------------------------------------------
   # input vcf field
+  volumes <- getVolumes()
+  shinyFileChoose(input, "sh_vcf", roots=volumes())
   sh_vcf <- reactive({
     req(input$sh_vcf)
-    filename <- input$sh_vcf$name
+    filename <- input$sh_vcf
     # check vcf has right extension (.vcf.gz)
     if (substr(filename, nchar(filename)-6,
                nchar(filename))==".vcf.gz") {
-      in_vcf=tools::file_path_as_absolute(input$sh_vcf$datapath)
-      print(in_vcf)
+      in_vcf=tools::file_path_as_absolute(input$sh_vcf)
     } else {
       validate("Input file is not a compressed VCF file (.vcf.gz).")
     }
   })
   
   output$filename <- renderText({input$filename$name})
-  volumes <- getVolumes()
+
   shinyDirChoose(input, "sh_outdir", roots=volumes())
   
   
@@ -163,9 +162,9 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$sh_start,{
+  observeEvent(input$sv_start,{
     # make config file
-    make_sv_config(in_vcf=sh_vcf(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
+    make_sv_config(in_vcf=sv_vcf(), out_dir=sv_out_dir(), MAF=MAF(), GQ=GQ(), 
                       DP=DP(), 
                       ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
     showNotification("Short variants prioritisation pipeline started.",
@@ -199,44 +198,103 @@ server <- function(input, output, session) {
                     CLIN_SIG='f', SYMBOL_SOURCE='f', PHENO='f', AMINO_ACIDS='c',
                     NEAREST='c', HGVS_OFFSET='d', CLNSIG="f"
   )
-  
+  shinyFileChoose(input, "short_tsv", roots=volumes())
+
   short_data <- reactive({
-    req(input$short_tsv)
-    ext=tools::file_ext(input$short_tsv$name)
-    switch(ext,
-           tsv=vroom::vroom(input$short_tsv$datapath, delim="\t", 
-                                 col_names=TRUE, col_types = col_types),
-           txt=vroom::vroom(input$short_tsv$datapath, delim="\t",
-                         col_names=TRUE, col_types = col_types),
-           validate("Invalid file: Please upload a tsv/text file")
-    )
+    if (!is.null(input$short_tsv)){
+      infile <- parseFilePaths(roots=volumes(), input$short_tsv)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               tsv=vroom::vroom(infile, delim="\t", 
+                                col_names=TRUE, col_types = col_types),
+               txt=vroom::vroom(infile, delim="\t",
+                                col_names=TRUE, col_types = col_types),
+               stop("Invalid file: Please upload a tsv/text file")
+        )
+      }
+    }
+   
   })
   
+  output$short_tsv_name <- renderText({
+    if (!is.null(input$short_tsv)) {
+      infile <- paste("Variants file:", 
+                      parseFilePaths(roots=volumes(), input$short_tsv)$name)
+    } else {
+      "Variants file:"
+    }
+  })
+  
+  output$sh_tsv_label <- renderText({
+    "<b>Upload pipeline output file (.tsv/.txt)</b>"
+  })
+  
+  shinyFileChoose(input, "ibd_seg", roots=volumes())
   ibd_data <- reactive({
-    req(input$ibd_seg)
-    ext=tools::file_ext(input$ibd_seg$name)
-    switch(ext,
-           seg=input$ibd_seg$datapath,
-           validate("Invalid file: Please upload an IBIS IBD segment file (.seg)")
-    )
+    if(!is.null(input$ibd_seg)) {
+      infile <- parseFilePaths(roots=volumes(), input$ibd_seg)$datapath
+      if (length(infile) > 0) {
+        ext=tools::file_ext(infile)
+        ifelse(ext=="seg",
+               infile,
+               validate("Invalid file: Please upload an IBIS IBD segment file (.seg)")
+        )
+      }
+      
+    }
+    
   })
   
+  output$sh_seg_label <- renderText({
+    "<b>Upload (IBIS) IBD segment file (.seg) from short variants pipeline</b>"
+  })
+  
+  output$ibd_seg_name <- renderText({
+    if (!is.null(input$ibd_seg)) {
+      infile <- paste("IBD segment file: ", 
+                      parseFilePaths(roots=volumes(), input$ibd_seg)$name)
+    } else {
+      "IBD segment file: "
+    }
+  })
   
   # render ideogram
   output$ideogram_plot <- renderIdeogram({
-    ideogram({ibd_data()})
+    if (!is.null(ibd_data())){
+      ideogram({ibd_data()})
+    }
+    
   })
   
   # read genes list
+  shinyFileChoose(input, "sh_gene_list", roots=volumes())
   sh_genes <- reactive({
-    req(input$sh_gene_list)
-    ext=tools::file_ext(input$sh_gene_list$name)
-    switch(ext,
-           xlsx=read_excel(input$sh_gene_list$datapath, col_names=c("gene")),
-           txt=vroom::vroom(input$sh_gene_list$datapath, delim="\n",
-                            col_names=c("gene")),
-           validate("Invalid gene list file: Please upload a valid genes list file.")
-    )
+    if (!is.null(input$sh_gene_list)) {
+      infile <- parseFilePaths(roots=volumes(), input$sh_gene_list)$datapath
+      if (length(infile) > 0) {
+        ext=tools::file_ext(infile)
+        switch(ext,
+               xlsx=read_excel(infile, col_names=c("gene")),
+               txt=vroom::vroom(infile, delim="\n",
+                                col_names=c("gene")),
+               stop("Invalid gene list file: Please upload a valid genes list file.")
+        ) 
+      }
+    }
+  })
+  
+  output$sh_gene_label <- renderText({
+    "<b>Upload a list of genes of interest (.xlsx, .txt)</b>"
+  })
+  
+  output$sh_gene_name <- renderText({
+    if (!is.null(input$sh_gene_list)) {
+      infile <- paste("(Optional) Gene list file: ", 
+                      parseFilePaths(roots=volumes(), input$sh_gene_list)$name)
+    } else {
+      "(Optional) Gene list file: "
+    }
   })
   
   sh_gene_filter <- reactive({
@@ -303,25 +361,28 @@ server <- function(input, output, session) {
   
   # render short variants table
   output$short_tab <- renderDT({ 
-    DT::datatable(
-      sh_gene_filter() %>%
-        # create link for gene symbols to NCBI gene db
-        mutate(
-          SYMBOL=ifelse(
-            !is.na(SYMBOL),
-            paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
-                   SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
-        mutate(
-          RS=ifelse(
-            !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
-                               RS, '">', RS, '</a>'), RS)
-        ) %>%
-        select(ID, RS, HGVSC, HGVSP,
-               SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
-               CADD_PHRED, POLYPHEN_CALL,
-               SIFT_CALL, CLNSIG), 
-      escape=FALSE,
-      rownames=FALSE) 
+    if (!is.null(short_data())) {
+      DT::datatable(
+        sh_gene_filter() %>%
+          # create link for gene symbols to NCBI gene db
+          mutate(
+            SYMBOL=ifelse(
+              !is.na(SYMBOL),
+              paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
+                     SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
+          mutate(
+            RS=ifelse(
+              !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
+                                 RS, '">', RS, '</a>'), RS)
+          ) %>%
+          select(ID, RS, HGVSC, HGVSP,
+                 SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
+                 CADD_PHRED, POLYPHEN_CALL,
+                 SIFT_CALL, CLNSIG), 
+        escape=FALSE,
+        rownames=FALSE) 
+    }
+    
   })
   
   
@@ -343,7 +404,8 @@ server <- function(input, output, session) {
                         GENE='f', GENE_ID='c', CDS_ID='c', CCDS_STATUS='f', 
                         STRAND='f', CDS_LOCATIONS='c', MATCH_TYPE='f', 
                         OVERLAP='d', SV_TYPE='f', SV_LENGTH='d', END='d', 
-                        CIGAR='c', CI_POS='c', CI_END='c')
+                        CIGAR='c', CI_POS='c', CI_END='c', MATE_ID='c', 
+                       EVENT='c', IMPRECISE='l')
   
   sv_data <- reactive({
     req(input$sv_tsv)
@@ -372,15 +434,19 @@ server <- function(input, output, session) {
   sv_gene_filter <- reactive({
     req(!is.null(input$sv_gene_check))
     if (input$sv_gene_check) {
-      sv_ibd_filters() %>% filter(filter_variables(sv_ibd_filters()$GENE, pull(sv_genes(), gene)))
+      sv_filters() %>% filter(filter_variables(sv_filters()$GENE, pull(sv_genes(), gene)))
     } else {
-      sv_ibd_filters()
+      sv_filters()
     }
   })
   
+
+  
   sv_filters <- reactive({
-    filter_variables(sv_data()$CHROM, input$chrom) &
-      filter_variables(sv_data()$SV_TYPE, input$sv_type)
+    sv_data() %>% filter(
+      filter_variables(sv_data()$CHROM, input$chrom) &
+        filter_variables(sv_data()$SV_TYPE, input$sv_type)
+    )
   })
   
   output$sv_filters_ui <- renderUI({
@@ -395,22 +461,6 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  
-  # reactive expression for ibd region filtering for SV
-  sv_ibd_filters <- reactive({
-    if (!is.null(input$chosenRegion$chr)) {
-      sv_data() %>%
-        filter(CHROM==paste0('chr', input$chosenRegion$chr) &
-                 (POS >= input$chosenRegion$start) &
-                 (POS <= input$chosenRegion$stop) &
-                 sv_filters())
-    } else {
-      sv_data() %>% filter(sv_filters())
-    }
-  })
-  
-  
 
   output$sv_table <- renderDT({
     DT::datatable(
@@ -420,10 +470,12 @@ server <- function(input, output, session) {
             !is.na(GENE),
             paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
                    GENE, '[Gene Name]">', GENE,'</a>'), GENE)) %>%
-        select(CHROM, START, END, ID, SV_TYPE, SV_LENGTH, CI_POS, CI_END, CIGAR, 
-               GENE, OVERLAP), 
+        select(CHROM, START, END, ID, ALT, SV_TYPE, SV_LENGTH, CI_POS, 
+               CI_END, CIGAR, GENE, OVERLAP, MATE_ID, EVENT, IMPRECISE), 
       escape=FALSE,
-      rownames=FALSE) 
+      rownames=FALSE,
+      options = list(autoWidth = TRUE)
+      )
   })
   
   # download variants results handler
@@ -433,7 +485,7 @@ server <- function(input, output, session) {
         tools::file_path_sans_ext(input$sv_tsv$name), "_filtered.tsv")
     },
     content=function(file){
-      write.table({sv_ibd_filters()}, file)
+      write.table({sv_filters()}, file)
     })
   
 }

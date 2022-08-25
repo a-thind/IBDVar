@@ -8,8 +8,14 @@ library(biomaRt)
 library(ideogram)
 library(DT)
 library(readxl)
+library(dplyr)
+library(purrr)
 
 options(shiny.maxRequestSize=1000*1024^2)
+
+if (!require(shinyjs)) {
+  install.packages(shinyjs)
+}
 
 #' Filter dataframe by a given variable
 #'
