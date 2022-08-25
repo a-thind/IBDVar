@@ -49,9 +49,9 @@ body <- dashboardBody(
                    shinyDirButton("sh_outdir", "Select output folder",
                                   title="Output folder", multiple=F),
                    textOutput("sh_outdir_txt"),
-                   numericInput("GQ", "Minimum Genotype Quality (GQ) per sample threshold", value=20,
+                   numericInput("GQ", "Minimum genotype quality (GQ) per sample threshold", value=20,
                                 min=1, max=99),
-                   numericInput("DP", "Minimum Read Depth (DP) per sample threshold", value=10, min=1,
+                   numericInput("DP", "Minimum read depth (DP) per sample threshold", value=10, min=1,
                                 max=100),
                    numericInput("MAF", "Minor Allele Frequency (MAF) in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
                                 min=0.01, step=0.01),
@@ -110,12 +110,44 @@ body <- dashboardBody(
         box(
           title="Files",
           width=3,
-          fileInput("short_tsv", "Upload pipeline output file (.tsv/.txt)",
-                    accept=c(".tsv", ".txt")),
-          fileInput("ibd_seg", "Upload IBIS IBD segment file (.seg)",
-                    accept=c(".seg")),
-          fileInput("sh_gene_list", 
-                    "Upload a list of genes of interest (.xlsx, .txt)"),
+          fluidRow(column(12,
+                          htmlOutput("sh_tsv_label")
+          )),
+          fluidRow(
+            column(3,
+                   shinyFilesButton("short_tsv", "Browse...", 
+                                    title="Upload pipeline output file (.tsv/.txt)",
+                                    filetype=c(".tsv", ".txt"), multiple = FALSE)),
+            column(9,
+                   textOutput("short_tsv_name"))
+          ),
+          fluidRow(
+            column(12,
+                   htmlOutput("sh_seg_label")
+            )
+          )
+          ,
+          fluidRow(
+            column(3,
+                   shinyFilesButton("ibd_seg", "Browse...", 
+                                    title="Upload (IBIS) IBD segment file (.seg)",
+                                    filetype=c(".tsv", ".txt"), multiple = FALSE)
+            ),
+            column(9,
+                   textOutput("ibd_seg_name"))
+          ),
+          fluidRow(
+            column(12,
+                    htmlOutput("sh_gene_label")
+          )),
+          fluidRow( 
+            column(3,
+                    shinyFilesButton("sh_gene_list", "Browse...", 
+                    title="Upload a list of genes of interest (.xlsx, .txt)",
+                    filetype=c(".xlsx", ".txt"), multiple=FALSE)),
+             column(9,
+                    textOutput("sh_gene_name"))
+          ),
           status = "primary"
         )
       ),
@@ -138,22 +170,18 @@ body <- dashboardBody(
       tabName="sv_tab", 
       fluidRow(
         box(
-          title = "SV Table",
+          title = "Summary",
           status="primary",
-          width = 9,
+          width = 8,
           height="100%",
           box(
-            width = 9,
-            height="90%",
-            downloadButton("sv_download", "Download"),
-            tags$br(),
-            DTOutput("sv_table")
+            width = 12,
+            height="100%"
           )
-          
         ),
         box(
           title="Files",
-          width=3,
+          width=4,
           fileInput("sv_tsv", "Upload SV pipeline output file (.tsv/.txt)",
                     accept=c(".tsv", ".txt"), width="100%"),
           fileInput("sv_gene_list", 
@@ -161,7 +189,18 @@ body <- dashboardBody(
                     width="75%", accept=c(".xlsx", ".txt")),
           status = "primary",
           textOutput("text")
-        ))
+        )),
+      fluidRow(
+        box(
+          title = "SV Overlap",
+          status="primary",
+          height="100%",
+          width = "100%",
+          downloadButton("sv_download", "Download"),
+          tags$br(),
+          DTOutput("sv_table")
+        )
+      )
     )
   )
 )
