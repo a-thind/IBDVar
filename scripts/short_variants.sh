@@ -10,7 +10,7 @@ usage()
 {
    echo -e "Usage: ./short_variants.sh -c short_variants.config [-m md5sum_file.md5sum]\n" 
    echo -e "Options:\n"
-   echo -e "  -C, configuration file\n"
+   echo -e "  -c, configuration file\n"
    echo -e "  -m, md5sum file for input VCF file\n"
    echo -e "  -h, display this help message\n"
    exit 0;
@@ -19,13 +19,13 @@ usage()
 [ $# -eq 0 ] && usage
 
 # check parameter arguments
-while getopts "C:m:h" arg; do
+while getopts "c:m:h" arg; do
    case "${arg}" in
       h)
          usage
          exit 0
       ;;
-      C)
+      c)
          if [ -e "${OPTARG}" ]; then
             filename=$( basename ${OPTARG} ) 
             if [ "${filename##*.}" == "config" ]; then

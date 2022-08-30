@@ -19,13 +19,13 @@ usage()
 [ $# -eq 0 ] && usage
 
 # check parameter arguments
-while getopts "C:m:h" arg; do
+while getopts "c:m:h" arg; do
    case "${arg}" in
       h)
          usage
          exit 0
       ;;
-      C)
+      c)
          if [ -e "${OPTARG}" ]; then
             filename=$( basename ${OPTARG} ) 
             if [ "${filename##*.}" == "config" ]; then

@@ -32,9 +32,9 @@ echo "Gene list file: ${genes}"
 echo "Output variants overlapping gene list: ${gene_overlaps}"
 
 # check if file is excel spreadsheet
-if [ "${genes}" == "*.xlsx" ]; then
-    in2csv "${genes}" > "${genes##.}.csv"
-    genes="${genes##.}.csv"
+if [[ "${genes}" == *.xlsx ]]; then
+    in2csv "${genes}" > "${genes%.*}.csv"
+    genes="${genes%.*}.csv"
 fi
 
 # extract matching gene list lines from filtered_bed
@@ -43,7 +43,7 @@ grep -w -f "${genes}" "${sv_ibd_filter}" > "${gene_overlaps}"
 
 
 echo "Number of overlaps with genes of interest:"
-wc -l "${gene_overlaps}"
+awk 'END{printf("Number of overlaps with genes of interest: ", NR)}' "${gene_overlaps}"
 
 echo "Done."
 date

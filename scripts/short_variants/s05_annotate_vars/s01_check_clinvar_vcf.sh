@@ -42,7 +42,7 @@ fi
 if [ -z "${clinvar}" ]; then
    echo "Error: Missing ClinVar VCF file path."
    exit 1
-elif [ ! -e "${clinvar}"]; then
+elif [ ! -e "${clinvar}" ]; then
    echo "Error: ClinVar VCF file not found."
    exit 1
 fi

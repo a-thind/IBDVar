@@ -62,7 +62,6 @@ echo "Detecting IBD segments using IBIS..."
     -ibd2 \
     -mt "${ibis_mt1}" \
     -mt2 "${ibis_mt2}" \
-    -hbd \
     -t "${threads}" \
     -noFamID \
     -f "${plink_dataset}"  

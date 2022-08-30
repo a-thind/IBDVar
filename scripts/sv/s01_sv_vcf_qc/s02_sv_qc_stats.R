@@ -46,7 +46,7 @@ chrom_plot <- variants %>% counts(CHROM) %>%
 ggsave(file.path(out_dir, "chromosome_variants.png"), chrom_plot)
 # sv types
 variants %>% counts(SVTYPE)
-type_plot<- variants %>% counts(SVTYPE) %>% plot_counts("Type")
+type_plot <- variants %>% counts(SVTYPE) %>% plot_counts("Type")
 ggsave(file.path(out_dir, "sv_type.png"), type_plot)
 
 # Quality
@@ -81,5 +81,14 @@ pass_plot <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE) %>%
   plot_counts(var_name = "Type", title="Variants passing all filters (PASS)")
 ggsave(file.path(out_dir, "pass_filters.png"), pass_plot)
 # pass out of total variants
-
+svtype <- variants %>% counts(SVTYPE)
+svtype$count <- svtype$count - pass_type$count
+pass_type <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE)
+svtypes <- left_join(svtype, pass_type, by=c("SVTYPE"="SVTYPE"))
+colnames(svtypes) <- c("SVTYPE", "Not PASS", "PASS")
+library(reshape2)
+melt_svtypes <- melt(svtypes, id.vars="SVTYPE", value.name="Count")
+ggplot(melt_svtypes, aes(x=SVTYPE, y=Count, fill=variable)) + 
+  geom_bar(stat="identity") + labs(fill="Filter") + theme_bw() + 
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
 cat("\nAnalysis Complete.\n")

@@ -98,7 +98,6 @@ zgrep -v "^#" "${ibd_overlaps}" \
 awk 'BEGIN{FS="\t"} {printf("%s\n", $3)}' "${ibd_overlaps}" > "${ibd_var_ids}"
 echo ""
 # Annotate IBD variants with CCDS
-echo "${in_vcf}"
 Rscript sv/s03_gene_overlaps/s03_annotate_ibd_sv.R "${in_vcf}" "${out_dir}" "${annot_ccds}" "${ibd_overlaps}"
 
 echo "Done."

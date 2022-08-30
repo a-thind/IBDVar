@@ -3,7 +3,7 @@
 #' Plots ideogram.
 #'
 #' @import htmlwidgets
-#' @import scales
+#' @import pals
 #' @import DescTools
 #' @param file IBIS IBD segments file
 #' @export
@@ -18,7 +18,7 @@ ideogram <- function(file, width = NULL, height = NULL,
 
   ibd$name <- as.factor(ibd$name)
   # create colours
-  color <- scales::hue_pal()(length(levels(ibd$name)))
+  color <- pals::glasbey()[1:length(levels(ibd$name))]
   # add alpha
   color <- DescTools::SetAlpha(color, alpha=0.65)
   # map the colours to the samples

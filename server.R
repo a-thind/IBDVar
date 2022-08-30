@@ -41,18 +41,31 @@ server <- function(input, output, session) {
   volumes <- getVolumes()
   shinyFileChoose(input, "sh_vcf", roots=volumes())
   sh_vcf <- reactive({
-    req(input$sh_vcf)
-    filename <- input$sh_vcf
-    # check vcf has right extension (.vcf.gz)
-    if (substr(filename, nchar(filename)-6,
-               nchar(filename))==".vcf.gz") {
-      in_vcf=tools::file_path_as_absolute(input$sh_vcf)
-    } else {
-      validate("Input file is not a compressed VCF file (.vcf.gz).")
+    if (!is.null(input$sh_vcf)){
+      infile <- parseFilePaths(roots=volumes(), input$sh_vcf)$datapath
+      if (length(infile) > 0){
+        # check vcf has right extension (.vcf.gz)
+        ifelse(substr(infile, nchar(infile)-6,
+                      nchar(infile))==".vcf.gz",
+               infile,
+               validate("Invalid file: Input file is not a compressed VCF file (.vcf.gz).")
+        )
+      }
     }
+    
   })
   
-  output$filename <- renderText({input$filename$name})
+  
+  output$sh_vcf_name <- renderText({
+    req(input$sh_vcf)
+    if (!is.null(input$sh_vcf)) {
+      infile <- paste("Input VCF file: ", 
+                      parseFilePaths(roots=volumes(), input$sh_vcf)$name)
+    } else {
+      ""
+    }
+    
+  })
 
   shinyDirChoose(input, "sh_outdir", roots=volumes())
   
@@ -241,9 +254,7 @@ server <- function(input, output, session) {
                validate("Invalid file: Please upload an IBIS IBD segment file (.seg)")
         )
       }
-      
     }
-    
   })
   
   output$sh_seg_label <- renderText({
@@ -290,10 +301,65 @@ server <- function(input, output, session) {
   
   output$sh_gene_name <- renderText({
     if (!is.null(input$sh_gene_list)) {
-      infile <- paste("(Optional) Gene list file: ", 
+      infile <- paste("Gene list file: ", 
                       parseFilePaths(roots=volumes(), input$sh_gene_list)$name)
     } else {
       "(Optional) Gene list file: "
+    }
+  })
+  
+  output$sh_vars_total <- renderText({
+    if (!is.null(short_data())) {
+      paste("Total number of variants: ", nrow(short_data()))
+    } else {
+      ""
+    }
+  })
+  
+  output$clinvar_vars <- renderText({
+    if (!is.null(short_data())) {
+      pathogenic <- short_data() %>% 
+        filter(CLNSIG=="Pathogenic/Likely pathogenic") %>%
+        count()
+      paste('Pathogenic/ likely pathogenic (ClinVar) variants:', 
+            pathogenic)
+    } else {
+      ""
+    }
+  })
+  
+  output$impact_vars <- renderText({
+    if (!is.null(short_data())) {
+      impact <- short_data() %>% 
+        filter(IMPACT=="HIGH") %>%
+        count()
+      paste('High impact (LOF) variants:', 
+            impact)
+    } else {
+      ""
+    }
+  })
+  
+  output$missense_vars <- renderText({
+    if (!is.null(short_data())) {
+      missenses <- short_data() %>% 
+        filter((SIFT_CALL=="deleterious" | 
+                 POLYPHEN_CALL=="probably damaging") & CADD_PHRED >= 20) %>%
+        count()
+      paste('Predicted functionally important missenses:', 
+            missenses)
+    } else {
+      ""
+    }
+  })
+  
+  output$ibd_seg_total <- renderText({
+    if (!is.null(ibd_data())) {
+      ibd_segs <- read.table(ibd_data(), header = T)
+      paste('Shared IBD segments:', 
+            nrow(ibd_segs))
+    } else {
+      ""
     }
   })
   
@@ -400,11 +466,8 @@ server <- function(input, output, session) {
   # SV 
   #-----------------------------------------------------------------------------
   sv_col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', 
-                        INFO='c', FORMAT='c', CDS_CHROM='c', NC_ACCESSION='c', 
-                        GENE='f', GENE_ID='c', CDS_ID='c', CCDS_STATUS='f', 
-                        STRAND='f', CDS_LOCATIONS='c', MATCH_TYPE='f', 
-                        OVERLAP='d', SV_TYPE='f', SV_LENGTH='d', END='d', 
-                        CIGAR='c', CI_POS='c', CI_END='c', MATE_ID='c', 
+                        GENES='f', SVTYPE='f', SVLEN='d', END='d', 
+                        CIGAR='c', CIPOS='c', CIEND='c', MATEID='c', 
                        EVENT='c', IMPRECISE='l')
   
   sv_data <- reactive({
@@ -434,7 +497,7 @@ server <- function(input, output, session) {
   sv_gene_filter <- reactive({
     req(!is.null(input$sv_gene_check))
     if (input$sv_gene_check) {
-      sv_filters() %>% filter(filter_variables(sv_filters()$GENE, pull(sv_genes(), gene)))
+      sv_filters() %>% filter(filter_variables(sv_filters()$GENES, pull(sv_genes(), gene)))
     } else {
       sv_filters()
     }
@@ -445,15 +508,15 @@ server <- function(input, output, session) {
   sv_filters <- reactive({
     sv_data() %>% filter(
       filter_variables(sv_data()$CHROM, input$chrom) &
-        filter_variables(sv_data()$SV_TYPE, input$sv_type)
+        filter_variables(sv_data()$SVTYPE, input$sv_type)
     )
   })
   
   output$sv_filters_ui <- renderUI({
     tagList(
       checkboxGroupInput("sv_type", "SV Type", 
-                         choices=levels(sv_data()$SV_TYPE),
-                         selected=levels(sv_data()$SV_TYPE)),
+                         choices=levels(sv_data()$SVTYPE),
+                         selected=levels(sv_data()$SVTYPE)),
       checkboxGroupInput("chrom", "Chromosomes",
                          choices=levels(sv_data()$CHROM),
                          selected=levels(sv_data()$CHROM)),
@@ -464,17 +527,12 @@ server <- function(input, output, session) {
 
   output$sv_table <- renderDT({
     DT::datatable(
-      sv_gene_filter() %>%
-        mutate(
-          GENE=ifelse(
-            !is.na(GENE),
-            paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
-                   GENE, '[Gene Name]">', GENE,'</a>'), GENE)) %>%
-        select(CHROM, START, END, ID, ALT, SV_TYPE, SV_LENGTH, CI_POS, 
-               CI_END, CIGAR, GENE, OVERLAP, MATE_ID, EVENT, IMPRECISE), 
+      sv_gene_filter()  %>%
+        select(CHROM, START, END, ID, SVTYPE, SVLEN, CIPOS, 
+               CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE), 
       escape=FALSE,
       rownames=FALSE,
-      options = list(autoWidth = TRUE)
+      options=list(columnDefs = list(list(width = '10%', targets ='_all')))
       )
   })
   

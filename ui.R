@@ -44,8 +44,13 @@ body <- dashboardBody(
                 }
                      "))),
             column(8,
-                   fileInput("sh_vcf", "Upload input short variants VCF file (compressed)",
-                             accept=c("vcf.gz"), width="75%"),
+                   tags$h4(
+                     "General Settings"
+                   ),
+                   shinyFilesButton("sh_vcf", "Browse...",
+                                    title="Upload input short variants VCF file (compressed)",
+                                    filetype=c("vcf.gz"), multiple=F),
+                   textOutput("sh_vcf_name"),
                    shinyDirButton("sh_outdir", "Select output folder",
                                   title="Output folder", multiple=F),
                    textOutput("sh_outdir_txt"),
@@ -100,55 +105,96 @@ body <- dashboardBody(
           title = "IBD regions Ideogram",
           status="primary",
           width = 9,
-          height="600px",
+          height="610px",
           box(
             width = 12,
-            height="535px",
+            height="540px",
             ideogramOutput("ideogram_plot")
           )
         ),
-        box(
-          title="Files",
+        column(
           width=3,
-          fluidRow(column(12,
-                          htmlOutput("sh_tsv_label")
-          )),
-          fluidRow(
-            column(3,
-                   shinyFilesButton("short_tsv", "Browse...", 
-                                    title="Upload pipeline output file (.tsv/.txt)",
-                                    filetype=c(".tsv", ".txt"), multiple = FALSE)),
-            column(9,
-                   textOutput("short_tsv_name"))
-          ),
-          fluidRow(
-            column(12,
-                   htmlOutput("sh_seg_label")
-            )
-          )
-          ,
-          fluidRow(
-            column(3,
-                   shinyFilesButton("ibd_seg", "Browse...", 
-                                    title="Upload (IBIS) IBD segment file (.seg)",
-                                    filetype=c(".tsv", ".txt"), multiple = FALSE)
+          box(
+            title="Files",
+            width=12,
+            fluidRow(column(12,
+                            htmlOutput("sh_tsv_label")
+            )),
+            fluidRow(
+              column(3,
+                     br(),
+                     shinyFilesButton(
+                       "short_tsv", "Browse...", 
+                        title="Upload pipeline output file (.tsv/.txt)",
+                        filetype=c(".tsv", ".txt"), multiple = FALSE)),
+              column(9,
+                     br(),
+                     textOutput("short_tsv_name"))
             ),
-            column(9,
-                   textOutput("ibd_seg_name"))
+            fluidRow(
+              column(12,
+                     br(),
+                     htmlOutput("sh_seg_label")
+              )
+            ),
+            fluidRow(
+              column(3,
+                     br(),
+                     shinyFilesButton(
+                       "ibd_seg", "Browse...", 
+                        title="Upload (IBIS) IBD segment file (.seg)",
+                        filetype=c(".tsv", ".txt"), 
+                        multiple = FALSE)
+              ),
+              column(9,
+                     br(),
+                     textOutput("ibd_seg_name"))
+            ),
+            fluidRow(
+              column(12,
+                     br(),
+                     htmlOutput("sh_gene_label")
+              )),
+            fluidRow( 
+              column(3,
+                     br(),
+                     shinyFilesButton("sh_gene_list", "Browse...", 
+                                      title="(Optional) Upload a list of genes of interest (.xlsx, .txt)",
+                                      filetype=c(".xlsx", ".txt"), 
+                                      multiple=FALSE)
+                     ),
+              column(9,
+                     br(),
+                     textOutput("sh_gene_name"))
+            ),
+            status = "primary"
           ),
-          fluidRow(
+          box(
+            title="Summary",
+            width=12,
+            height="250px",
+            status="primary",
             column(12,
-                    htmlOutput("sh_gene_label")
-          )),
-          fluidRow( 
-            column(3,
-                    shinyFilesButton("sh_gene_list", "Browse...", 
-                    title="Upload a list of genes of interest (.xlsx, .txt)",
-                    filetype=c(".xlsx", ".txt"), multiple=FALSE)),
-             column(9,
-                    textOutput("sh_gene_name"))
-          ),
-          status = "primary"
+              fluidRow(
+                textOutput("sh_vars_total"),
+                br()
+              ),
+              fluidRow(
+                textOutput("clinvar_vars"),
+                br()
+              ),
+              fluidRow(
+                textOutput("impact_vars"),
+                br()
+              ),
+              fluidRow(
+                textOutput("missense_vars"),
+                br()
+              ),
+              fluidRow(
+                textOutput("ibd_seg_total")
+              )
+            ))
         )
       ),
       fluidRow(
@@ -156,7 +202,6 @@ body <- dashboardBody(
           width=12,
           height="100%",
           downloadButton("download", "Download"),
-          actionButton("show_all", "Show All"),
           tags$br(),
           DTOutput("short_tab"),
           status = "primary"

@@ -1,10 +1,9 @@
 #!/bin/bash
 # s01_filter_short_vars.sh - filter variants so only those that pass all filters and
 #   meet DP and GQ thresholds are retained.
-# which pass all filters (PASS)
 # Anisha Thind, 16May2022
 
-# Intended use:
+# Example:
 # ./s01_retain_pass_filter_vars.sh in_vcf out_dir &> s01_retain_pass_filter_vars.sh
 # Parameters:
 #   in_vcf: input VCF file
@@ -59,6 +58,9 @@ fi
 # Retain variants that pass all filters
 echo "Filtering variants, retaining only those that pass all filters..."
 bcftools view -Oz -f "PASS" "${in_vcf}" > "${pass_vcf}"
+echo ""
+
+bcftools query -f "%FILTER\n" "${in_vcf}" | sort | uniq -c
 echo ""
 
 bcftools view -H "${in_vcf}" \
