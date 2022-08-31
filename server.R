@@ -40,7 +40,7 @@ server <- function(input, output, session) {
   # input vcf field
   volumes <- getVolumes()
   shinyFileChoose(input, "sh_vcf", roots=volumes())
-  sh_vcf <- reactive({
+  sh_vcf_name <- reactive({
     if (!is.null(input$sh_vcf)){
       infile <- parseFilePaths(roots=volumes(), input$sh_vcf)$datapath
       if (length(infile) > 0){
@@ -62,9 +62,13 @@ server <- function(input, output, session) {
       infile <- paste("Input VCF file: ", 
                       parseFilePaths(roots=volumes(), input$sh_vcf)$name)
     } else {
-      ""
+      "Input VCF file: "
     }
     
+  })
+  
+  output$sh_vcf_label <- renderText({
+    "<b>Upload a compressed short variants VCF file (.vcf.gz)</b>"
   })
 
   shinyDirChoose(input, "sh_outdir", roots=volumes())
@@ -72,12 +76,21 @@ server <- function(input, output, session) {
   
   sh_out_dir <- reactive({
     req(input$sh_outdir)
-    out_dir <- parseDirPath(roots=volumes(), input$sh_outdir)
+    out_dir <- substring(parseDirPath(roots=volumes(), input$sh_outdir), 2)
   })
   
   output$sh_outdir_txt <- renderText({
     req(input$sh_outdir)
-    paste0("Selected output folder: ", sh_out_dir())
+    prefix <- "Selected output folder: "
+    if (!is.null(input$sh_outdir)){
+      paste0(prefix, sh_out_dir()) 
+    } else {
+      prefix
+    }
+  })
+  
+  output$sh_outdir_label <- renderText({
+    "<b>Select an output folder</b>"
   })
   
   # Genotype Quality
@@ -135,7 +148,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$sh_start,{
     # make config file
-    make_short_config(in_vcf=sh_vcf(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
+    make_short_config(in_vcf=sh_vcf_name(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
                       DP=DP(), 
                       ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
     showNotification("Short variants prioritisation pipeline started.",
@@ -528,8 +541,10 @@ server <- function(input, output, session) {
   output$sv_table <- renderDT({
     DT::datatable(
       sv_gene_filter()  %>%
-        select(CHROM, START, END, ID, SVTYPE, SVLEN, CIPOS, 
-               CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE), 
+        select(CHROM, START, END, ID, REF, ALT, SVTYPE, SVLEN, CIPOS, 
+               CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE) %>% 
+        mutate(REF, REF=stringr::str_trunc(REF, width = 20))%>% 
+        mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20)), 
       escape=FALSE,
       rownames=FALSE,
       options=list(columnDefs = list(list(width = '10%', targets ='_all')))

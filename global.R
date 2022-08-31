@@ -1,3 +1,11 @@
+if (!require(shinyjs)) {
+  install.packages(shinyjs)
+}
+
+if (!require(reshape2)) {
+  install.packages(reshape2)
+}
+
 library(shiny)
 library(jsonlite)
 library(shinyjs)
@@ -13,9 +21,7 @@ library(purrr)
 
 options(shiny.maxRequestSize=1000*1024^2)
 
-if (!require(shinyjs)) {
-  install.packages(shinyjs)
-}
+
 
 #' Filter dataframe by a given variable
 #'

@@ -30,6 +30,7 @@ body <- dashboardBody(
       fluidRow(
         box(title="Short Variants",
             status="primary",
+            width=9,
             height = "100%",
             tags$head(
               tags$style(
@@ -43,51 +44,120 @@ body <- dashboardBody(
                   width: 75%
                 }
                      "))),
-            column(8,
-                   tags$h4(
-                     "General Settings"
-                   ),
-                   shinyFilesButton("sh_vcf", "Browse...",
-                                    title="Upload input short variants VCF file (compressed)",
-                                    filetype=c("vcf.gz"), multiple=F),
-                   textOutput("sh_vcf_name"),
-                   shinyDirButton("sh_outdir", "Select output folder",
-                                  title="Output folder", multiple=F),
-                   textOutput("sh_outdir_txt"),
-                   numericInput("GQ", "Minimum genotype quality (GQ) per sample threshold", value=20,
-                                min=1, max=99),
-                   numericInput("DP", "Minimum read depth (DP) per sample threshold", value=10, min=1,
-                                max=100),
-                   numericInput("MAF", "Minor Allele Frequency (MAF) in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
-                                min=0.01, step=0.01),
-                   numericInput("ibis_mt1", 
-                                "Minimum number of (SNP) markers to call a region IBD1",
-                                value=50, min=10, max=1000),
-                   numericInput("ibis_mt2",
-                                "Minimum number of (SNP) markers to call region IBD2",
-                                value=10, min=1, max=400),
-                   numericInput("mind", "Exclude samples with more than the provided value percentage of missing genotype data e.g. 0.1 excludes samples with > 10% missing genotype data", value=0.05, max=1, 
-                                min=0.1, step=0.01),
-                   numericInput("geno", "Selects variants with missing call rates lower than the provided value to be removed", value=0.01, max=1, 
-                                min=0.1, step=0.01),
-                   numericInput("sh_threads", "Number of threads", value=4,
-                                min=1, max=99),
-                   actionButton("sh_start", "Start")
-            )
+              column(6,
+                    tags$h4(
+                      "General Settings"
+                    ),
+                    fluidRow(
+                             column(12,
+                                    htmlOutput("sh_vcf_label")
+                                    )
+                             ),
+                    fluidRow(
+                      column(3,  
+                             shinyFilesButton("sh_vcf", 
+                                              "Browse...",
+                                              title="Upload input short variants VCF file (compressed)",
+                                              filetype=c("vcf.gz"), multiple=F),
+                             
+                             ),
+                      column(9,
+                             textOutput("sh_vcf_name"),
+                      )),
+                      fluidRow(
+                        column(12, 
+                               br(),
+                               htmlOutput("sh_outdir_label")),
+                      ),
+                      fluidRow(
+                        column(3,
+                          shinyDirButton("sh_outdir", "Browse...",
+                          title="Output folder", multiple=F)),
+                        column(9,
+                          textOutput("sh_outdir_txt")
+                        )
+                      ),       
+                    numericInput("sh_threads", "Number of threads (CPU)", value=4,
+                                 min=1, max=99),
+                    textInput("sh_email","Email address"),
+                    br(),
+                    tags$h4(
+                      "PLINK Dataset Generation"
+                    ),  
+                    numericInput("min_AF", "Min. Allele Frequency threshold for filtering out variants for PLINK dataset", value=0.05, max=1, 
+                                 min=0.01, step=0.01),
+                    tags$h4("Missing genotype rates (for PLINK dataset)"),
+                    numericInput("mind", "Exclude SAMPLES with more than the provided value percentage of missing call rates e.g. 0.1 excludes samples with missing call rates > 10%", value=0.05, max=1, 
+                                 min=0.1, step=0.01),
+                    numericInput("geno", "Exclude VARIANTS with missing call rates above the provided value: e.g. 0.1 excludes variants with missing call rates > 10%", value=0.01, max=1, 
+                                 min=0.1, step=0.01)
+              ),
+              column(6,
+                     tags$h4(
+                       "QC Filtering"
+                     ),
+                     numericInput("GQ", "Minimum genotype quality (GQ) per sample threshold", value=20,
+                                  min=1, max=99),
+                     numericInput("DP", "Minimum read depth (DP) per sample threshold", value=10, min=1,
+                                  max=100),
+                     br(),
+                     tags$h4(
+                       "IBD Segment Detection"
+                     ),
+                     numericInput("ibis_mt1", 
+                                  "Minimum number of (SNP) markers to call a region IBD1",
+                                  value=50, min=10, max=1000),
+                     numericInput("ibis_mt2",
+                                  "Minimum number of (SNP) markers to call region IBD2",
+                                  value=10, min=1, max=400),
+                     br(),
+                     tags$h4("Protein-impacting Variant Selection"),
+                     numericInput("MAF", "Max Allele Frequency in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
+                                  min=0.01, step=0.01),
+                     actionButton("sh_start", "Start")
+                     )
+            
         ),
         box(
           title="Structural Variants",
           status = "primary",
           height="100%",
-          column(8,
-                 fileInput("sv_vcf", "Upload input structural variants VCF file (compressed)",
-                           accept=c(".gz"), width="75%"),
-                 shinyDirButton("sv_outdir", "Select output folder",
-                                title="Output folder", multiple=F),
-                 fileInput("sv_start_ibis_seg", 
-                           "IBIS IBD segment file (.seg)",
-                           accept=c(".seg"), width="75%"),
-                 textOutput("sv_outdir_txt"),
+          width=3,
+          fluidRow(
+            column(12,
+                   htmlOutput("sv_vcf_label")
+                   )
+          ),
+          fluidRow(
+            column(3,
+               shinyFilesButton("sv_vcf", "Browse...", 
+                  title="Upload input structural variants VCF file (compressed)",
+                  filetype=c(".vcf.gz"), multiple=F)  
+            ),
+            column(6,
+                   
+            )
+          ),
+          fluidRow(
+            column(3,
+                   shinyDirButton("sv_outdir", "Select output folder",
+                                  title="Output folder", multiple=F)
+                   ),
+            column(6,
+                   textOutput("sv_outdir_txt")
+                   )
+            ),
+          fluidRow(
+            column(3,
+                   shinyFilesButton("sv_start_ibis_seg", "Browse...", 
+                                    title="IBIS IBD segment file (.seg)",
+                                    filetype=c(".seg"), multiple=F)
+                   ),
+            column(6,
+                   textOutput("sv_ibis_seg")
+                   )
+          ),
+          column(12,
                  numericInput("sv_threads", "Number of threads", value=4,
                               min=1, max=99),
                  actionButton("sv_start", "Start")
