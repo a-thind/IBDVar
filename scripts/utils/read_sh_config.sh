@@ -91,3 +91,14 @@ elif [ ! -d "${cadd}" ]; then
     echo "Error: CADD path is not a directory."
     exit 1
 fi
+
+# check parameters
+if [ ! -z "${genes}" ]; then
+  if [ ! -e "${genes}" ]; then
+      echo "Error: genes file specified ${genes} is not found."
+      exit 1
+  elif [[ "${genes}" =~ (*\.xlsx|*\.csv)  ]]; then
+      echo "Error: genes of interest file is not an excel (.xlsx) or csv file."
+      exit 1
+  fi
+fi
