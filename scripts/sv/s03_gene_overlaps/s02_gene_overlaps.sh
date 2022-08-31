@@ -41,9 +41,7 @@ fi
 echo -e "Finding overlaps...\n"
 grep -w -f "${genes}" "${sv_ibd_filter}" > "${gene_overlaps}"
 
-
-echo "Number of overlaps with genes of interest:"
-awk 'END{printf("Number of overlaps with genes of interest: ", NR)}' "${gene_overlaps}"
+awk 'END{printf("Number of overlaps with genes of interest: %s\n\n", NR)}' "${gene_overlaps}"
 
 echo "Done."
 date

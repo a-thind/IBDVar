@@ -75,6 +75,9 @@ if [ ! -z "${1}" ]; then
    usage
 fi
 
+if [ ! -z "${email}" ]; then
+   mail -s "SV pipeline" "${email}" <<< "The SV prioritisation pipeline job has started."
+fi
 
 # create log file
 pipeline_log="${out_dir}/logs/sv_pipeline.log"
@@ -108,14 +111,23 @@ sv/s03_gene_overlaps/s01_ibd_overlaps.sh "${out_dir}" \
     "${threads}" \
     "${ibd_seg}" \
     &>> "${pipeline_log}"
-
+# check if genes list is provided, and if so pass argument genes script
 if [ ! -z "${genes}" ]; then
    sv/s03_gene_overlaps/s02_gene_overlaps.sh "${out_dir}" "${genes}" &>> "${pipeline_log}"
    echo ""
 fi
+
+mkdir -p "${out_dir}/final_output"
+find "${out_dir}" -name ""
 
 # completion message
 echo "Pipeline completed." &>> "${pipeline_log}"
 date &>> "${pipeline_log}"
 echo "" &>> "${pipeline_log}"
 
+if [ ! -z "${email}" ]; then
+   echo -e "The SV prioritisation pipeline job is completed.\n
+   To view the final output (ibd_annotated_sv.tsv) in the IBDVar application, 
+   log into the server and type the following url in a web browser: 
+   http://138.250.31.2:3737/anisha/IBDVar" |  mail -s "SV pipeline" "${email}"
+fi

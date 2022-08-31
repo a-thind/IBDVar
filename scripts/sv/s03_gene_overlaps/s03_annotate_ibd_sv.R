@@ -64,8 +64,6 @@ ibd_sv_df <- read.delim(ibd_regions, header=F)
 ibd_ccds <- ccds_sv_df[,3] %in% ibd_sv_df[,3]
 ibd_filtered_vars <- ccds_sv_df[ibd_ccds,]
 
-head(ibd_filtered_vars)
-
 # create mask for genotypes
 not_genotypes <- sapply(ibd_filtered_vars, function(x){
   if (!any(grepl("/", x))) {
@@ -91,7 +89,7 @@ ibd_annot_vars <- left_join(ibd_filtered_vars, grouped, by=c("ID"="ID"))
 
 # rename position column as start
 ibd_annot_vars <- ibd_annot_vars %>% rename(START=POS) %>% 
-                                      mutate(SVLEN=abs(SVLEN))
+                                      mutate(SVLEN=abs(as.numeric(SVLEN)))
 
 
 

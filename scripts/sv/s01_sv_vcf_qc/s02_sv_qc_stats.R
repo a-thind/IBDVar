@@ -1,9 +1,22 @@
 #!/usr/bin/env Rscript
 # s02_sv_qc_stats.R - computes summary stats for SV VCF
 
+if (!require(reshape2)) {
+  install.packages("reshape2")
+}
+
+if (!require(vcfR)) {
+  install.packages("vcfR")
+}
+
+if (!require(RColorBrewer)) {
+  install.packages("RColorBrewer")
+}
+
 # load libraries
 library(vcfR)
 library(RColorBrewer)
+library(reshape2)
 
 source("utils/stats.R")
 
@@ -80,13 +93,15 @@ ggsave(file.path(out_dir,"filters.png"), filters_plot)
 pass_plot <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE) %>% 
   plot_counts(var_name = "Type", title="Variants passing all filters (PASS)")
 ggsave(file.path(out_dir, "pass_filters.png"), pass_plot)
+
 # pass out of total variants
 svtype <- variants %>% counts(SVTYPE)
-svtype$count <- svtype$count - pass_type$count
 pass_type <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE)
+svtype$count <- svtype$count - pass_type$count
 svtypes <- left_join(svtype, pass_type, by=c("SVTYPE"="SVTYPE"))
 colnames(svtypes) <- c("SVTYPE", "Not PASS", "PASS")
-library(reshape2)
+
+
 melt_svtypes <- melt(svtypes, id.vars="SVTYPE", value.name="Count")
 ggplot(melt_svtypes, aes(x=SVTYPE, y=Count, fill=variable)) + 
   geom_bar(stat="identity") + labs(fill="Filter") + theme_bw() + 
