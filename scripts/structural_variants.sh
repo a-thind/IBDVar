@@ -117,8 +117,13 @@ if [ ! -z "${genes}" ]; then
    echo ""
 fi
 
-mkdir -p "${out_dir}/final_output"
-find "${out_dir}" -name ""
+final_dir="${out_dir}/final_output"
+mkdir -p "${final_dir}"
+final_out=$( find "${out_dir}/s03_gene_overlaps" -name "ibd_annotated_sv.tsv" )
+
+# copy final output to final output folder
+cp "${final_out}" "${final_dir}/"
+echo -e "The final output file \"ibd_annotated_sv.tsv\" is in ${final_dir}." &>> "${pipeline_log}"
 
 # completion message
 echo "Pipeline completed." &>> "${pipeline_log}"
