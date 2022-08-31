@@ -76,6 +76,8 @@ if [ ! -z "${1}" ]; then
    usage
 fi
 
+# email pipeline started
+
 # starting message
 echo -e "Short Variants Pipeline\n" &> "${pipeline_log}"
 date &>> "${pipeline_log}"
@@ -132,10 +134,19 @@ short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
     &>> "${pipeline_log}"
 
 #------------------------------ Variant selection ------------------------------
-short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
-   "${MAF}" \
+# if a gene is provided then pass the argument to select variants
+if [ ! -z "${gene}" ]; then
+   short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
+   "${max_af}" \
    "${log_dir}" \
    &>> "${pipeline_log}"
+else 
+   short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
+   "${max_af}" \
+   "${log_dir}" \
+   "${gene}" \
+   &>> "${pipeline_log}"
+fi
 
 echo -e "--------------------------- Final Output ----------------------------\n" \
    &>> "${pipeline_log}"
