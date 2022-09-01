@@ -271,9 +271,16 @@ body <- dashboardBody(
         box(
           width=12,
           height="100%",
-          downloadButton("download", "Download"),
-          tags$br(),
-          DTOutput("short_tab"),
+          column(12,
+                 fluidRow(
+                   downloadButton("download", "Download")
+                 ),
+                 br(),
+                 fluidRow(
+                   DTOutput("short_tab")
+                 )
+                )
+          ,
           status = "primary"
         )
       )
@@ -287,7 +294,7 @@ body <- dashboardBody(
         box(
           title = "Summary",
           status="primary",
-          width = 8,
+          width = 9,
           height="100%",
           box(
             width = 12,
@@ -296,18 +303,44 @@ body <- dashboardBody(
         ),
         box(
           title="Files",
-          width=4,
-          fileInput("sv_tsv", "Upload SV pipeline output file (.tsv/.txt)",
-                    accept=c(".tsv", ".txt"), width="100%"),
-          fileInput("sv_gene_list", 
-                    "Upload a list of genes of interest (.xlsx/.txt)", 
-                    width="75%", accept=c(".xlsx", ".txt")),
+          width=3,
+          fluidRow(
+            column(12,
+                   htmlOutput("sv_tsv_label"),
+                   br()
+            ) 
+          ), 
+          fluidRow(
+            column(3,
+                  shinyFilesButton("sv_tsv", "Browse...",title="Upload SV pipeline output file (.tsv/.txt)",
+                                   filetype=c(".tsv", ".txt"), multiple=F)
+                  ),
+            column(9,
+                   textOutput("sv_tsv_name")
+              )
+          ),
+          fluidRow(
+            column(12,
+                   htmlOutput("sv_gene_list_label"),
+                   br()
+            )
+          ),
+          fluidRow(
+            column(3,
+                   shinyFilesButton("sv_gene_list", "Browse...",
+                                    title="Upload a list of genes of interest (.xlsx/.txt)", 
+                                    filetype=c(".xlsx", ".txt"), multiple=F)
+            ),
+            column(9,
+                   textOutput("sv_gene_list_name")
+            )
+          ),
           status = "primary",
           textOutput("text")
         )),
       fluidRow(
         box(
-          title = "SV Overlap",
+          title = "Stuctural Variants",
           status="primary",
           height="100%",
           width = "100%",

@@ -453,7 +453,8 @@ server <- function(input, output, session) {
             RS=ifelse(
               !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
                                  RS, '">', RS, '</a>'), RS)
-          ) %>%
+          ) %>% 
+          mutate(ID, ID=stringr::str_trunc(ID, width = 20)) %>%
           select(ID, RS, HGVSC, HGVSP,
                  SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
                  CADD_PHRED, POLYPHEN_CALL,
@@ -479,50 +480,88 @@ server <- function(input, output, session) {
   # SV 
   #-----------------------------------------------------------------------------
   sv_col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', 
-                        GENES='f', SVTYPE='f', SVLEN='d', END='d', 
+                        GENES='c', SVTYPE='f', SVLEN='d', END='d', 
                         CIGAR='c', CIPOS='c', CIEND='c', MATEID='c', 
                        EVENT='c', IMPRECISE='l')
+  # sv tsv file 
+  shinyFileChoose(input, "sv_tsv", roots=volumes())
+  
+  output$sv_tsv_label <- renderText({
+    "<b>Upload SV pipeline output file (.tsv/.txt)</b>"
+  })
   
   sv_data <- reactive({
-    req(input$sv_tsv)
-    ext=tools::file_ext(input$sv_tsv$name)
-    switch(ext,
-           tsv=vroom::vroom(input$sv_tsv$datapath, delim="\t", 
-                            col_names = TRUE, col_types=sv_col_types),
-           txt=vroom::vroom(input$sv_tsv$datapath, delim="\t", 
-                            col_names = TRUE, col_types=sv_col_types),
-           validate("Invalid file: Please upload a tsv/text file")
-    )
+    if (!is.null(input$sv_tsv)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_tsv)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               tsv=vroom::vroom(infile, delim="\t", 
+                                col_names=TRUE, col_types = sv_col_types),
+               txt=vroom::vroom(infile, delim="\t",
+                                col_names=TRUE, col_types = sv_col_types),
+               stop("Invalid file: Please upload a tsv/text file")
+        )
+      }
+    }
   })
   
-  sv_genes <- reactive({
-    req(input$sv_gene_list)
-    ext=tools::file_ext(input$sv_gene_list$name)
-    switch(ext,
-      xlsx=read_excel(input$sv_gene_list$datapath, col_names=c("gene")),
-      txt=vroom::vroom(input$sv_gene_list$datapath, delim="\n",
-                     col_names=c("gene")),
-      validate("Invalid gene list file: Please upload a valid genes list file.")
-    )
+  output$sv_tsv_name <- renderText({
+    if (!is.null(input$sv_tsv)) {
+      infile <- paste("SV file:", 
+                      parseFilePaths(roots=volumes(), input$sv_tsv)$name)
+    } else {
+      "SV file:"
+    }
   })
-
+  
+  # gene list for detecting overlaps with SV
+  shinyFileChoose(input, "sv_gene_list", roots=volumes())
+  sv_genes <- reactive({
+    if (!is.null(input$sv_gene_list)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_gene_list)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               xlsx=read_excel(infile, col_names=c("gene")),
+               txt=vroom::vroom(infile, delim="\n",
+                                col_names=c("gene")),
+               stop("Invalid gene list file: Please upload a valid genes list file.")
+        )
+      }
+    }
+   
+  })
+  
+  output$sv_gene_list_label <- renderText({
+    "<b>(Optional) Upload a list of genes of interest (.xlsx/.txt)</b>"
+  })
+  
+  output$sv_gene_list_name <- renderText({
+    if (!is.null(input$sv_gene_list)) {
+      infile <- paste("Gene list file:", 
+                      parseFilePaths(roots=volumes(), input$sv_gene_list)$name)
+    } else {
+      "Gene list file:"
+    }
+  })
   
   sv_gene_filter <- reactive({
     req(!is.null(input$sv_gene_check))
     if (input$sv_gene_check) {
-      sv_filters() %>% filter(filter_variables(sv_filters()$GENES, pull(sv_genes(), gene)))
+      sv_filters() %>% filter(sv_data()$GENES %in% sv_genes()$gene)
     } else {
       sv_filters()
     }
   })
   
-
-  
   sv_filters <- reactive({
-    sv_data() %>% filter(
-      filter_variables(sv_data()$CHROM, input$chrom) &
-        filter_variables(sv_data()$SVTYPE, input$sv_type)
-    )
+    if (!is.null(sv_data())){
+      sv_data() %>% filter(
+        filter_variables(sv_data()$CHROM, input$chrom) &
+          filter_variables(sv_data()$SVTYPE, input$sv_type)
+      )
+    }
   })
   
   output$sv_filters_ui <- renderUI({
@@ -540,11 +579,13 @@ server <- function(input, output, session) {
 
   output$sv_table <- renderDT({
     DT::datatable(
-      sv_gene_filter()  %>%
-        select(CHROM, START, END, ID, REF, ALT, SVTYPE, SVLEN, CIPOS, 
-               CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE) %>% 
-        mutate(REF, REF=stringr::str_trunc(REF, width = 20))%>% 
-        mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20)), 
+      if (!is.null(sv_gene_filter())){
+        sv_gene_filter()  %>%
+          select(CHROM, START, END, ID, REF, ALT, SVTYPE, SVLEN, CIPOS, 
+                 CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE) %>% 
+          mutate(REF, REF=stringr::str_trunc(REF, width = 20)) %>% 
+          mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20))
+      }, 
       escape=FALSE,
       rownames=FALSE,
       options=list(columnDefs = list(list(width = '10%', targets ='_all')))
