@@ -102,3 +102,38 @@ parse_levels <- function(var) {
   uniq_levels <- unique(parsed_levels)
   return(uniq_levels)
 }
+
+# create link for gene symbols to NCBI gene db
+#' 
+#'
+#' @param column gene column of dataframe
+#'
+#' @return URL endpoint for access gene entry in NCBI
+#' @export
+#'
+#' @examples
+ncbi_gene <- function(column){
+  ifelse(
+    !is.na(column),
+    paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
+           column, '[Gene Name]">', column,'</a>')
+  )
+}
+
+
+#' Convert multi-gene list strings to NCBI gene API request
+#'
+#' @param genes a string of genes delimited with a comma (row in SV table)
+#'
+#' @return
+#' @export
+#'
+#' @examples
+process_multigenes <- function(genes) {
+  # split genes using "." delimiter
+  split_genes <- unlist(strsplit(genes, ", "))
+  # convert each gene to NCBI API route
+  ncbi_genes <- sapply(split_genes, ncbi_gene)
+  paste0(ncbi_genes, collapse=",")
+  
+}

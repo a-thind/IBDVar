@@ -572,6 +572,7 @@ server <- function(input, output, session) {
       checkboxGroupInput("chrom", "Chromosomes",
                          choices=levels(sv_data()$CHROM),
                          selected=levels(sv_data()$CHROM)),
+      checkboxInput("imprecise", "imprecise", value = TRUE),
       checkboxInput("sv_gene_check", "Genes of interest", value = FALSE)
     )
   })
@@ -584,7 +585,8 @@ server <- function(input, output, session) {
           select(CHROM, START, END, ID, REF, ALT, SVTYPE, SVLEN, CIPOS, 
                  CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE) %>% 
           mutate(REF, REF=stringr::str_trunc(REF, width = 20)) %>% 
-          mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20))
+          mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20)) %>%
+          mutate(GENES=map(GENES, process_multigenes))
       }, 
       escape=FALSE,
       rownames=FALSE,
