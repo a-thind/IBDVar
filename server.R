@@ -549,7 +549,7 @@ server <- function(input, output, session) {
   sv_gene_filter <- reactive({
     req(!is.null(input$sv_gene_check))
     if (input$sv_gene_check) {
-      sv_filters() %>% filter(sv_data()$GENES %in% sv_genes()$gene)
+      sv_filters() %>% filter(GENES %in% sv_genes()$gene)
     } else {
       sv_filters()
     }
@@ -566,10 +566,23 @@ server <- function(input, output, session) {
         sv_data() %>% filter(
           filter_variables(sv_data()$CHROM, input$chrom) &
             filter_variables(sv_data()$SVTYPE, input$sv_type) &
-            IMPRECISE %in% c("FALSE")
+            !(IMPRECISE %in% c("TRUE"))
         )
       }
     }
+  })
+  
+  sv_size <- reactive({
+    if (!is.null(sv_data())) {
+      list(min=min(sv_data()$SVLEN, 
+                      na.rm=TRUE),
+           max=max(sv_data()$SVLEN, 
+               na.rm=TRUE))
+    } else {
+      list(min=0, max=0)
+
+    }
+   
   })
   
   output$sv_filters_ui <- renderUI({
