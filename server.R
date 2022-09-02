@@ -482,7 +482,7 @@ server <- function(input, output, session) {
   sv_col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', 
                         GENES='c', SVTYPE='f', SVLEN='d', END='d', 
                         CIGAR='c', CIPOS='c', CIEND='c', MATEID='c', 
-                       EVENT='c', IMPRECISE='l')
+                       EVENT='c', IMPRECISE='f')
   # sv tsv file 
   shinyFileChoose(input, "sv_tsv", roots=volumes())
   
@@ -557,10 +557,18 @@ server <- function(input, output, session) {
   
   sv_filters <- reactive({
     if (!is.null(sv_data())){
-      sv_data() %>% filter(
-        filter_variables(sv_data()$CHROM, input$chrom) &
-          filter_variables(sv_data()$SVTYPE, input$sv_type)
-      )
+      if (input$imprecise) {
+        sv_data() %>% filter(
+          filter_variables(sv_data()$CHROM, input$chrom) &
+            filter_variables(sv_data()$SVTYPE, input$sv_type)
+        )
+      } else {
+        sv_data() %>% filter(
+          filter_variables(sv_data()$CHROM, input$chrom) &
+            filter_variables(sv_data()$SVTYPE, input$sv_type) &
+            IMPRECISE %in% c("FALSE")
+        )
+      }
     }
   })
   
@@ -572,7 +580,7 @@ server <- function(input, output, session) {
       checkboxGroupInput("chrom", "Chromosomes",
                          choices=levels(sv_data()$CHROM),
                          selected=levels(sv_data()$CHROM)),
-      checkboxInput("imprecise", "imprecise", value = TRUE),
+      checkboxInput("imprecise", "Imprecise", value = TRUE),
       checkboxInput("sv_gene_check", "Genes of interest", value = FALSE)
     )
   })
