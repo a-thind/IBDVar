@@ -76,7 +76,8 @@ body <- dashboardBody(
                         column(9,
                           textOutput("sh_outdir_txt")
                         )
-                      ),       
+                      ),
+                    br(),       
                     numericInput("sh_threads", "Number of threads (CPU)", value=4,
                                  min=1, max=99),
                     textInput("sh_email","Email address"),
@@ -84,12 +85,12 @@ body <- dashboardBody(
                     tags$h4(
                       "PLINK Dataset Generation"
                     ),  
-                    numericInput("min_AF", "Min. Allele Frequency threshold for filtering out variants for PLINK dataset", value=0.05, max=1, 
+                    numericInput("min_AF", "Min. Allele Frequency threshold for variants in PLINK dataset", value=0.05, max=1, 
                                  min=0.01, step=0.01),
-                    tags$h4("Missing genotype rates (for PLINK dataset)"),
-                    numericInput("mind", "Exclude SAMPLES with more than the provided value percentage of missing call rates e.g. 0.1 excludes samples with missing call rates > 10%", value=0.05, max=1, 
+                    tags$h4("Max missing genotype rates (for PLINK dataset)"),
+                    numericInput("mind", "Max per SAMPLE e.g. 0.1 excludes samples with missing call rates > 10%", value=0.05, max=1, 
                                  min=0.1, step=0.01),
-                    numericInput("geno", "Exclude VARIANTS with missing call rates above the provided value: e.g. 0.1 excludes variants with missing call rates > 10%", value=0.01, max=1, 
+                    numericInput("geno", "Max per VARIANT missing call rates e.g. 0.1 excludes variants with missing call rates > 10%", value=0.01, max=1, 
                                  min=0.1, step=0.01)
               ),
               column(6,
@@ -114,6 +115,18 @@ body <- dashboardBody(
                      tags$h4("Protein-impacting Variant Selection"),
                      numericInput("MAF", "Max Allele Frequency in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
                                   min=0.01, step=0.01),
+                     HTML("<b>(OPTIONAL) Upload a genes of interest list (.xlsx/.txt)</b>"),
+                     fluidRow(
+                       column(3,
+                         shinyFilesButton("sh_start_genes", 
+                                          "Browse...",
+                                          title="Upload a list of genes of interest",
+                                          multiple=FALSE,
+                                          filetype=c(".xlsx", ".txt"))),
+                       column(9,
+                              textOutput("sh_start_genes_name"))
+                       ),
+                     br(),
                      actionButton("sh_start", "Start")
                      )
             
@@ -123,43 +136,61 @@ body <- dashboardBody(
           status = "primary",
           height="100%",
           width=3,
-          fluidRow(
-            column(12,
-                   htmlOutput("sv_vcf_label")
-                   )
-          ),
-          fluidRow(
-            column(3,
-               shinyFilesButton("sv_vcf", "Browse...", 
-                  title="Upload input structural variants VCF file (compressed)",
-                  filetype=c(".vcf.gz"), multiple=F)  
-            ),
-            column(6,
-                   
-            )
-          ),
-          fluidRow(
-            column(3,
-                   shinyDirButton("sv_outdir", "Select output folder",
-                                  title="Output folder", multiple=F)
-                   ),
-            column(6,
-                   textOutput("sv_outdir_txt")
-                   )
-            ),
-          fluidRow(
-            column(3,
-                   shinyFilesButton("sv_start_ibis_seg", "Browse...", 
-                                    title="IBIS IBD segment file (.seg)",
-                                    filetype=c(".seg"), multiple=F)
-                   ),
-            column(6,
-                   textOutput("sv_ibis_seg")
-                   )
-          ),
           column(12,
+                 fluidRow(
+                   column(12,
+                          HTML("<b>Upload a compressed input SV VCF file (.vcf.gz)</b>")
+                   )
+                 ),
+                 fluidRow(
+                   column(3,
+                          shinyFilesButton("sv_vcf", "Browse...", 
+                                           title="Upload input structural variants VCF file (compressed)",
+                                           filetype=c(".vcf.gz"), multiple=F)  
+                   ),
+                   column(9,
+                      textOutput("sv_vcf_name")
+                   )
+                 ),
+                 br(),
+                 HTML("<b>Select an output folder</b>"),
+                 fluidRow(
+                   column(3,
+                          shinyDirButton("sv_outdir", "Browse...",
+                                         title="Output folder", multiple=F)
+                   ),
+                   column(9,
+                          textOutput("sv_outdir_txt")
+                   )
+                 ),
+                 br(),
+                 HTML("<b>Upload an IBIS IBD segment file (.seg)</b>"),
+                 fluidRow(
+                   column(3,
+                          shinyFilesButton("sv_start_ibis_seg", "Browse...", 
+                                           title="Upload an IBIS IBD segment file (.seg)",
+                                           filetype=c(".seg"), multiple=F)
+                   ),
+                   column(9,
+                          textOutput("sv_ibis_seg")
+                   )
+                 ),
+                 br(),
                  numericInput("sv_threads", "Number of threads", value=4,
                               min=1, max=99),
+                 textInput("sv_email","Email address"),
+                 HTML("<b>(OPTIONAL) Upload a genes of interest list (.xlsx/.txt)</b>"),
+                 fluidRow(
+                   column(3,
+                          shinyFilesButton("sv_start_genes", 
+                                           "Browse...",
+                                           title="Upload a list of genes of interest",
+                                           multiple=FALSE,
+                                           filetype=c(".xlsx", ".txt"))),
+                   column(9,
+                          textOutput("sv_start_genes_name"))
+                 ),
+                 br(),
                  actionButton("sv_start", "Start")
           )
         )
@@ -296,11 +327,36 @@ body <- dashboardBody(
           status="primary",
           width = 9,
           height="100%",
-          box(
-            width = 12,
-            height="100%"
+          fluidRow(
+            column(3,
+                   textOutput("total_sv"),
+                   br(),
+                   textOutput("ave_sv_len"),
+                   br(),
+                   textOutput("ave_ins_len"),
+                   br(),
+                   textOutput("ave_del_len"),
+                   br(),
+                   textOutput("ave_dup_len"),
+                   ),
+            column(3,
+                   textOutput("ins_sum"),
+                   br(),
+                   textOutput("del_sum"),
+                   br(),
+                   textOutput("dup_sum"),
+                   br(),
+                   textOutput("bnd_sum")
+                   ),
+            column(3,
+                   textOutput("imprecise_sum"),
+                   textOutput("missing_sv_len"),
+                   textOutput("sv_genes"),
+                   textOutput("smallest_sv"),
+                   textOutput("largest_sv"))
           )
-        ),
+          )
+          ,
         box(
           title="Files",
           width=3,

@@ -93,6 +93,34 @@ server <- function(input, output, session) {
     "<b>Select an output folder</b>"
   })
   
+  shinyFileChoose(input, "sh_start_genes", roots=volumes())
+  
+  sh_start_genes <- reactive({
+    if (!is.null(input$sh_start_genes)){
+      infile <- parseFilePaths(roots=volumes(), input$sh_start_genes)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               xlsx=infile,
+               txt=infile,
+               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt")
+        )
+      }
+    }
+  })
+  
+  output$sh_start_genes_name <- renderText({
+    req(input$sh_start_genes)
+    if (!is.null(input$sh_start_genes)) {
+      infile <- paste("Filename: ", 
+                      parseFilePaths(roots=volumes(), input$sh_start_genes)$name)
+    } else {
+      "Filename: "
+    }
+    
+  })
+  
   # Genotype Quality
   GQ <- reactive({
     req(input$GQ)
@@ -162,15 +190,76 @@ server <- function(input, output, session) {
   #-----------------------------------------------------------------------------
   # Start SV pipeline 
   #-----------------------------------------------------------------------------
-  # read in vcf
-  sv_vcf <- reactive({
-    req(input$vcf)
-    ext=tools::file_ext(input$vcf$name)
-    switch(
-      vcf.gz=input$vcf$datapath,
-      vcf=input$vcf$datapath,
-      validate("Input file is not a VCF file.")
-    )
+  # read in SV VCF
+  shinyFileChoose(input, "sv_vcf", roots=volumes())
+  sv_vcf_name <- reactive({
+    if (!is.null(input$sv_vcf)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_vcf)$datapath
+      if (length(infile) > 0){
+        # check vcf has right extension (.vcf.gz)
+        ifelse(substr(infile, nchar(infile)-6,
+                      nchar(infile))==".vcf.gz",
+               infile,
+               validate("Invalid file: Input file is not a compressed VCF file (.vcf.gz).")
+        )
+      }
+    }
+  })
+  
+  output$sv_vcf_name <- renderText({
+    req(input$sv_vcf)
+    if (!is.null(input$sv_vcf)) {
+      infile <- paste("Input VCF file: ", 
+                      parseFilePaths(roots=volumes(), input$sv_vcf)$name)
+    } else {
+      "Input VCF file: "
+    }
+    
+  })
+  
+  shinyDirChoose(input, "sv_outdir", roots=volumes())
+  
+  sv_out_dir <- reactive({
+    req(input$sv_outdir)
+    out_dir <- substring(parseDirPath(roots=volumes(), input$sv_outdir), 2)
+  })
+  
+  output$sv_outdir_txt <- renderText({
+    req(input$sv_outdir)
+    prefix <- "Selected output folder: "
+    if (!is.null(input$sv_outdir)){
+      paste0(prefix, sv_out_dir()) 
+    } else {
+      prefix
+    }
+  })
+  
+  shinyFileChoose(input, "sv_start_genes", roots=volumes())
+  
+  sv_start_genes <- reactive({
+    if (!is.null(input$sv_start_genes)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_start_genes)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               xlsx=infile,
+               txt=infile,
+               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt")
+        )
+      }
+    }
+  })
+  
+  output$sv_start_genes_name <- renderText({
+    req(input$sv_start_genes)
+    if (!is.null(input$sv_start_genes)) {
+      infile <- paste("Filename: ", 
+                      parseFilePaths(roots=volumes(), input$sv_start_genes)$name)
+    } else {
+      "Filename: "
+    }
+    
   })
   
   sv_threads <- reactive({
@@ -178,26 +267,52 @@ server <- function(input, output, session) {
     validate("Please provide the number of threads to be used when running the pipeline.")
   })
   
+  shinyFileChoose(input, "sv_start_ibis_seg", roots=volumes())
+  
   sv_start_ibis_seg <- reactive({
-    req(input$sv_start_ibis_seg)
-    ext=tools::file_ext(input$sv_start_ibis_seg$name)
-    switch(
-      seg=input$sv_start_ibis_seg$datapath,
-      validate("Input file is not an IBIS IBD segment file.")
-    )
+    if (!is.null(input$sv_start_ibis_seg)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_start_ibis_seg)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               seg=infile,
+               validate("Invalid file: Input file is not an IBD segment file (.seg).")
+        )
+      }
+    }
   })
   
+  output$sv_ibis_seg <- renderText({
+    req(input$sv_start_ibis_seg)
+    if (!is.null(input$sv_start_ibis_seg)) {
+      infile <- paste("IBIS IBD segment file: ", 
+                      parseFilePaths(roots=volumes(), input$sv_start_ibis_seg)$name)
+    } else {
+      "IBIS IBD segment file: "
+    }
+    
+  })
+  
+  sv_email <- reactive({
+    req(input$sv_email)
+    if (grep("\\w.+@\\w+.*\\..{2,4}", input$sv_email)) {
+      
+    } else {
+      validate("Invalid email address")
+    }
+  })
   
   observeEvent(input$sv_start,{
-    # make config file
-    make_sv_config(in_vcf=sv_vcf(), out_dir=sv_out_dir(), MAF=MAF(), GQ=GQ(), 
-                      DP=DP(), 
-                      ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
+    # make SV config file 
+    sv_config(in_vcf=sv_vcf_name(), out_dir=sv_out_dir(), 
+              sv_ibis_seg=sv_start_ibis_seg(),
+              email=sv_email(), sv_threads=sv_threads(), genes=sv_start_genes())
     showNotification("Short variants prioritisation pipeline started.",
                      type="message"
     )
     Sys.sleep(3)
-    system("cd scripts; ./structural_variants.sh -C config/pipeline_sv.config", 
+    system("cd scripts; ./structural_variants.sh -c config/pipeline_sv.config", 
            wait=FALSE)
     
   })
@@ -482,7 +597,7 @@ server <- function(input, output, session) {
   sv_col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', 
                         GENES='c', SVTYPE='f', SVLEN='d', END='d', 
                         CIGAR='c', CIPOS='c', CIEND='c', MATEID='c', 
-                       EVENT='c', IMPRECISE='f')
+                       EVENT='c', IMPRECISE='f', JUNCTION_QUAL='d')
   # sv tsv file 
   shinyFileChoose(input, "sv_tsv", roots=volumes())
   
@@ -580,7 +695,6 @@ server <- function(input, output, session) {
                na.rm=TRUE))
     } else {
       list(min=0, max=0)
-
     }
    
   })
@@ -613,6 +727,76 @@ server <- function(input, output, session) {
       rownames=FALSE,
       options=list(columnDefs = list(list(width = '10%', targets ='_all')))
       )
+  })
+  
+  #-----------------------------------------------------------------------------
+  # SV Summaries 
+  #-----------------------------------------------------------------------------
+  output$total_sv <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Total number of SV calls: ", sv_data() %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_sv_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average SV Length: ", pull(sv_data(), SVLEN) %>% 
+               mean(na.rm=T) %>% round(1))
+    } else {
+      ""
+    }
+  })
+
+  output$ave_ins_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average SV Length: ", filter(sv_data(), SVTYPE=="INS") %>% 
+               pull(SVLEN) %>% mean(na.rm=T))
+    } else {
+      ""
+    }
+  })
+  
+  output$ins_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of INS: ", sv_data() %>% filter(SVTYPE=="INS") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$del_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of DEL: ", sv_data() %>% filter(SVTYPE=="DEL") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$dup_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of DUP: ", sv_data() %>% filter(SVTYPE=="DUP") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$bnd_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of BND: ", sv_data() %>% filter(SVTYPE=="BND") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$imprecise_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of imprecise variants: ", sv_data() %>% 
+               filter(IMPRECISE==TRUE) %>% nrow())
+    } else {
+      ""
+    }
   })
   
   # download variants results handler
