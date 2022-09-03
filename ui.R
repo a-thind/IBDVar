@@ -325,41 +325,42 @@ body <- dashboardBody(
         box(
           title = "Summary",
           status="primary",
-          width = 9,
+          width = 8,
           height="100%",
           fluidRow(
-            column(3,
+            column(4,
                    textOutput("total_sv"),
                    br(),
-                   textOutput("ave_sv_len"),
-                   br(),
-                   textOutput("ave_ins_len"),
-                   br(),
-                   textOutput("ave_del_len"),
-                   br(),
-                   textOutput("ave_dup_len"),
-                   ),
-            column(3,
                    textOutput("ins_sum"),
                    br(),
                    textOutput("del_sum"),
                    br(),
-                   textOutput("dup_sum"),
-                   br(),
-                   textOutput("bnd_sum")
+                   textOutput("dup_sum")
                    ),
-            column(3,
+            column(4,
+                   textOutput("bnd_sum"),
+                   br(),
                    textOutput("imprecise_sum"),
-                   textOutput("missing_sv_len"),
-                   textOutput("sv_genes"),
-                   textOutput("smallest_sv"),
-                   textOutput("largest_sv"))
+                   br(),
+                   textOutput("max_sv_len"),
+                   br(),
+                   textOutput("ave_ins_len")
+                   ),
+            column(4,
+                   textOutput("ave_del_len"),
+                   br(),
+                   textOutput("ave_dup_len"),
+                   br(),
+                   textOutput("sv_genes_sum"),
+                   br(),
+                   textOutput("genes_list_sum")
+            )
           )
           )
           ,
         box(
           title="Files",
-          width=3,
+          width=4,
           fluidRow(
             column(12,
                    htmlOutput("sv_tsv_label"),

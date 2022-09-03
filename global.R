@@ -18,6 +18,7 @@ library(DT)
 library(readxl)
 library(dplyr)
 library(purrr)
+library(ggplot2)
 
 options(shiny.maxRequestSize=1000*1024^2)
 
@@ -68,13 +69,22 @@ make_short_config <- function(in_vcf, out_dir, GQ, DP,
 }
 
 # creates an SV config file from input form
-make_sv_config <- function(in_vcf, out_dir, sv_ibis_seg, sv_threads){
+sv_config <- function(in_vcf, out_dir, sv_ibis_seg, genes=NULL, sv_threads, email){
   config_dir="scripts/config"
   config_path=file.path(config_dir, "pipeline_sv.config")
-  params_df <- data.frame(
-    params=c("in_vcf", "outdir", "ibis_seg", "threads"),
-    vals=c(in_vcf, out_dir, sv_ibis_seg, sv_threads)
-  )
+  # if genes list is not provided
+  if (is.null(genes)){
+    params_df <- data.frame(
+      params=c("sv_vcf", "out_dir", "ibd_seg", "threads"),
+      vals=c(in_vcf, out_dir, sv_ibis_seg, sv_threads)
+    )
+  } else {
+    params_df <- data.frame(
+      params=c("sv_vcf", "out_dir", "ibd_seg", "threads", "genes"),
+      vals=c(in_vcf, out_dir, sv_ibis_seg, sv_threads, genes)
+    )
+  }
+ 
   tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
                       comment.char = "#", sep="=", header = F)
   colnames(tools) <- c("params", "vals")

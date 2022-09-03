@@ -1,8 +1,3 @@
-# TODO:
-# PR and SR table
-
-
-
 #' Create bins for CADD Phred values
 #'
 #' @param cadd CADD column of a dataframe
@@ -742,8 +737,8 @@ server <- function(input, output, session) {
   
   output$ave_sv_len <- renderText({
     if (!is.null(sv_data())){
-      paste0("Average SV Length: ", pull(sv_data(), SVLEN) %>% 
-               mean(na.rm=T) %>% round(1))
+      paste0("Average SV length: ", pull(sv_data(), SVLEN) %>% 
+               mean(na.rm=T) %>% round())
     } else {
       ""
     }
@@ -751,8 +746,27 @@ server <- function(input, output, session) {
 
   output$ave_ins_len <- renderText({
     if (!is.null(sv_data())){
-      paste0("Average SV Length: ", filter(sv_data(), SVTYPE=="INS") %>% 
-               pull(SVLEN) %>% mean(na.rm=T))
+      paste0("Average insertion length: ", filter(sv_data(), SVTYPE=="INS") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_del_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average deletion length: ", filter(sv_data(), SVTYPE=="DEL") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_dup_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average duplication length: ", 
+             filter(sv_data(), SVTYPE=="DUP") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
     } else {
       ""
     }
@@ -794,6 +808,33 @@ server <- function(input, output, session) {
     if (!is.null(sv_data())){
       paste0("Number of imprecise variants: ", sv_data() %>% 
                filter(IMPRECISE==TRUE) %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$sv_genes_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of SVs overlapping genes: ", sv_data() %>% 
+               filter(GENES!=".") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$max_sv_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Maximum SV length: ", sv_data() %>% 
+               pull(SVLEN) %>% max(na.rm=T))
+    } else {
+      ""
+    }
+  })
+  
+  output$genes_list_sum <- renderText({
+    if (!is.null(sv_genes())){
+      paste0("Number of SV overlapping with genes of interest: ", sv_data() %>% 
+               filter(GENES %in% sv_genes()$gene) %>% nrow())
     } else {
       ""
     }
