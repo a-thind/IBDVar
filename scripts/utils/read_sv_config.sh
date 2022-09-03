@@ -60,10 +60,7 @@ elif [ ! -e "${ibd_seg}" ]; then
 fi
 
 
-if [ -z "${genes}" ]; then
-   echo "Error: Missing list of genes of interest file path."
-   exit 1
-elif [ ! -e "${genes}" ]; then
+if [ ! -z "${genes}" ] && [ ! -e "${genes}" ]; then
     echo "Error: genes list file path does not exist."
     exit 1
 fi

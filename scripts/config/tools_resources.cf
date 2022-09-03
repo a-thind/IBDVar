@@ -1,3 +1,6 @@
+# This config file houses all the tools and resources required by the pipeline
+# and is used by the Shiny application to create a config file using input
+# parameters
 #==============================================================================
 # Tools
 #==============================================================================
@@ -29,3 +32,6 @@ genetic_map="${resources}/recomb-hg38/genetic_map_hg38_withX.txt"
 genome="${resources}/phenogram/human_genome.txt"
 
 cadd="${resources}/cadd"
+
+# CCDS folder path
+ccds="${resources}/ccds"
