@@ -77,6 +77,9 @@ if [ ! -z "${1}" ]; then
 fi
 
 # email pipeline started
+if [ ! -z "${email}" ]; then
+   mail -s "Short variants pipeline" "${email}" <<< "The Short variants prioritisation pipeline job has started."
+fi
 
 # starting message
 echo -e "Short Variants Pipeline\n" &> "${pipeline_log}"
@@ -89,6 +92,30 @@ printf 'Input VCF file:\t%s\n\n' "${in_vcf}" \
    &>> "${pipeline_log}"
 printf 'Output folder:\t%s\n\n' "${out_dir}" \
    &>> "${pipeline_log}"
+printf 'Genotype quality threshold (GQ) per sample: %s\n\n' "${GQ}" \
+   &>> "${pipeline_log}"
+printf 'Read depth (FORMAT) threshold (GQ) per sample: %s\n\n' "${DP}" \
+   &>> "${pipeline_log}"
+printf 'PLINK "mind" parameter: %s\n\n' "${mind}" \
+   &>> "${pipeline_log}"
+printf 'PLINK "geno" parameter: %s\n\n' "${geno}" \
+   &>> "${pipeline_log}"
+printf 'PLINK "maf" parameter: %s\n\n' "${MAF}" \
+   &>> "${pipeline_log}"
+printf 'PLINK "maf" parameter: %s\n\n' "${MAF}" \
+   &>> "${pipeline_log}"
+printf 'IBIS "mt" parameter: %s\n\n' "${ibis_mt1}" \
+   &>> "${pipeline_log}"
+printf 'IBIS "mt2" parameter: %s\n\n' "${ibis_mt2}" \
+   &>> "${pipeline_log}"
+printf 'Genetic map: %s\n\n' "${genetic_map}" \
+   &>> "${pipeline_log}"
+
+if [ ! -z "${genes}" ]; then
+   printf 'Genes list: %s\n\n' "${genes}" \
+   &>> "${pipeline_log}"
+fi
+
 printf 'Number of threads: %s\n\n' "${threads}" \
    &>> "${pipeline_log}"
 echo -e "Log files are created in ${log_dir}\n\n" \
@@ -135,17 +162,29 @@ short_variants/s05_annotate_vars/s00_start_annotation.sh "${out_dir}" \
 
 #------------------------------ Variant selection ------------------------------
 # if a gene is provided then pass the argument to select variants
-if [ ! -z "${gene}" ]; then
-   short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
-   "${max_af}" \
-   "${log_dir}" \
-   &>> "${pipeline_log}"
-else 
-   short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
-   "${max_af}" \
-   "${log_dir}" \
-   "${gene}" \
-   &>> "${pipeline_log}"
+short_variants/s06_select_variants/s00_select_variants.sh "${out_dir}" \
+"${max_af}" \
+"${log_dir}" \
+&>> "${pipeline_log}"
+
+# if the user provides genes of interest list
+if [ ! -z "${genes}" ]; then
+   vars_out="${out_dir}/s06_select_variants/filtered_short_vars.tsv"
+   genes_out="${vars_out%.tsv}_genes.tsv"
+   # check if file is excel spreadsheet
+   if [[ "${genes}" == *.xlsx ]]; then
+      in2csv "${genes}" > "${genes%.*}.csv"
+      genes="${genes%.*}.csv"
+   fi
+
+   echo -e "Filtering variants by genes of interest...\n" &>> "${pipeline_log}"
+   awk 'NR==1{ print }' "${vars_out}" > "${genes_out}"
+   if [ ! -z $( grep -w -f "${genes}" "${vars_out}" ) ]; then
+      grep -w -f "${genes}" "${vars_out}" &>> "${genes_out}"
+   fi
+   
+   awk 'END{printf("Number of variants overlapping with genes of interest: %s\n\n", NR-1)}' \
+   "${genes_out}" &>> "${pipeline_log}"
 fi
 
 echo -e "--------------------------- Final Output ----------------------------\n" \
@@ -154,7 +193,12 @@ final_dir="${out_dir}/final_output"
 mkdir -p "${final_dir}"
 
 ibd_seg="${out_dir}/s04_select_ibd_variants/ibis/ibis.seg"
-variants="${out_dir}/s06_select_variants/filtered_short_vars.tsv"
+# if gene list is provided put the gene filtered results as final output
+if [ ! -z "${genes}" ]; then
+   variants="${out_dir}/s06_select_variants/filtered_short_vars_genes.tsv"
+else
+   variants="${out_dir}/s06_select_variants/filtered_short_vars.tsv"
+fi
 
 cp "${variants}" "${final_dir}/"
 cp "${ibd_seg}" "${final_dir}/"
@@ -165,3 +209,10 @@ echo "Final output is in ${final_dir}." &>> "${pipeline_log}"
 echo "Pipeline completed." &>> "${pipeline_log}"
 date &>> "${pipeline_log}"
 echo "" &>> "${pipeline_log}"
+
+if [ ! -z "${email}" ]; then
+   echo -e "The SV prioritisation pipeline job is completed.\n
+   To view the final output in the IBDVar application, 
+   log into the server and type the following url in a web browser: 
+   http://138.250.31.2:3737/anisha/IBDVar" |  mail -s "SV pipeline" "${email}"
+fi

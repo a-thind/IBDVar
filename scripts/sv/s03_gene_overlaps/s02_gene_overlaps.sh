@@ -40,7 +40,11 @@ fi
 # extract matching gene list lines from filtered_bed
 echo -e "Finding overlaps...\n"
 awk 'NR==1{print}' "${sv_ibd_filter}" > "${gene_overlaps}"
-grep -w -f "${genes}" "${sv_ibd_filter}" >> "${gene_overlaps}"
+# if there no SV overlapping with genes of interest don't append to the final output
+matches=$(grep -w -f "${genes}" "${sv_ibd_filter}")
+if [ ! -z "${matches}" ]; then
+    grep -w -f "${genes}" "${sv_ibd_filter}" >> "${gene_overlaps}"
+fi
 
 awk 'END{printf("Number of overlaps with genes of interest: %s\n\n", NR-1)}' "${gene_overlaps}"
 

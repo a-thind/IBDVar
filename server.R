@@ -130,10 +130,10 @@ server <- function(input, output, session) {
     DP <- input$DP
   })
   # Minor Allele Frequency
-  MAF <- reactive({
-    req(input$MAF)
+  min_af <- reactive({
+    req(input$min_af)
     validate("Field required*")
-    MAF <- input$MAF
+    min_af <- input$min_af
   })
   
   # IBD1 for IBIS
@@ -148,37 +148,47 @@ server <- function(input, output, session) {
     ibis_mt2 <- input$ibis_mt2
   })
   
-  email <- reactive({
-    req(input$email)
+  sh_email <- reactive({
+    req(input$sh_email)
     validate("Please provide a valid email address for pipeline notifications.")
+    sh_email <- input$sh_email
   })
   
   sh_threads <- reactive({
     req(input$sh_threads)
     validate("Please provide the number of threads to be used when running the pipeline.")
+    sh_threads <- input$sh_threads
   })
   
   mind <- reactive({
     req(input$mind)
-    validate("Please provide the minimum individual to be used when running the pipeline.")
+    validate("Please provide the max genotype missing rate for samples to be used when running the pipeline.")
+    mind <- input$mind
   })
   
   geno <- reactive({
     req(input$geno)
-    validate("Please provide the minimum individual to be used when running the pipeline.")
+    validate("Please provide the max genotype missing rate for variants to be used when running the pipeline.")
+    geno <- input$geno
   })
   
+  max_af <- reactive({
+    req(input$max_af)
+    validate("Please provide the maximum allele frequency for rare variants to be used when running the pipeline.")
+    geno <- input$max_af
+  })
   
   observeEvent(input$sh_start,{
-    # make config file
-    make_short_config(in_vcf=sh_vcf_name(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
-                      DP=DP(), 
-                      ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
+    short_config(in_vcf=sh_vcf_name(), out_dir=sh_out_dir(), GQ=GQ(), DP=DP(),
+                 MAF=min_af(), ibis_mt1=ibis_mt1(), ibis_mt2=ibis_mt2(), 
+                 mind=mind(), geno=geno(), max_af=max_af(), 
+                 threads=sh_threads(), email=sh_email(), genes=sh_start_genes()
+                 )
     showNotification("Short variants prioritisation pipeline started.",
                      type="message"
     )
     Sys.sleep(3)
-    system("cd scripts; ./short_variants.sh -C config/pipeline_config.config", 
+    system("cd scripts; ./short_variants.sh -c config/pipeline_short.config", 
            wait=FALSE)
     
   })
@@ -240,7 +250,7 @@ server <- function(input, output, session) {
         switch(ext,
                xlsx=infile,
                txt=infile,
-               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt")
+               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt)")
         )
       }
     }
@@ -303,13 +313,14 @@ server <- function(input, output, session) {
     sv_config(in_vcf=sv_vcf_name(), out_dir=sv_out_dir(), 
               sv_ibis_seg=sv_start_ibis_seg(),
               email=sv_email(), sv_threads=sv_threads(), genes=sv_start_genes())
-    showNotification("Short variants prioritisation pipeline started.",
+    showNotification("Structural variants prioritisation pipeline started.",
                      type="message"
     )
     Sys.sleep(3)
     system("cd scripts; ./structural_variants.sh -c config/pipeline_sv.config", 
            wait=FALSE)
-    
+    showNotification("The structural variants prioritisation pipeline job has completed.",
+                     type="message")
   })
   
 #-------------------------------------------------------------------------------  

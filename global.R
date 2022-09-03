@@ -18,7 +18,6 @@ library(DT)
 library(readxl)
 library(dplyr)
 library(purrr)
-library(ggplot2)
 
 options(shiny.maxRequestSize=1000*1024^2)
 
@@ -45,24 +44,53 @@ filter_variables <- function(var, in_val){
   }
 }
 
-# function to create a config file for the short variants pipeline
-make_short_config <- function(in_vcf, out_dir, GQ, DP, 
-                              MAF, ibis_mt1, ibis_mt2, mind, geno, threads) {
+#' Creates a config file for the short variants pipeline
+#'
+#' @param in_vcf absolute path for input short variants VCF file
+#' @param out_dir absolute path for output directory
+#' @param GQ genotype quality threshold per sample
+#' @param DP read depth (FORMAT field) threshold per sample
+#' @param MAF Minimum allele frequency threshold for variants in PLINK dataset
+#' @param ibis_mt1 Minimum number of SNP markers for IBIS to call an IBD segment IBD1
+#' @param ibis_mt2 Minimum number of SNP markers for IBIS to call an IBD segment IBD2
+#' @param mind Maximum threshold for missing rate per sample 
+#' @param geno Maximum threshold for missing rate per variant
+#' @param max_af Maximum allele frequency for rare variants
+#' @param threads Number of threads (CPUs)
+#'
+#' @return
+#' @export
+#'
+#' @examples
+short_config <- function(in_vcf, out_dir, GQ, DP, 
+                              MAF, ibis_mt1, ibis_mt2, mind, geno, max_af, 
+                         threads, email, genes=NULL) {
   # read in file paths
-  # create a dataframe with parameters
+  # create a data frame with parameters
   config_dir="scripts/config"
-  config_path=file.path(config_dir, "pipeline_config.config")
-  params_df <- data.frame(
-    params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2", 
-             "mind", "geno"),
-    vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2, mind, geno)
-  )
+  config_path=file.path(config_dir, "pipeline_short.config")
+  # if no gene list is provided
+  if (is.null(genes)) {
+    params_df <- data.frame(
+      params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2", 
+               "mind", "geno", "max_af", "email", "threads"),
+      vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2, mind, geno, 
+             max_af, email, threads)
+    )
+  } else {
+    params_df <- data.frame(
+      params=c("in_vcf", "out_dir", "GQ", "DP", "MAF", "ibis_mt1", "ibis_mt2", 
+               "mind", "geno", "max_af", "genes", "email", "threads"),
+      vals=c(in_vcf, out_dir, GQ, DP, MAF, ibis_mt1, ibis_mt2, mind, geno, 
+             max_af, genes, email, threads)
+    )
+  }
+  
   tools <- read.delim(file.path(config_dir, "tools_resources.cf"), 
                       comment.char = "#", sep="=", header = F)
   colnames(tools) <- c("params", "vals")
   # Concatenate parameter and tools together
   config <- rbind(params_df, tools)
-  #print(config)
   # write a text file with "=" separator = config file
   write.table(config, config_path, col.names = F, row.names = F, sep="=", 
               quote = F)
@@ -90,7 +118,6 @@ sv_config <- function(in_vcf, out_dir, sv_ibis_seg, genes=NULL, sv_threads, emai
   colnames(tools) <- c("params", "vals")
   # Concatenate parameter and tools together
   config <- rbind(params_df, tools)
-  #print(config)
   # write a text file with "=" separator = config file
   write.table(config, config_path, col.names = F, row.names = F, sep="=", 
               quote = F)

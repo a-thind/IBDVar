@@ -85,7 +85,7 @@ body <- dashboardBody(
                     tags$h4(
                       "PLINK Dataset Generation"
                     ),  
-                    numericInput("min_AF", "Min. Allele Frequency threshold for variants in PLINK dataset", value=0.05, max=1, 
+                    numericInput("min_af", "Min. Allele Frequency threshold for variants in PLINK dataset", value=0.05, max=1, 
                                  min=0.01, step=0.01),
                     tags$h4("Max missing genotype rates (for PLINK dataset)"),
                     numericInput("mind", "Max per SAMPLE e.g. 0.1 excludes samples with missing call rates > 10%", value=0.05, max=1, 
@@ -113,7 +113,7 @@ body <- dashboardBody(
                                   value=10, min=1, max=400),
                      br(),
                      tags$h4("Protein-impacting Variant Selection"),
-                     numericInput("MAF", "Max Allele Frequency in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
+                     numericInput("max_af", "Max Allele Frequency in any of the following populations: gnomAD, 1000 genomes or ESP", value=0.05, max=1, 
                                   min=0.01, step=0.01),
                      HTML("<b>(OPTIONAL) Upload a genes of interest list (.xlsx/.txt)</b>"),
                      fluidRow(

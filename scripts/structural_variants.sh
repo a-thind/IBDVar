@@ -90,6 +90,13 @@ echo -e "\n================================== Settings =========================
 echo "Input VCF: ${sv_vcf}" &>> "${pipeline_log}"
 echo "Output folder: ${out_dir}" &>>"${pipeline_log}"
 echo "Logs folder: ${out_dir}/logs" &>> "${pipeline_log}"
+if [ ! -z "${email}" ]; then
+   echo "Email address: ${email}" &>> "${pipeline_log}"
+fi
+
+if [ ! -z "${genes}" ]; then
+   echo "Genes list: ${genes}" &>> "${pipeline_log}"
+fi
 
 echo -e "\n================================== Quality Control ===================================\n" \
     &>> "${pipeline_log}"
@@ -119,11 +126,15 @@ fi
 
 final_dir="${out_dir}/final_output"
 mkdir -p "${final_dir}"
-final_out=$( find "${out_dir}/s03_gene_overlaps" -name "ibd_annotated_sv.tsv" )
+if [ ! -z "${genes}" ]; then
+   final_out="${out_dir}/s03_gene_overlaps/ibd_annotated_sv_genes.tsv"
+else
+   final_out="${out_dir}/s03_gene_overlaps/ibd_annotated_sv.tsv"
+fi
 
 # copy final output to final output folder
 cp "${final_out}" "${final_dir}/"
-echo -e "The final output file \"ibd_annotated_sv.tsv\" is in ${final_dir}." &>> "${pipeline_log}"
+echo -e "The final output file ${final_out} is in ${final_dir}.\n" &>> "${pipeline_log}"
 
 # completion message
 echo "Pipeline completed." &>> "${pipeline_log}"
@@ -132,7 +143,7 @@ echo "" &>> "${pipeline_log}"
 
 if [ ! -z "${email}" ]; then
    echo -e "The SV prioritisation pipeline job is completed.\n
-   To view the final output (ibd_annotated_sv.tsv) in the IBDVar application, 
+   To view the final output in the IBDVar application, 
    log into the server and type the following url in a web browser: 
    http://138.250.31.2:3737/anisha/IBDVar" |  mail -s "SV pipeline" "${email}"
 fi
