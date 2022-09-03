@@ -2,7 +2,7 @@
 # s02_bcfstats.sh - Generate bcftool stats and QC plots
 # Anisha Thind, 10May2022
 
-# Intended use:
+# Example:
 # ./s02_bcfstats.sh vcf_file out_dir &> s02_bcfstats.log
 # Parameters:
 #  vcf_file: input vcf file

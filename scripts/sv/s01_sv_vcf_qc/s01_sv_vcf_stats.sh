@@ -49,19 +49,6 @@ bcftools view -H "${in_vcf}" | awk ' END{ printf("Number of SVs:\t%s\n\n", NR) }
 echo -e "--- Filters ---\n"
 bcftools query -f "%FILTER\n" -i "FILTER='PASS'" "${in_vcf}" | awk 'END{ printf("Number of SVs passing all filters (PASS): %s\n\n", NR)}'
 
-echo -e "Number of variants passing all filters by type and sample:\n"
-bcftools query -f "[%SAMPLE %SVTYPE \n]" \
-    -i "FILTER='PASS'" "${in_vcf}" \
-    | sort \
-    | uniq -c \
-    | awk '{ printf("Number of %s (PASS) in %s: %s\n", $3, $2, $1) }'
-
-echo -e "\n--- Variant counts by SV type and sample ---\n"
-bcftools query -f "[%SAMPLE %SVTYPE \n]" -i "FILTER='PASS'" "${in_vcf}" \
-    | sort \
-    | uniq -c \
-    | awk '{ printf("%s\t%s\t%s\n", $2, $3, $1) }' > "${out_dir}/sv_stats.tsv"
-
 echo -e "Number of variants passing specific filters:\n"
 bcftools query -f "%FILTER\n" "${in_vcf}" | sort | uniq -c | sort -nr 
 echo ""

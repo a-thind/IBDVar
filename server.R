@@ -1,10 +1,3 @@
-library(dplyr)
-library(purrr)
-# TODO:
-# PR and SR table
-
-
-
 #' Create bins for CADD Phred values
 #'
 #' @param cadd CADD column of a dataframe
@@ -40,32 +33,87 @@ server <- function(input, output, session) {
 # Start pipeline tab
 #-------------------------------------------------------------------------------
   # input vcf field
-  sh_vcf <- reactive({
-    req(input$sh_vcf)
-    filename <- input$sh_vcf$name
-    # check vcf has right extension (.vcf.gz)
-    if (substr(filename, nchar(filename)-6,
-               nchar(filename))==".vcf.gz") {
-      in_vcf=tools::file_path_as_absolute(input$sh_vcf$datapath)
-      print(in_vcf)
-    } else {
-      validate("Input file is not a compressed VCF file (.vcf.gz).")
+  volumes <- getVolumes()
+  shinyFileChoose(input, "sh_vcf", roots=volumes())
+  sh_vcf_name <- reactive({
+    if (!is.null(input$sh_vcf)){
+      infile <- parseFilePaths(roots=volumes(), input$sh_vcf)$datapath
+      if (length(infile) > 0){
+        # check vcf has right extension (.vcf.gz)
+        ifelse(substr(infile, nchar(infile)-6,
+                      nchar(infile))==".vcf.gz",
+               infile,
+               validate("Invalid file: Input file is not a compressed VCF file (.vcf.gz).")
+        )
+      }
     }
+    
   })
   
-  output$filename <- renderText({input$filename$name})
-  volumes <- getVolumes()
+  
+  output$sh_vcf_name <- renderText({
+    req(input$sh_vcf)
+    if (!is.null(input$sh_vcf)) {
+      infile <- paste("Input VCF file: ", 
+                      parseFilePaths(roots=volumes(), input$sh_vcf)$name)
+    } else {
+      "Input VCF file: "
+    }
+    
+  })
+  
+  output$sh_vcf_label <- renderText({
+    "<b>Upload a compressed short variants VCF file (.vcf.gz)</b>"
+  })
+
   shinyDirChoose(input, "sh_outdir", roots=volumes())
   
   
   sh_out_dir <- reactive({
     req(input$sh_outdir)
-    out_dir <- parseDirPath(roots=volumes(), input$sh_outdir)
+    out_dir <- substring(parseDirPath(roots=volumes(), input$sh_outdir), 2)
   })
   
   output$sh_outdir_txt <- renderText({
     req(input$sh_outdir)
-    paste0("Selected output folder: ", sh_out_dir())
+    prefix <- "Selected output folder: "
+    if (!is.null(input$sh_outdir)){
+      paste0(prefix, sh_out_dir()) 
+    } else {
+      prefix
+    }
+  })
+  
+  output$sh_outdir_label <- renderText({
+    "<b>Select an output folder</b>"
+  })
+  
+  shinyFileChoose(input, "sh_start_genes", roots=volumes())
+  
+  sh_start_genes <- reactive({
+    if (!is.null(input$sh_start_genes)){
+      infile <- parseFilePaths(roots=volumes(), input$sh_start_genes)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               xlsx=infile,
+               txt=infile,
+               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt")
+        )
+      }
+    }
+  })
+  
+  output$sh_start_genes_name <- renderText({
+    req(input$sh_start_genes)
+    if (!is.null(input$sh_start_genes)) {
+      infile <- paste("Filename: ", 
+                      parseFilePaths(roots=volumes(), input$sh_start_genes)$name)
+    } else {
+      "Filename: "
+    }
+    
   })
   
   # Genotype Quality
@@ -82,10 +130,10 @@ server <- function(input, output, session) {
     DP <- input$DP
   })
   # Minor Allele Frequency
-  MAF <- reactive({
-    req(input$MAF)
+  min_af <- reactive({
+    req(input$min_af)
     validate("Field required*")
-    MAF <- input$MAF
+    min_af <- input$min_af
   })
   
   # IBD1 for IBIS
@@ -100,52 +148,123 @@ server <- function(input, output, session) {
     ibis_mt2 <- input$ibis_mt2
   })
   
-  email <- reactive({
-    req(input$email)
+  sh_email <- reactive({
+    req(input$sh_email)
     validate("Please provide a valid email address for pipeline notifications.")
+    sh_email <- input$sh_email
   })
   
   sh_threads <- reactive({
     req(input$sh_threads)
     validate("Please provide the number of threads to be used when running the pipeline.")
+    sh_threads <- input$sh_threads
   })
   
   mind <- reactive({
     req(input$mind)
-    validate("Please provide the minimum individual to be used when running the pipeline.")
+    validate("Please provide the max genotype missing rate for samples to be used when running the pipeline.")
+    mind <- input$mind
   })
   
   geno <- reactive({
     req(input$geno)
-    validate("Please provide the minimum individual to be used when running the pipeline.")
+    validate("Please provide the max genotype missing rate for variants to be used when running the pipeline.")
+    geno <- input$geno
   })
   
+  max_af <- reactive({
+    req(input$max_af)
+    validate("Please provide the maximum allele frequency for rare variants to be used when running the pipeline.")
+    geno <- input$max_af
+  })
   
   observeEvent(input$sh_start,{
-    # make config file
-    make_short_config(in_vcf=sh_vcf(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
-                      DP=DP(), 
-                      ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
+    short_config(in_vcf=sh_vcf_name(), out_dir=sh_out_dir(), GQ=GQ(), DP=DP(),
+                 MAF=min_af(), ibis_mt1=ibis_mt1(), ibis_mt2=ibis_mt2(), 
+                 mind=mind(), geno=geno(), max_af=max_af(), 
+                 threads=sh_threads(), email=sh_email(), genes=sh_start_genes()
+                 )
     showNotification("Short variants prioritisation pipeline started.",
                      type="message"
     )
     Sys.sleep(3)
-    system("cd scripts; ./short_variants.sh -C config/pipeline_config.config", 
+    system("cd scripts; ./short_variants.sh -c config/pipeline_short.config", 
            wait=FALSE)
     
   })
   #-----------------------------------------------------------------------------
   # Start SV pipeline 
   #-----------------------------------------------------------------------------
-  # read in vcf
-  sv_vcf <- reactive({
-    req(input$vcf)
-    ext=tools::file_ext(input$vcf$name)
-    switch(
-      vcf.gz=input$vcf$datapath,
-      vcf=input$vcf$datapath,
-      validate("Input file is not a VCF file.")
-    )
+  # read in SV VCF
+  shinyFileChoose(input, "sv_vcf", roots=volumes())
+  sv_vcf_name <- reactive({
+    if (!is.null(input$sv_vcf)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_vcf)$datapath
+      if (length(infile) > 0){
+        # check vcf has right extension (.vcf.gz)
+        ifelse(substr(infile, nchar(infile)-6,
+                      nchar(infile))==".vcf.gz",
+               infile,
+               validate("Invalid file: Input file is not a compressed VCF file (.vcf.gz).")
+        )
+      }
+    }
+  })
+  
+  output$sv_vcf_name <- renderText({
+    req(input$sv_vcf)
+    if (!is.null(input$sv_vcf)) {
+      infile <- paste("Input VCF file: ", 
+                      parseFilePaths(roots=volumes(), input$sv_vcf)$name)
+    } else {
+      "Input VCF file: "
+    }
+    
+  })
+  
+  shinyDirChoose(input, "sv_outdir", roots=volumes())
+  
+  sv_out_dir <- reactive({
+    req(input$sv_outdir)
+    out_dir <- substring(parseDirPath(roots=volumes(), input$sv_outdir), 2)
+  })
+  
+  output$sv_outdir_txt <- renderText({
+    req(input$sv_outdir)
+    prefix <- "Selected output folder: "
+    if (!is.null(input$sv_outdir)){
+      paste0(prefix, sv_out_dir()) 
+    } else {
+      prefix
+    }
+  })
+  
+  shinyFileChoose(input, "sv_start_genes", roots=volumes())
+  
+  sv_start_genes <- reactive({
+    if (!is.null(input$sv_start_genes)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_start_genes)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               xlsx=infile,
+               txt=infile,
+               validate("Invalid file: Input file is not an excel (.xlsx) or text file (.txt)")
+        )
+      }
+    }
+  })
+  
+  output$sv_start_genes_name <- renderText({
+    req(input$sv_start_genes)
+    if (!is.null(input$sv_start_genes)) {
+      infile <- paste("Filename: ", 
+                      parseFilePaths(roots=volumes(), input$sv_start_genes)$name)
+    } else {
+      "Filename: "
+    }
+    
   })
   
   sv_threads <- reactive({
@@ -153,28 +272,55 @@ server <- function(input, output, session) {
     validate("Please provide the number of threads to be used when running the pipeline.")
   })
   
+  shinyFileChoose(input, "sv_start_ibis_seg", roots=volumes())
+  
   sv_start_ibis_seg <- reactive({
-    req(input$sv_start_ibis_seg)
-    ext=tools::file_ext(input$sv_start_ibis_seg$name)
-    switch(
-      seg=input$sv_start_ibis_seg$datapath,
-      validate("Input file is not an IBIS IBD segment file.")
-    )
+    if (!is.null(input$sv_start_ibis_seg)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_start_ibis_seg)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        # check segment file 
+        switch(ext,
+               seg=infile,
+               validate("Invalid file: Input file is not an IBD segment file (.seg).")
+        )
+      }
+    }
   })
   
+  output$sv_ibis_seg <- renderText({
+    req(input$sv_start_ibis_seg)
+    if (!is.null(input$sv_start_ibis_seg)) {
+      infile <- paste("IBIS IBD segment file: ", 
+                      parseFilePaths(roots=volumes(), input$sv_start_ibis_seg)$name)
+    } else {
+      "IBIS IBD segment file: "
+    }
+    
+  })
   
-  observeEvent(input$sh_start,{
-    # make config file
-    make_sv_config(in_vcf=sh_vcf(), out_dir=sh_out_dir(), MAF=MAF(), GQ=GQ(), 
-                      DP=DP(), 
-                      ibis_mt1 = ibis_mt1(), ibis_mt2=ibis_mt2())
-    showNotification("Short variants prioritisation pipeline started.",
+  sv_email <- reactive({
+    req(input$sv_email)
+    if (grep("\\w.+@\\w+.*\\..{2,4}", input$sv_email)) {
+      
+    } else {
+      validate("Invalid email address")
+    }
+  })
+  
+  observeEvent(input$sv_start,{
+    # make SV config file 
+    sv_config(in_vcf=sv_vcf_name(), out_dir=sv_out_dir(), 
+              sv_ibis_seg=sv_start_ibis_seg(),
+              email=sv_email(), sv_threads=sv_threads(), genes=sv_start_genes())
+    showNotification("Structural variants prioritisation pipeline started.",
                      type="message"
     )
     Sys.sleep(3)
-    system("cd scripts; ./structural_variants.sh -C config/pipeline_sv.config", 
+    system("cd scripts; ./structural_variants.sh -c config/pipeline_sv.config", 
            wait=FALSE)
-    
+    showNotification("The structural variants prioritisation pipeline job has completed.",
+                     type="message")
   })
   
 #-------------------------------------------------------------------------------  
@@ -199,44 +345,156 @@ server <- function(input, output, session) {
                     CLIN_SIG='f', SYMBOL_SOURCE='f', PHENO='f', AMINO_ACIDS='c',
                     NEAREST='c', HGVS_OFFSET='d', CLNSIG="f"
   )
-  
+  shinyFileChoose(input, "short_tsv", roots=volumes())
+
   short_data <- reactive({
-    req(input$short_tsv)
-    ext=tools::file_ext(input$short_tsv$name)
-    switch(ext,
-           tsv=vroom::vroom(input$short_tsv$datapath, delim="\t", 
-                                 col_names=TRUE, col_types = col_types),
-           txt=vroom::vroom(input$short_tsv$datapath, delim="\t",
-                         col_names=TRUE, col_types = col_types),
-           validate("Invalid file: Please upload a tsv/text file")
-    )
+    if (!is.null(input$short_tsv)){
+      infile <- parseFilePaths(roots=volumes(), input$short_tsv)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               tsv=vroom::vroom(infile, delim="\t", 
+                                col_names=TRUE, col_types = col_types),
+               txt=vroom::vroom(infile, delim="\t",
+                                col_names=TRUE, col_types = col_types),
+               stop("Invalid file: Please upload a tsv/text file")
+        )
+      }
+    }
+   
   })
   
+  output$short_tsv_name <- renderText({
+    if (!is.null(input$short_tsv)) {
+      infile <- paste("Variants file:", 
+                      parseFilePaths(roots=volumes(), input$short_tsv)$name)
+    } else {
+      "Variants file:"
+    }
+  })
+  
+  output$sh_tsv_label <- renderText({
+    "<b>Upload pipeline output file (.tsv/.txt)</b>"
+  })
+  
+  shinyFileChoose(input, "ibd_seg", roots=volumes())
   ibd_data <- reactive({
-    req(input$ibd_seg)
-    ext=tools::file_ext(input$ibd_seg$name)
-    switch(ext,
-           seg=input$ibd_seg$datapath,
-           validate("Invalid file: Please upload an IBIS IBD segment file (.seg)")
-    )
+    if(!is.null(input$ibd_seg)) {
+      infile <- parseFilePaths(roots=volumes(), input$ibd_seg)$datapath
+      if (length(infile) > 0) {
+        ext=tools::file_ext(infile)
+        ifelse(ext=="seg",
+               infile,
+               validate("Invalid file: Please upload an IBIS IBD segment file (.seg)")
+        )
+      }
+    }
   })
   
+  output$sh_seg_label <- renderText({
+    "<b>Upload (IBIS) IBD segment file (.seg) from short variants pipeline</b>"
+  })
+  
+  output$ibd_seg_name <- renderText({
+    if (!is.null(input$ibd_seg)) {
+      infile <- paste("IBD segment file: ", 
+                      parseFilePaths(roots=volumes(), input$ibd_seg)$name)
+    } else {
+      "IBD segment file: "
+    }
+  })
   
   # render ideogram
   output$ideogram_plot <- renderIdeogram({
-    ideogram({ibd_data()})
+    if (!is.null(ibd_data())){
+      ideogram({ibd_data()})
+    }
+    
   })
   
   # read genes list
+  shinyFileChoose(input, "sh_gene_list", roots=volumes())
   sh_genes <- reactive({
-    req(input$sh_gene_list)
-    ext=tools::file_ext(input$sh_gene_list$name)
-    switch(ext,
-           xlsx=read_excel(input$sh_gene_list$datapath, col_names=c("gene")),
-           txt=vroom::vroom(input$sh_gene_list$datapath, delim="\n",
-                            col_names=c("gene")),
-           validate("Invalid gene list file: Please upload a valid genes list file.")
-    )
+    if (!is.null(input$sh_gene_list)) {
+      infile <- parseFilePaths(roots=volumes(), input$sh_gene_list)$datapath
+      if (length(infile) > 0) {
+        ext=tools::file_ext(infile)
+        switch(ext,
+               xlsx=read_excel(infile, col_names=c("gene")),
+               txt=vroom::vroom(infile, delim="\n",
+                                col_names=c("gene")),
+               stop("Invalid gene list file: Please upload a valid genes list file.")
+        ) 
+      }
+    }
+  })
+  
+  output$sh_gene_label <- renderText({
+    "<b>Upload a list of genes of interest (.xlsx, .txt)</b>"
+  })
+  
+  output$sh_gene_name <- renderText({
+    if (!is.null(input$sh_gene_list)) {
+      infile <- paste("Gene list file: ", 
+                      parseFilePaths(roots=volumes(), input$sh_gene_list)$name)
+    } else {
+      "(Optional) Gene list file: "
+    }
+  })
+  
+  output$sh_vars_total <- renderText({
+    if (!is.null(short_data())) {
+      paste("Total number of variants: ", nrow(short_data()))
+    } else {
+      ""
+    }
+  })
+  
+  output$clinvar_vars <- renderText({
+    if (!is.null(short_data())) {
+      pathogenic <- short_data() %>% 
+        filter(CLNSIG=="Pathogenic/Likely pathogenic") %>%
+        count()
+      paste('Pathogenic/ likely pathogenic (ClinVar) variants:', 
+            pathogenic)
+    } else {
+      ""
+    }
+  })
+  
+  output$impact_vars <- renderText({
+    if (!is.null(short_data())) {
+      impact <- short_data() %>% 
+        filter(IMPACT=="HIGH") %>%
+        count()
+      paste('High impact (LOF) variants:', 
+            impact)
+    } else {
+      ""
+    }
+  })
+  
+  output$missense_vars <- renderText({
+    if (!is.null(short_data())) {
+      missenses <- short_data() %>% 
+        filter((SIFT_CALL=="deleterious" | 
+                 POLYPHEN_CALL=="probably damaging") & CADD_PHRED >= 20) %>%
+        count()
+      paste('Predicted functionally important missenses:', 
+            missenses)
+    } else {
+      ""
+    }
+  })
+  
+  output$ibd_seg_total <- renderText({
+    if (!is.null(ibd_data())) {
+      ibd_segs <- read.table(ibd_data(), header = T)
+      paste('Shared IBD segments:', 
+            nrow(ibd_segs))
+    } else {
+      ""
+    }
   })
   
   sh_gene_filter <- reactive({
@@ -303,25 +561,29 @@ server <- function(input, output, session) {
   
   # render short variants table
   output$short_tab <- renderDT({ 
-    DT::datatable(
-      sh_gene_filter() %>%
-        # create link for gene symbols to NCBI gene db
-        mutate(
-          SYMBOL=ifelse(
-            !is.na(SYMBOL),
-            paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
-                   SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
-        mutate(
-          RS=ifelse(
-            !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
-                               RS, '">', RS, '</a>'), RS)
-        ) %>%
-        select(ID, RS, HGVSC, HGVSP,
-               SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
-               CADD_PHRED, POLYPHEN_CALL,
-               SIFT_CALL, CLNSIG), 
-      escape=FALSE,
-      rownames=FALSE) 
+    if (!is.null(short_data())) {
+      DT::datatable(
+        sh_gene_filter() %>%
+          # create link for gene symbols to NCBI gene db
+          mutate(
+            SYMBOL=ifelse(
+              !is.na(SYMBOL),
+              paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
+                     SYMBOL, '[Gene Name]">', SYMBOL,'</a>'), SYMBOL)) %>%
+          mutate(
+            RS=ifelse(
+              !is.na(RS), paste0('<a href="https://www.ncbi.nlm.nih.gov/snp/?term=', 
+                                 RS, '">', RS, '</a>'), RS)
+          ) %>% 
+          mutate(ID, ID=stringr::str_trunc(ID, width = 20)) %>%
+          select(ID, RS, HGVSC, HGVSP,
+                 SYMBOL, CONSEQUENCE, MAX_AF, IMPACT,
+                 CADD_PHRED, POLYPHEN_CALL,
+                 SIFT_CALL, CLNSIG), 
+        escape=FALSE,
+        rownames=FALSE) 
+    }
+    
   })
   
   
@@ -339,91 +601,254 @@ server <- function(input, output, session) {
   # SV 
   #-----------------------------------------------------------------------------
   sv_col_types <- list(CHROM='f', ID='c', REF='c', ALT='c', FILTER='f', 
-                        INFO='c', FORMAT='c', CDS_CHROM='c', NC_ACCESSION='c', 
-                        GENE='f', GENE_ID='c', CDS_ID='c', CCDS_STATUS='f', 
-                        STRAND='f', CDS_LOCATIONS='c', MATCH_TYPE='f', 
-                        OVERLAP='d', SV_TYPE='f', SV_LENGTH='d', END='d', 
-                        CIGAR='c', CI_POS='c', CI_END='c')
+                        GENES='c', SVTYPE='f', SVLEN='d', END='d', 
+                        CIGAR='c', CIPOS='c', CIEND='c', MATEID='c', 
+                       EVENT='c', IMPRECISE='f', JUNCTION_QUAL='d')
+  # sv tsv file 
+  shinyFileChoose(input, "sv_tsv", roots=volumes())
+  
+  output$sv_tsv_label <- renderText({
+    "<b>Upload SV pipeline output file (.tsv/.txt)</b>"
+  })
   
   sv_data <- reactive({
-    req(input$sv_tsv)
-    ext=tools::file_ext(input$sv_tsv$name)
-    switch(ext,
-           tsv=vroom::vroom(input$sv_tsv$datapath, delim="\t", 
-                            col_names = TRUE, col_types=sv_col_types),
-           txt=vroom::vroom(input$sv_tsv$datapath, delim="\t", 
-                            col_names = TRUE, col_types=sv_col_types),
-           validate("Invalid file: Please upload a tsv/text file")
-    )
+    if (!is.null(input$sv_tsv)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_tsv)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               tsv=vroom::vroom(infile, delim="\t", 
+                                col_names=TRUE, col_types = sv_col_types),
+               txt=vroom::vroom(infile, delim="\t",
+                                col_names=TRUE, col_types = sv_col_types),
+               stop("Invalid file: Please upload a tsv/text file")
+        )
+      }
+    }
   })
   
-  sv_genes <- reactive({
-    req(input$sv_gene_list)
-    ext=tools::file_ext(input$sv_gene_list$name)
-    switch(ext,
-      xlsx=read_excel(input$sv_gene_list$datapath, col_names=c("gene")),
-      txt=vroom::vroom(input$sv_gene_list$datapath, delim="\n",
-                     col_names=c("gene")),
-      validate("Invalid gene list file: Please upload a valid genes list file.")
-    )
+  output$sv_tsv_name <- renderText({
+    if (!is.null(input$sv_tsv)) {
+      infile <- paste("SV file:", 
+                      parseFilePaths(roots=volumes(), input$sv_tsv)$name)
+    } else {
+      "SV file:"
+    }
   })
-
+  
+  # gene list for detecting overlaps with SV
+  shinyFileChoose(input, "sv_gene_list", roots=volumes())
+  sv_genes <- reactive({
+    if (!is.null(input$sv_gene_list)){
+      infile <- parseFilePaths(roots=volumes(), input$sv_gene_list)$datapath
+      if (length(infile) > 0){
+        ext=tools::file_ext(infile)
+        switch(ext,
+               xlsx=read_excel(infile, col_names=c("gene")),
+               txt=vroom::vroom(infile, delim="\n",
+                                col_names=c("gene")),
+               stop("Invalid gene list file: Please upload a valid genes list file.")
+        )
+      }
+    }
+   
+  })
+  
+  output$sv_gene_list_label <- renderText({
+    "<b>(Optional) Upload a list of genes of interest (.xlsx/.txt)</b>"
+  })
+  
+  output$sv_gene_list_name <- renderText({
+    if (!is.null(input$sv_gene_list)) {
+      infile <- paste("Gene list file:", 
+                      parseFilePaths(roots=volumes(), input$sv_gene_list)$name)
+    } else {
+      "Gene list file:"
+    }
+  })
   
   sv_gene_filter <- reactive({
     req(!is.null(input$sv_gene_check))
     if (input$sv_gene_check) {
-      sv_ibd_filters() %>% filter(filter_variables(sv_ibd_filters()$GENE, pull(sv_genes(), gene)))
+      sv_filters() %>% filter(GENES %in% sv_genes()$gene)
     } else {
-      sv_ibd_filters()
+      sv_filters()
     }
   })
   
   sv_filters <- reactive({
-    filter_variables(sv_data()$CHROM, input$chrom) &
-      filter_variables(sv_data()$SV_TYPE, input$sv_type)
+    if (!is.null(sv_data())){
+      if (input$imprecise) {
+        sv_data() %>% filter(
+          filter_variables(sv_data()$CHROM, input$chrom) &
+            filter_variables(sv_data()$SVTYPE, input$sv_type)
+        )
+      } else {
+        sv_data() %>% filter(
+          filter_variables(sv_data()$CHROM, input$chrom) &
+            filter_variables(sv_data()$SVTYPE, input$sv_type) &
+            !(IMPRECISE %in% c("TRUE"))
+        )
+      }
+    }
+  })
+  
+  sv_size <- reactive({
+    if (!is.null(sv_data())) {
+      list(min=min(sv_data()$SVLEN, 
+                      na.rm=TRUE),
+           max=max(sv_data()$SVLEN, 
+               na.rm=TRUE))
+    } else {
+      list(min=0, max=0)
+    }
+   
   })
   
   output$sv_filters_ui <- renderUI({
     tagList(
       checkboxGroupInput("sv_type", "SV Type", 
-                         choices=levels(sv_data()$SV_TYPE),
-                         selected=levels(sv_data()$SV_TYPE)),
+                         choices=levels(sv_data()$SVTYPE),
+                         selected=levels(sv_data()$SVTYPE)),
       checkboxGroupInput("chrom", "Chromosomes",
                          choices=levels(sv_data()$CHROM),
                          selected=levels(sv_data()$CHROM)),
+      checkboxInput("imprecise", "Imprecise", value = TRUE),
       checkboxInput("sv_gene_check", "Genes of interest", value = FALSE)
     )
   })
   
-  
-  
-  # reactive expression for ibd region filtering for SV
-  sv_ibd_filters <- reactive({
-    if (!is.null(input$chosenRegion$chr)) {
-      sv_data() %>%
-        filter(CHROM==paste0('chr', input$chosenRegion$chr) &
-                 (POS >= input$chosenRegion$start) &
-                 (POS <= input$chosenRegion$stop) &
-                 sv_filters())
-    } else {
-      sv_data() %>% filter(sv_filters())
-    }
-  })
-  
-  
 
   output$sv_table <- renderDT({
     DT::datatable(
-      sv_gene_filter() %>%
-        mutate(
-          GENE=ifelse(
-            !is.na(GENE),
-            paste0('<a href="https://www.ncbi.nlm.nih.gov/gene?term=(human[Organism]) AND ',
-                   GENE, '[Gene Name]">', GENE,'</a>'), GENE)) %>%
-        select(CHROM, START, END, ID, SV_TYPE, SV_LENGTH, CI_POS, CI_END, CIGAR, 
-               GENE, OVERLAP), 
+      if (!is.null(sv_gene_filter())){
+        sv_gene_filter()  %>%
+          select(CHROM, START, END, ID, REF, ALT, SVTYPE, SVLEN, CIPOS, 
+                 CIEND, CIGAR, GENES, MATEID, EVENT, IMPRECISE) %>% 
+          mutate(REF, REF=stringr::str_trunc(REF, width = 20)) %>% 
+          mutate(ALT, ALT=stringr::str_trunc(ALT, width = 20)) %>%
+          mutate(GENES=map(GENES, process_multigenes))
+      }, 
       escape=FALSE,
-      rownames=FALSE) 
+      rownames=FALSE,
+      options=list(columnDefs = list(list(width = '10%', targets ='_all')))
+      )
+  })
+  
+  #-----------------------------------------------------------------------------
+  # SV Summaries 
+  #-----------------------------------------------------------------------------
+  output$total_sv <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Total number of SV calls: ", sv_data() %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_sv_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average SV length: ", pull(sv_data(), SVLEN) %>% 
+               mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+
+  output$ave_ins_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average insertion length: ", filter(sv_data(), SVTYPE=="INS") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_del_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average deletion length: ", filter(sv_data(), SVTYPE=="DEL") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+  
+  output$ave_dup_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Average duplication length: ", 
+             filter(sv_data(), SVTYPE=="DUP") %>% 
+               pull(SVLEN) %>% mean(na.rm=T) %>% round())
+    } else {
+      ""
+    }
+  })
+  
+  output$ins_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of INS: ", sv_data() %>% filter(SVTYPE=="INS") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$del_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of DEL: ", sv_data() %>% filter(SVTYPE=="DEL") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$dup_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of DUP: ", sv_data() %>% filter(SVTYPE=="DUP") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$bnd_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of BND: ", sv_data() %>% filter(SVTYPE=="BND") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$imprecise_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of imprecise variants: ", sv_data() %>% 
+               filter(IMPRECISE==TRUE) %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$sv_genes_sum <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Number of SVs overlapping genes: ", sv_data() %>% 
+               filter(GENES!=".") %>% nrow())
+    } else {
+      ""
+    }
+  })
+  
+  output$max_sv_len <- renderText({
+    if (!is.null(sv_data())){
+      paste0("Maximum SV length: ", sv_data() %>% 
+               pull(SVLEN) %>% max(na.rm=T))
+    } else {
+      ""
+    }
+  })
+  
+  output$genes_list_sum <- renderText({
+    if (!is.null(sv_genes())){
+      paste0("Number of SV overlapping with genes of interest: ", sv_data() %>% 
+               filter(GENES %in% sv_genes()$gene) %>% nrow())
+    } else {
+      ""
+    }
   })
   
   # download variants results handler
@@ -433,7 +858,7 @@ server <- function(input, output, session) {
         tools::file_path_sans_ext(input$sv_tsv$name), "_filtered.tsv")
     },
     content=function(file){
-      write.table({sv_ibd_filters()}, file)
+      write.table({sv_filters()}, file)
     })
   
 }

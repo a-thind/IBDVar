@@ -17,11 +17,6 @@ library(ggplot2)
 library(ggvenn)
 
 
-
-# clear workspace
-rm(list=ls())
-graphics.off()
-
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) < 2) {

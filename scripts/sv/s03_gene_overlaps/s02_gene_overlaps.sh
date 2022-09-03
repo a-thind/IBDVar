@@ -14,7 +14,7 @@ echo ""
 # files and folders
 out_dir="${1}/s03_gene_overlaps"
 sv_ibd_filter=$( find "${out_dir}" -name ibd_annotated_sv.tsv )
-gene_overlaps="${out_dir}/gene_overlaps.bed"
+gene_overlaps="${out_dir}/ibd_annotated_sv_genes.tsv"
 
 if [ -z "${sv_ibd_filter}" ]; then
     echo "Error: Could not find filtered IBD SV tsv file."
@@ -32,18 +32,21 @@ echo "Gene list file: ${genes}"
 echo "Output variants overlapping gene list: ${gene_overlaps}"
 
 # check if file is excel spreadsheet
-if [ "${genes}" == "*.xlsx" ]; then
-    in2csv "${genes}" > "${genes##.}.csv"
-    genes="${genes##.}.csv"
+if [[ "${genes}" == *.xlsx ]]; then
+    in2csv "${genes}" > "${genes%.*}.csv"
+    genes="${genes%.*}.csv"
 fi
 
 # extract matching gene list lines from filtered_bed
 echo -e "Finding overlaps...\n"
-grep -w -f "${genes}" "${sv_ibd_filter}" > "${gene_overlaps}"
+awk 'NR==1{print}' "${sv_ibd_filter}" > "${gene_overlaps}"
+# if there no SV overlapping with genes of interest don't append to the final output
+matches=$(grep -w -f "${genes}" "${sv_ibd_filter}")
+if [ ! -z "${matches}" ]; then
+    grep -w -f "${genes}" "${sv_ibd_filter}" >> "${gene_overlaps}"
+fi
 
-
-echo "Number of overlaps with genes of interest:"
-wc -l "${gene_overlaps}"
+awk 'END{printf("Number of overlaps with genes of interest: %s\n\n", NR-1)}' "${gene_overlaps}"
 
 echo "Done."
 date

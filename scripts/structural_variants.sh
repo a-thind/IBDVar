@@ -19,13 +19,13 @@ usage()
 [ $# -eq 0 ] && usage
 
 # check parameter arguments
-while getopts "C:m:h" arg; do
+while getopts "c:m:h" arg; do
    case "${arg}" in
       h)
          usage
          exit 0
       ;;
-      C)
+      c)
          if [ -e "${OPTARG}" ]; then
             filename=$( basename ${OPTARG} ) 
             if [ "${filename##*.}" == "config" ]; then
@@ -75,45 +75,75 @@ if [ ! -z "${1}" ]; then
    usage
 fi
 
+if [ ! -z "${email}" ]; then
+   mail -s "SV pipeline" "${email}" <<< "The SV prioritisation pipeline job has started."
+fi
 
 # create log file
 pipeline_log="${out_dir}/logs/sv_pipeline.log"
 
-echo "Structural Variants Pipeline" |& tee "${pipeline_log}"
-date |& tee -a "${pipeline_log}"
+echo "Structural Variants Pipeline" &> "${pipeline_log}"
+date &>>"${pipeline_log}"
 
 echo -e "\n================================== Settings ===================================\n" \
-    |& tee -a "${pipeline_log}"
-echo "Input VCF: ${sv_vcf}" |& tee -a "${pipeline_log}"
-echo "Output folder: ${out_dir}" |& tee -a "${pipeline_log}"
-echo "Logs folder: ${out_dir}/logs" |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
+echo "Input VCF: ${sv_vcf}" &>> "${pipeline_log}"
+echo "Output folder: ${out_dir}" &>>"${pipeline_log}"
+echo "Logs folder: ${out_dir}/logs" &>> "${pipeline_log}"
+if [ ! -z "${email}" ]; then
+   echo "Email address: ${email}" &>> "${pipeline_log}"
+fi
+
+if [ ! -z "${genes}" ]; then
+   echo "Genes list: ${genes}" &>> "${pipeline_log}"
+fi
 
 echo -e "\n================================== Quality Control ===================================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s01_sv_vcf_qc/s01_sv_vcf_stats.sh "${sv_vcf}" "${out_dir}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 echo -e "\n============================== Filtering variants =============================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s02_filter_sv/s01_retain_pass_filter_vars.sh "${sv_vcf}" "${out_dir}" \
-    |& tee -a "${pipeline_log}"
-
-sv/s02_filter_sv/s02_filter_read_support.sh "${out_dir}" "${PR}" "${SR}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 echo -e "\n============================== Detect SV Overlaps =============================\n" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
 
 sv/s03_gene_overlaps/s01_ibd_overlaps.sh "${out_dir}" \
     "${ccds}" \
     "${threads}" \
     "${ibd_seg}" \
-    |& tee -a "${pipeline_log}"
+    &>> "${pipeline_log}"
+# check if genes list is provided, and if so pass argument genes script
+if [ ! -z "${genes}" ]; then
+   sv/s03_gene_overlaps/s02_gene_overlaps.sh "${out_dir}" "${genes}" &>> "${pipeline_log}"
+   echo ""
+fi
+
+final_dir="${out_dir}/final_output"
+mkdir -p "${final_dir}"
+if [ ! -z "${genes}" ]; then
+   final_out="${out_dir}/s03_gene_overlaps/ibd_annotated_sv_genes.tsv"
+else
+   final_out="${out_dir}/s03_gene_overlaps/ibd_annotated_sv.tsv"
+fi
+
+# copy final output to final output folder
+cp "${final_out}" "${final_dir}/"
+echo -e "The final output file ${final_out} is in ${final_dir}.\n" &>> "${pipeline_log}"
 
 # completion message
-echo "Pipeline completed."
-date
-echo ""
+echo "Pipeline completed." &>> "${pipeline_log}"
+date &>> "${pipeline_log}"
+echo "" &>> "${pipeline_log}"
 
+if [ ! -z "${email}" ]; then
+   echo -e "The SV prioritisation pipeline job is completed.\n
+   To view the final output in the IBDVar application, 
+   log into the server and type the following url in a web browser: 
+   http://138.250.31.2:3737/anisha/IBDVar" |  mail -s "SV pipeline" "${email}"
+fi

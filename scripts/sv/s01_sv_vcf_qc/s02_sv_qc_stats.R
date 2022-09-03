@@ -1,9 +1,22 @@
 #!/usr/bin/env Rscript
 # s02_sv_qc_stats.R - computes summary stats for SV VCF
 
+if (!require(reshape2)) {
+  install.packages("reshape2")
+}
+
+if (!require(vcfR)) {
+  install.packages("vcfR")
+}
+
+if (!require(RColorBrewer)) {
+  install.packages("RColorBrewer")
+}
+
 # load libraries
 library(vcfR)
 library(RColorBrewer)
+library(reshape2)
 
 source("utils/stats.R")
 
@@ -46,7 +59,7 @@ chrom_plot <- variants %>% counts(CHROM) %>%
 ggsave(file.path(out_dir, "chromosome_variants.png"), chrom_plot)
 # sv types
 variants %>% counts(SVTYPE)
-type_plot<- variants %>% counts(SVTYPE) %>% plot_counts("Type")
+type_plot <- variants %>% counts(SVTYPE) %>% plot_counts("Type")
 ggsave(file.path(out_dir, "sv_type.png"), type_plot)
 
 # Quality
@@ -80,6 +93,17 @@ ggsave(file.path(out_dir,"filters.png"), filters_plot)
 pass_plot <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE) %>% 
   plot_counts(var_name = "Type", title="Variants passing all filters (PASS)")
 ggsave(file.path(out_dir, "pass_filters.png"), pass_plot)
-# pass out of total variants
 
+# pass out of total variants
+svtype <- variants %>% counts(SVTYPE)
+pass_type <- variants %>% filter(FILTER=="PASS") %>% counts(SVTYPE)
+svtype$count <- svtype$count - pass_type$count
+svtypes <- left_join(svtype, pass_type, by=c("SVTYPE"="SVTYPE"))
+colnames(svtypes) <- c("SVTYPE", "Not PASS", "PASS")
+
+
+melt_svtypes <- melt(svtypes, id.vars="SVTYPE", value.name="Count")
+ggplot(melt_svtypes, aes(x=SVTYPE, y=Count, fill=variable)) + 
+  geom_bar(stat="identity") + labs(fill="Filter") + theme_bw() + 
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
 cat("\nAnalysis Complete.\n")

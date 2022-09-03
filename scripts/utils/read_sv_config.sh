@@ -41,16 +41,6 @@ if [[ -z "${threads}" || "${threads}" =~ !^[0-9]+ ]]; then
   threads=4
 fi
 
-# Filtering parameters 
-if [[ -z "${PR}" || "${PR}" =~ !^[0-9]+ ]]; then
-  echo "PR parameter unspecified in config file... using default value (8)"
-  PR=8
-fi
-
-if [[ -z "${SR}" || "${SR}" =~ !^[0-9]+ ]]; then
-  echo "SR parameter unspecified in config file... using default value (0.15)"
-  SR=0.15
-fi
 
 # check ccds directory path
 if [ -z "${ccds}" ]; then
@@ -70,10 +60,7 @@ elif [ ! -e "${ibd_seg}" ]; then
 fi
 
 
-if [ -z "${genes}" ]; then
-   echo "Error: Missing list of genes of interest file path."
-   exit 1
-elif [ ! -e "${genes}" ]; then
+if [ ! -z "${genes}" ] && [ ! -e "${genes}" ]; then
     echo "Error: genes list file path does not exist."
     exit 1
 fi

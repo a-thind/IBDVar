@@ -93,6 +93,8 @@ echo "Creating plink dataset..."
    --out "${plink_dataset}"
 echo ""
 
+
+
 # remove SNPs with identical physical positions
 # find duplicate positions and create patterns for 
 # checking

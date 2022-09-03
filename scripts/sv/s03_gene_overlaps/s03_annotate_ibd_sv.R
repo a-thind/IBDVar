@@ -53,9 +53,6 @@ vcf <- read.vcfR(in_vcf)
 tidy_vcf <- vcfR2tidy(vcf)
 variants <- tidy_vcf$fix
 
-# remove genotypes for now
-
-
 colnames <- c("CHROM", "START", "ID", "REF", "ALT", "QUAL", "FILTER","INFO", "FORMAT",
               "CDS_CHROM", "CDS_START", "CDS_END", "NC_ACCESSION","GENE", 
               "GENE_ID", 'CDS_ID', 'CCDS_STATUS', 'STRAND','CDS_LOCATIONS', 
@@ -83,22 +80,21 @@ colnames(ibd_filtered_vars) <- colnames
 
 ibd_filtered_vars <- as_tibble(ibd_filtered_vars)
 
-# split the info column by SVTYPE, 
-filtered_vars <- ibd_filtered_vars %>% 
-  mutate(SV_TYPE=gsub("(.*SVTYPE=)|(;.*)", "", INFO)) %>%
-  mutate(SV_LENGTH=gsub("(.*SVLEN=)|(;.*)", "", INFO)) %>%
-  mutate(SV_LENGTH=gsub(".*=.*", "", SV_LENGTH)) %>%
-  mutate(END=gsub("(.*)(^END=)|(;.*)", "",INFO)) %>%
-  mutate(END=gsub(".*=.*", "",END)) %>%
-  mutate(CIGAR=gsub("(.*CIGAR=)|(;.*)", "", INFO)) %>%
-  mutate(CIGAR=gsub(".*=.*", "", CIGAR)) %>%
-  mutate(CI_POS=gsub("(.*CIPOS=)|(;.*)", "", INFO)) %>%
-  mutate(CI_POS=gsub(".*=.*", "", CI_POS)) %>%
-  mutate(CI_END=gsub("(.*CIEND=)|(;.*)", "", INFO)) %>%
-  mutate(CI_END=gsub(".*=.*", "", CI_END))
+# aggregate variants by ID and get a list of overlapping genes per variant
+grouped <- ibd_filtered_vars %>% group_by(ID) %>% summarise(GENES=toString(GENE))
+
+ibd_filtered_vars <- variants %>% filter(ID %in% grouped$ID)
+
+ibd_annot_vars <- left_join(ibd_filtered_vars, grouped, by=c("ID"="ID"))
+
+# rename position column as start
+ibd_annot_vars <- ibd_annot_vars %>% rename(START=POS) %>% 
+                                      mutate(SVLEN=abs(as.numeric(SVLEN)))
+
+
 
 # write filtered variants to a tab-delimited text file
-write.table(filtered_vars, file=file.path(out_dir,"ibd_annotated_sv.tsv"), 
+write.table(ibd_annot_vars, file=file.path(out_dir,"ibd_annotated_sv.tsv"), 
             sep="\t", row.names = F, quote=F)
 
 cat("\nDone.\n")
