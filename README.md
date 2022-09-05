@@ -10,7 +10,7 @@ For running the bash pipeline backend:
 - [IBIS (v1.20.9)](https://github.com/williamslab/ibis/)
 - Variant Effect Predictor (VEP)
 - [CADD (v1.6) plugin resources (SNVs and indels)](https://krishna.gs.washington.edu/download/CADD/v1.6/GRCh38/)
-- CCDS (release number 22) text file
+- [CCDS](https://ftp.ncbi.nih.gov/pub/CCDS/current_human/CCDS.current.txt) (release number 22) text file
 
 For the deploying the shiny dashboard, the following R dependencies are required:
 - shiny
