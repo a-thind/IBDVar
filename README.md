@@ -9,7 +9,7 @@ For running the bash pipeline backend:
 - ClinVar VCF file (GRCh38)
 - [IBIS (v1.20.9)](https://github.com/williamslab/ibis/)
 - Variant Effect Predictor (VEP)
-- [CADD (v1.6) plugin resources (SNVs and indels)] (https://krishna.gs.washington.edu/download/CADD/v1.6/GRCh38/)
+- [CADD (v1.6) plugin resources (SNVs and indels)](https://krishna.gs.washington.edu/download/CADD/v1.6/GRCh38/)
 - CCDS (release number 22) text file
 
 For the deploying the shiny dashboard, the following R dependencies are required:
