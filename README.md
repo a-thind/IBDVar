@@ -13,11 +13,18 @@ For running the bash pipeline backend:
 - CCDS (release number 22) text file
 
 For the deploying the shiny dashboard, the following R dependencies are required:
--shiny
--shinydashboard
--shinyFiles
--htmlwidgets
--dplyr
+- shiny
+- shinydashboard
+- shinyFiles
+- shinyJS
+- htmlwidgets
+- dplyr
+- jsonlite
+- purrr
+- readxl
+- DT
+- [ideogram](https://github.com/a-thind/ideogram)
+- reshape2
 
 ## Variant Priorisation Pipelines
 IBDVar can prioritise both short variants and structural variants (SV) from multi-sample VCF files generated from the Illumina DRAGEN Pipeline. Both prioritisation pipelines can be initiated from the command-line or inside the Shiny dashboard "Start pipeline" tab.
