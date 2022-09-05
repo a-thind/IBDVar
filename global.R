@@ -12,12 +12,12 @@ library(shinyjs)
 library(shinydashboard)
 library(shinyFiles)
 library(shinyFeedback)
-library(biomaRt)
 library(ideogram)
 library(DT)
 library(readxl)
 library(dplyr)
 library(purrr)
+library(reshape2)
 
 options(shiny.maxRequestSize=1000*1024^2)
 
