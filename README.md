@@ -34,6 +34,16 @@ For the deploying the shiny dashboard, the following R dependencies are required
 - [ideogram](https://github.com/a-thind/ideogram)
 - reshape2
 
+To install these R packages, type the following in an R console:
+```
+install.packages(c("shiny", "shinydashboard", "shinyFiles", "shinyJS", "htmlwidgets", "dplyr", "jsonlite", "purrr", "readxl", "DT", "reshape2"))
+```
+
+To install the ideogram library, find the path of ideogram tarball file (.tar.gz) and type:
+```
+install.packages("path/to/ideogram_0.0.0.9000.tar.gz", type="source", repos=NULL)
+```
+
 ## Variant Priorisation Pipelines
 IBDVar can prioritise both short variants and structural variants (SV) from multi-sample VCF files generated from the Illumina DRAGEN Pipeline. Both prioritisation pipelines can be initiated from the command-line or inside the Shiny dashboard "Start pipeline" tab.
 
@@ -478,4 +488,4 @@ SV tab features include:
 ![sv_tab (1)](https://user-images.githubusercontent.com/26285885/188453867-61f3e77d-2b45-48bb-980a-d589daad8d41.png)
 
 # Questions, Feature Requests, Bug Reports and Issues
-For any questions, feature requests, bug reports or issues regarding the latest version of IBDVar, please click on the "issues" tab present at the top-left of the GitHub repository page.
+For any questions, feature requests, bug reports or issues regarding the latest version of IBDVar, please click on the "[issues](https://github.com/a-thind/IBDVar/issues)" tab present at the top-left of the GitHub repository page.
