@@ -279,7 +279,7 @@ To run the short variants pipeline at the command line, you will need to create 
 </tbody>
 </table>
 </br>
-An example short variants config file can be downloaded [here](./example_short.config).
+For examples of configuration files see the config folder in the scripts folder.
 
 ### Using a screen to run the short variants pipeline
 As the short variants pipeline can take a few hours to complete, it is highly recommended to run the pipeline in a Linux GNU screen to prevent abrupt termination of the pipeline, for example, in the event of a connection drop or a sudden SSH session termination. To install Linux GNU Screen on Ubuntu / Debian systems:
@@ -429,6 +429,8 @@ To start the structural variants pipeline at the command line, you will need to 
 </tbody>
 </table>
 
+For examples of configuration files see the config folder in the scripts folder.
+
 ### Usage
 ```
 ./short_variants.sh -c pipeline.config
@@ -440,7 +442,7 @@ To start the structural variants pipeline at the command line, you will need to 
 # Shiny Dashboard
 The shiny dashboard allows users to start prioritisation pipelines for short or strucutral variants and to analyse the output interactively.
 
-To start the Shiny Dashboard, log into the Linux server deploying the tool and type: https://138.250.31.2/anisha/IBDVar in a web-browser. (Note that development and testing was performed using the Google Chrome browser so performance may vary with other browsers.) The shiny dashboard can also be started in RStudio however it is not recommended since most of views have been configured for browser display and may affect performance of the tool.
+To start the Shiny Dashboard in the Cranfield Univeristy server, log into the Linux server deploying the tool and type the application URL (can be requested from the author) in a web-browser. (Note that development and testing was performed using the Google Chrome browser so performance may vary with other browsers.) The shiny dashboard can also be started in RStudio however it is not recommended, since most of views have been configured for browser display and may affect performance of the tool.
 
 The "Start Pipeline" tab will be open first by default. 
 ## Start Pipeline
