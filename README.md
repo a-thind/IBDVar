@@ -1,6 +1,14 @@
 # IBDVar
 A tool for prioritising identity-by-descent (IBD) variants in Whole Genome Sequencing (WGS) data from families with rare heritable diseases. IBDVar consists of a variant prioritisation pipeline command-line program and an intereactive Shiny dashboard for starting the pipeline and visualising output.
 
+# Overview
+The use of IBDVar follows a three step process:
+![3_step_chart](https://user-images.githubusercontent.com/26285885/190384228-7eadde67-ebe1-474c-8812-5912973af9f3.jpg)
+
+The prioritisation pipeline is composed of two sub-pipelines (short variants and structural variants (SV)) that are started independently. Unique to the tool, is the integration of IBD segment detection in variant prioritisation for WGS data. An overview of the key step is shown below.<br/><br/>
+![algorithm_overview](https://user-images.githubusercontent.com/26285885/190386278-3a7186f8-1275-4e9f-9d0e-2bff54c8dd3a.jpg)
+
+
 ## System Requirements
 For running the bash pipeline backend:
 - Linux OS (developed and tested on Ubuntu 22 LTS)
@@ -8,7 +16,7 @@ For running the bash pipeline backend:
 - [BCFtools (1.15.1)](http://samtools.github.io/bcftools/)
 - ClinVar VCF file (GRCh38)
 - [IBIS (v1.20.9)](https://github.com/williamslab/ibis/)
-- Variant Effect Predictor (VEP)
+- [Variant Effect Predictor (VEP)](https://www.ensembl.org/info/docs/tools/vep/script/vep_download.html)
 - [CADD (v1.6) plugin resources (SNVs and indels)](https://krishna.gs.washington.edu/download/CADD/v1.6/GRCh38/)
 - [CCDS](https://ftp.ncbi.nih.gov/pub/CCDS/current_human/CCDS.current.txt) (release number 22) text file
 
@@ -33,7 +41,7 @@ IBDVar can prioritise both short variants and structural variants (SV) from mult
 ### Input VCF file:
 A multi-sample VCF file contained short variants (indels/ SNPs) called from the Illumina DRAGEN pipeline is used as input (see the Illumina website for details). The VCF file format should adhere to [version 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf). The pipeline expects chromosome naming to be prefixed with "chr" however, the tool checks for naming consistencies between the input VCF and the annotation resources implemented in the pipeline. 
 ### Configuration Parameters
-To run the short variants pipeline at the command line, you will need to create a configuration file with parameters described in the table below:
+To run the short variants pipeline at the command line, you will need to create a configuration file with parameters (with "=" separating the parameter and its value) described in the table below:
 <table>
 <tbody>
 <tr>
@@ -270,6 +278,8 @@ To run the short variants pipeline at the command line, you will need to create 
 </tr>
 </tbody>
 </table>
+</br>
+An example short variants config file can be downloaded [here](./example_short.config).
 
 ### Using a screen to run the short variants pipeline
 As the short variants pipeline can take a few hours to complete, it is highly recommended to run the pipeline in a Linux GNU screen to prevent abrupt termination of the pipeline, for example, in the event of a connection drop or a sudden SSH session termination. To install Linux GNU Screen on Ubuntu / Debian systems:
