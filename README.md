@@ -26,10 +26,10 @@ A tool for prioritising identity-by-descent (IBD) variants in Whole Genome Seque
 
 ## Overview
 The use of IBDVar follows a three step process:
-![3_step_chart](https://user-images.githubusercontent.com/26285885/190384228-7eadde67-ebe1-474c-8812-5912973af9f3.jpg)
+<img src="https://user-images.githubusercontent.com/26285885/190384228-7eadde67-ebe1-474c-8812-5912973af9f3.jpg" width=800px/>
 
 The prioritisation pipeline is composed of two sub-pipelines (short variants and structural variants (SV)) that are started independently. Unique to the tool, is the integration of IBD segment detection in variant prioritisation for WGS data. An overview of the key step is shown below.<br/><br/>
-![algorithm_overview](https://user-images.githubusercontent.com/26285885/190386278-3a7186f8-1275-4e9f-9d0e-2bff54c8dd3a.jpg)
+<img src="https://user-images.githubusercontent.com/26285885/190386278-3a7186f8-1275-4e9f-9d0e-2bff54c8dd3a.jpg" width=800px/>
 
 
 ## System Requirements
