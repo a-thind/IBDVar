@@ -1,7 +1,30 @@
 # IBDVar
 A tool for prioritising identity-by-descent (IBD) variants in Whole Genome Sequencing (WGS) data from families with rare heritable diseases. IBDVar consists of a variant prioritisation pipeline command-line program and an intereactive Shiny dashboard for starting the pipeline and visualising output.
 
-# Overview
+## Table of Contents
+
+- [Overview](https://github.com/a-thind/IBDVar#overview)
+- [System Requirements](https://github.com/a-thind/IBDVar#system-requirements)
+- [Variant Prioritisation Pipelines](https://github.com/a-thind/IBDVar#variant-priorisation-pipelines)
+  - [Short Variants](https://github.com/a-thind/IBDVar#short-variants-command-line-start)
+    - [Input VCF File](https://github.com/a-thind/IBDVar#input-vcf-file)
+    - [Configuration Parameters](https://github.com/a-thind/IBDVar#configuration-parameters)
+    - [Using GNU screen](https://github.com/a-thind/IBDVar#using-a-screen-to-run-the-short-variants-pipeline)
+    - [Usage](https://github.com/a-thind/IBDVar#usage)
+    - [Options](https://github.com/a-thind/IBDVar#options)
+  - [Structural Variants](https://github.com/a-thind/IBDVar#structural-variants-command-line-start)
+    - [Input VCF file](https://github.com/a-thind/IBDVar#input-vcf-file-1)
+    - [Configuration Parameters](https://github.com/a-thind/IBDVar#configuration-file)
+    - [Usage](https://github.com/a-thind/IBDVar#usage-1)
+    - [Options](https://github.com/a-thind/IBDVar#options-1)
+- [Shiny Dashboard](https://github.com/a-thind/IBDVar#shiny-dashboard)
+  - [Start Pipeline](https://github.com/a-thind/IBDVar#start-pipeline)
+  - [Short Variants](https://github.com/a-thind/IBDVar#short-variants)
+  - [Structural Variants](https://github.com/a-thind/IBDVar#structural-variants)
+  - [Configuration File](https://github.com/a-thind/IBDVar#configuration-file)
+- [Questions, Feature Requests, Bug Reports and Issues](https://github.com/a-thind/IBDVar#questions-feature-requests-bug-reports-and-issues)
+
+## Overview
 The use of IBDVar follows a three step process:
 ![3_step_chart](https://user-images.githubusercontent.com/26285885/190384228-7eadde67-ebe1-474c-8812-5912973af9f3.jpg)
 
@@ -47,10 +70,10 @@ install.packages("path/to/ideogram_0.0.0.9000.tar.gz", type="source", repos=NULL
 ## Variant Priorisation Pipelines
 IBDVar can prioritise both short variants and structural variants (SV) from multi-sample VCF files generated from the Illumina DRAGEN Pipeline. Both prioritisation pipelines can be initiated from the command-line or inside the Shiny dashboard "Start pipeline" tab.
 
-## Short Variants (Command line start)
-### Input VCF file:
+### Short Variants (Command line start)
+#### Input VCF file
 A multi-sample VCF file contained short variants (indels/ SNPs) called from the Illumina DRAGEN pipeline is used as input (see the Illumina website for details). The VCF file format should adhere to [version 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf). The pipeline expects chromosome naming to be prefixed with "chr" however, the tool checks for naming consistencies between the input VCF and the annotation resources implemented in the pipeline. 
-### Configuration Parameters
+#### Configuration Parameters
 To run the short variants pipeline at the command line, you will need to create a configuration file with parameters (with "=" separating the parameter and its value) described in the table below:
 <table>
 <tbody>
@@ -321,19 +344,19 @@ screen -r <screen_name>
 ```
 
 
-### Usage
+#### Usage
 ```
 ./short_variants.sh -c pipeline.config [-m in_vcf.md5sum ]
 ```
-#### Options:
+##### Options:
   - ```-c```: config file (ending with .config) containing all parameters to execute the pipeline (required)
   - ```-m```: md5sum file to perform and and md5sum check on the input VCF file specified in the config file
   - ```-h```: help message with usage details and options
 
-## Structural Variants (Command line start)
-### Input VCF file:
+### Structural Variants (Command line start)
+#### Input VCF File
 A multi-sample VCF file contained structural variants called (using Manta) from the Illumina DRAGEN pipeline is used as input (see the Illumina website for details). The VCF file format should adhere to [version 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf). The pipeline expects chromosome naming to be prefixed with "chr" however, the tool checks for naming consistencies between the input VCF and the annotation resources implemented in the pipeline. 
-### Configuration file
+#### Configuration File
 To start the structural variants pipeline at the command line, you will need to create a configuration file using the parameters specified in the table below:
 <table width="860">
 <tbody>
@@ -441,11 +464,11 @@ To start the structural variants pipeline at the command line, you will need to 
 
 For examples of configuration files see the config folder in the scripts folder.
 
-### Usage
+#### Usage
 ```
 ./short_variants.sh -c pipeline.config
 ```
-#### Options:
+##### Options:
   - ```-c```: config file (ending with .config) containing all parameters to execute the pipeline (required)
   - ```-h```: help message with usage details and options
   
