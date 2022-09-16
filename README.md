@@ -311,8 +311,8 @@ To run the short variants pipeline at the command line, you will need to create 
 </tr>
 </tbody>
 </table>
-</br>
-For examples of configuration files see the config folder in the scripts folder.
+
+Click [here](./scripts/config/example_short.config) for an example of a short variants config file.
 
 ### Using a screen to run the short variants pipeline
 As the short variants pipeline can take a few hours to complete, it is highly recommended to run the pipeline in a Linux GNU screen to prevent abrupt termination of the pipeline, for example, in the event of a connection drop or a sudden SSH session termination. To install Linux GNU Screen on Ubuntu / Debian systems:
@@ -462,11 +462,11 @@ To start the structural variants pipeline at the command line, you will need to 
 </tbody>
 </table>
 
-For examples of configuration files see the config folder in the scripts folder.
+Click [here](./scripts/config/example_sv.config) for an example of a structural variants config file.
 
 #### Usage
 ```
-./short_variants.sh -c pipeline.config
+./structural_variants.sh -c pipeline.config
 ```
 ##### Options:
   - ```-c```: config file (ending with .config) containing all parameters to execute the pipeline (required)
@@ -487,13 +487,13 @@ Once parameters have been specified, click ```Start``` in the respective pipelin
 In the "Short Variants" tab you can explore the short variants pipeline output interactively. <br/>
 The tab features:
 - a "Files" box to upload the following files which are located in the "final_output" folder of the output folder specified at run-time of the pipeline: 
-  1. A prioritised and annotated list of variants produced from the short variants prioritisation pipeline.
-  2. An IBIS IBD segment file produced from the pipeline
-  - An optional file containing  list of genes of interest can also be uploaded to filter the variants by these genes
+  1. A <b>prioritised and annotated list of variants</b> produced from the short variants prioritisation pipeline.
+  2. An IBIS <b>IBD segment file</b> produced from the pipeline
+  - An optional file containing  <i>list of genes of interest</i> can also be uploaded to filter the variants by these genes
 
-- interactive variants table - users can filter, sort, search and download a TSV file of variants reported in the table.
-- filter panel - contains a series of checkboxes to filter variants by CADD score, predicted consequence, SIFT and PolyPhen calls, clinical significance (ClinVar) and VEP predicted impact (loss of function etc.)
-- interactive ideogram - filters variants in the interactive data table below by the IBD region clicked by the user. A tool-tip reporting the chromosome number, start and end position of a given IBD region is displayed when a user hovers over an IBD region.
+- <b>Interactive variants table</b> - users can filter, sort, search and download a TSV file of variants reported in the table.
+- <b>Filters panel</b> - contains a series of checkboxes to filter variants by CADD score, predicted consequence, SIFT and PolyPhen calls, clinical significance (ClinVar) and VEP predicted impact (loss of function etc.)
+- <b>Interactive ideogram</b> - filters variants in the interactive data table below by the IBD region clicked by the user. A tool-tip reporting the chromosome number, start and end position of a given IBD region is displayed when a user hovers over an IBD region.<br/><br/>
 ![short_variants_tab](https://user-images.githubusercontent.com/26285885/188453809-bf266487-f180-4519-8aad-8986626d5f25.png)
 - "Summary" box summarising: 
   - total number of variants
@@ -505,9 +505,10 @@ The tab features:
 In the "Structural Variants" tab, the prioritised SV calls from the pipeline can be interactively explored using filters and an interactive data table.<br/><br/>
 SV tab features include:
 - "Files" box for uploading the prioritised list of SV calls (.tsv) file
-- interactive table of variants that can filtered, sorted, searched and downloaded as a TSV file.
+- <b>Interactive table</b> of variants that can filtered, sorted, searched and downloaded as a TSV file.
 - "Summary" tab providing summary statistics on the various counts of SV types and also the mean SV lengths.
-- filters panel containing checkboxes to filter the variants table by: SV type, chromosome number, precision of breakpoints of called SVs and genes of interest.
+- <b>Filters panel</b> containing checkboxes to filter the variants table by: SV type, chromosome number, precision of breakpoints of called SVs and genes of interest.
+<br/><br/>
 ![sv_tab (1)](https://user-images.githubusercontent.com/26285885/188453867-61f3e77d-2b45-48bb-980a-d589daad8d41.png)
 
 # Questions, Feature Requests, Bug Reports and Issues
