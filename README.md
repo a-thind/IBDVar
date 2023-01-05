@@ -23,6 +23,8 @@ A tool for prioritising identity-by-descent (IBD) variants in Whole Genome Seque
   - [Structural Variants](https://github.com/a-thind/IBDVar#structural-variants)
   - [Configuration File](https://github.com/a-thind/IBDVar#configuration-file)
 - [Questions, Feature Requests, Bug Reports and Issues](https://github.com/a-thind/IBDVar#questions-feature-requests-bug-reports-and-issues)
+- [Licence](https://github.com/a-thind/IBDVar#licence)
+- [Collaborators](https://github.com/a-thind/IBDVar#collaborators)
 
 ## Overview
 The use of IBDVar follows a three step process:
@@ -515,3 +517,9 @@ SV tab features include:
 
 # Questions, Feature Requests, Bug Reports and Issues
 For any questions, feature requests, bug reports or issues regarding the latest version of IBDVar, please click on the "[issues](https://github.com/a-thind/IBDVar/issues)" tab present at the top-left of the GitHub repository page.
+
+# Licence
+[MIT](LICENSE)
+
+# Collaborators
+This codebase was developed as part of an MSc thesis project (MSc Applied Bioinformatics, Cranfield University 2021-2022) under the supervision of Dr Alexey Larionov.
